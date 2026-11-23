@@ -1,8 +1,9 @@
 # AGP 迁移记录（历史阶段一 ~ 阶段三，现行 9.5.2）
 
 > **2026-11-23 R126 状态更新：** 以下正文是历史迁移过程记录。根 Groovy 工程与
-> `scripts/build_mod.py` 已物理删除；AGP 9.5.2 + Gradle 9.9.2 是唯一正式构建入口，
-> 生产链不执行 Python 补丁树、Smali 文本补丁或 apktool 重打包。历史“未迁移”条目仅用于追溯。
+> `scripts/build_mod.py` 已物理删除；仓库根目录现为唯一 Android Studio 工程，唯一应用模块是
+> `app/`，复杂完整游戏逻辑迁入 included build `build-logic/`，生产链不执行 Python 补丁树、
+> Smali 文本补丁或 apktool 重打包。历史“未迁移”条目仅用于追溯。
 
 > **基线冻结（2026-11-13）**：本文档所有 AGP 迁移均针对**冻结的官方 Android 3.21.0**
 > （base APK `4e9970a8…f527ac`、XAPK `ad1b367e…`、versionCode `30210000`），不因上游发版重做或
@@ -20,13 +21,21 @@
 
 | 项目 | 版本 | 说明 |
 | --- | --- | --- |
-| AGP | 9.5.1（Google 官方稳定版，固定插件版本） | 不使用 Alpha/Beta/RC，不使用旧版过渡 |
-| Gradle | 9.8.2（仓库现有 wrapper，未升级） | AGP 9.5.1 兼容 |
-| JDK | 21（本地与 CI 的 setup-java 固定 21） | AGP 9 要求 JDK 17+ |
+| AGP | 9.5.2（Google 官方稳定版，固定插件版本） | 不使用 Alpha/Beta/RC，不使用旧版过渡 |
+| Gradle | 9.9.2（仓库根 wrapper） | AGP 9.5.2 兼容 |
+| JDK | 21+（本地已验证 25，CI 使用 21） | AGP 9 要求 JDK 17+ |
 | Android SDK | compileSdk 37，minSdk 32，targetSdk 37 | 与官方 3.21 基线一致 |
 | Kotlin | AGP 9 内置 Kotlin（未应用 KGP） | 无 org.jetbrains.kotlin.android、无 builtInKotlin=false、无 newDsl=false 回退 |
 
-## 阶段一实现（真实工程，非空壳）
+## 当前标准工程形态（R126）
+
+- 仓库根直接由 Android Studio 打开，根级 `settings.gradle.kts` 只识别 `:app`。
+- `app/build.gradle.kts` 保留标准插件、Android DSL、依赖、Source Sets 和少量任务装配。
+- `build-logic/` 是 Gradle included build，按完整游戏输入、商店策略、元数据/资源与构建守卫拆分。
+- 人工维护资源进入 `app/src/main/res`；官方基线和生成资源只通过 Gradle 显式生成目录接入。
+- 不再存在 `agp/` 第二套工程、根 Groovy 入口或生产期 Python 补丁树。
+
+## 阶段一实现（历史真实工程，非空壳）
 
 - agp/ 是独立真实 AGP Application 工程：agp/settings.gradle.kts、agp/build.gradle.kts、
   agp/app/build.gradle.kts、agp/app/src/main/AndroidManifest.xml。

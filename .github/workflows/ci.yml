@@ -157,7 +157,7 @@ jobs:
           print('PASS: baseline config current version is defined')
           PY
       - name: Gradle configuration smoke (NOT an APK build)
-        run: bash ./gradlew -p agp help --no-daemon --console=plain
+        run: bash ./gradlew help --no-daemon --console=plain
       - name: Cache pinned actionlint module and Go build outputs
         uses: actions/cache@v6
         with:
@@ -243,17 +243,17 @@ jobs:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v6
       - name: Verify store-policy JAR gate self-test
-        run: bash ./gradlew -p agp :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
+        run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
       - name: Build AGP 9 Kotlin DEX
         # R111 CI-6：构建日志落盘，失败时随证据一起上传，避免只能翻折叠的 Actions 日志。
         run: |
           set -euo pipefail
           mkdir -p ci-evidence
-          bash ./gradlew -p agp :app:assembleDebug :app:copyAgpKotlinClasses --no-daemon --console=plain 2>&1 | tee ci-evidence/agp-kotlin-dex-build.log
+          bash ./gradlew :app:assembleDebug :app:copyAgpKotlinClasses --no-daemon --console=plain 2>&1 | tee ci-evidence/agp-kotlin-dex-build.log
       - name: Enforce ABI guard on AGP-compiled classes
-        run: python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/agp-kotlin-classes
+        run: python3 scripts/build_kotlin.py --verify-abi --classes app/build/agp-kotlin-classes
       - name: Enforce AGP DEX parity with the legacy chain
-        run: python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk agp/app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
+        run: python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
       - name: Upload AGP phase-1 evidence
         # R111 CI-6：无论成败都上传已产生的构建日志与 parity 结果；失败时至少保留可诊断线索，
         # 成功后仍要求 parity 证据存在（下一步单独校验，避免用 if-no-files-found: warn 掩盖缺失）。

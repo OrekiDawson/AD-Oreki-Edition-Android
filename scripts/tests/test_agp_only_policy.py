@@ -37,16 +37,16 @@ class AgpOnlyPolicyTests(unittest.TestCase):
     def test_candidate_fails_closed_when_bridge_or_legacy_is_used(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "agp/app").mkdir(parents=True)
+            (root / "app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
-            (root / "agp/build.gradle.kts").write_text(
+            (root / "build.gradle.kts").write_text(
                 'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
-            app = root / "agp/app/build.gradle.kts"
+            app = root / "app/build.gradle.kts"
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = "com.oreki.antimatterdimensions"\n')
             workflow = root / policy.WORKFLOW
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n")
             policy.check_candidate(root)
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = "kajfosz.antimatterdimensions.agpbridge"\n')
@@ -54,7 +54,7 @@ class AgpOnlyPolicyTests(unittest.TestCase):
                 policy.check_candidate(root)
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = "com.oreki.antimatterdimensions"\n')
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n"
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n"
                                 "run: bash ./gradlew buildKotlinDex\n")
             with self.assertRaisesRegex(ValueError, "non-AGP"):
                 policy.check_candidate(root)
@@ -62,14 +62,14 @@ class AgpOnlyPolicyTests(unittest.TestCase):
     def test_candidate_accepts_fullgame_conditional_application_identity(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "agp/app").mkdir(parents=True)
+            (root / "app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
-            (root / "agp/build.gradle.kts").write_text(
+            (root / "build.gradle.kts").write_text(
                 'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
-            app = root / "agp/app/build.gradle.kts"
+            app = root / "app/build.gradle.kts"
             workflow = root / policy.WORKFLOW
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n")
             # 真实 fullGame 条件表达式：真分支 MOD 包名、假分支已知 bridge 包名 → 允许（生产形态）
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = if (fullGame) "com.oreki.antimatterdimensions" '

@@ -592,7 +592,7 @@ def check_build_retired(subs):
     workflow = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
     add_sub(subs, "scripts/build_mod.py" not in workflow,
             "candidate workflow 不再引用 build_mod.py")
-    add_sub(subs, "bash ./gradlew -p agp :app:assembleRelease" in workflow,
+    add_sub(subs, "bash ./gradlew :app:assembleRelease" in workflow,
             "candidate workflow 仅使用 AGP Release 入口")
 
 

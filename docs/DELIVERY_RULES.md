@@ -243,14 +243,14 @@
 
 - 最终以标准 AGP 9.5.1 Kotlin DSL 根工程为唯一正式生产入口：`app/build.gradle.kts`、`app/src/main/kotlin/`、`app/src/main/assets/`、`app/src/main/res/`、必要的 `app/src/test/`，根级 `settings.gradle.kts`、`build.gradle.kts` 和 `gradle/`。允许通过 Gradle Provider 声明的生成源码、资源、Manifest、ABI 变换等输入位于构建输出目录，不要求全部拷贝到 `src/main`；官方已冻结原版二进制与受保护私有构建输入不得因此公开入库。
 - `baseline/` 保存版本/ABI/索引与可公开的对照元数据；`reconstructed/` 留作尚未晋升的重建研究；`tools/` 负责 Rust/确定性工具；`scripts/` 负责非正式生产业务的诊断、验证、必要辅助与发布入口；`tests/`、`savestates/`、`docs/`、`reports/` 按实际需求与证据语义组织。不强制移动所有历史文件或修改历史报告链接，避免破坏可追溯性。
-- 当前根 Groovy 工程与 `agp/app` 双入口、`scripts/payload/kotlin` 等只是**过渡现状**，不是标准最终布局。不得将目录变更等同于 Kotlin 业务迁移成功、AGP 完整游戏可发布或 `build_mod.py` 退役完成。
+- 当前 R126 已把仓库根切为标准 Android Studio 工程与唯一 `app/` 模块，复杂完整游戏逻辑进入 `build-logic/` included build；旧根 Groovy、`agp/` 双入口和 `build_mod.py` 已物理退役。目录标准化完成仍需以真实 Debug/AVD、Release、签名、存档和五项游戏验收分别证明，不能把目录变更等同于完整游戏可发布。
 
 ### 11.2 迁移阶段与依赖
 
 1. **S0 只读映射**：核实仓库 `origin/main`、R111 工作树/Agent、运行中 AVD/构建；盘点 Gradle Source Sets、Actions、脚本、共享 Web 内容、相对路径、生成绑定、签名、硬链接及本地资产，记录可追溯清单，不重复完整 JADX 导出。
 2. **S1 低风险闭包**：先通过独立 PR 落实长期规则、README/目录架构入口与必要的无冲突辅助结构；`scripts/`、`docs/` 分类若存在被引用的路径，必须先改消费端并验证，禁止按名称批量移动或删除历史证据。
 3. **S2 正式源码/资产闭包（立即与 #25/#52 并行）**：不等待 #25/#52 全部结案，优先将已确认可编译的 Kotlin 生产源码分闭包迁入 `app/src/main/kotlin/`，同步 Gradle Kotlin Source Sets、生成绑定、验证脚本和受影响的 CI 路径；旧/新目录过渡时不得漏编译或重复类。随后分批接入经实证合格的教程资产、资源 Overlay 与生成文件。每批明确旧→新路径、源码/DEX 对照及消费端更新，执行受影响的干净/增量构建、ABI 和最低必要 APK/AVD/资源验证。无可用输入或冲突资源时先完成无冲突闭包，不中断玩家 P0 修复。
-4. **S3 根级 AGP 与双入口退役**：完整原生游戏构建、包名/资源 ID/Manifest/DEX/ABI、原签名、合法存档、覆盖升级、AVD、受保护 Candidate/Verify/Release 全部符合对应门禁后，才提升 `agp/app` 为根级 `app`，收敛 Kotlin DSL，删除不再需要的旧 Groovy/脚本依赖；不得用混合 DEX 或 Bridge 冒充完成。
+4. **S3 根级 AGP 与双入口退役**：根 `settings.gradle.kts` / `build.gradle.kts` 只识别 `:app`，`app/src/main/kotlin` 为唯一生产 Kotlin Source Set，静态资源位于 `app/src/main/res`，生成资源通过 Gradle Provider 接入；`build-logic/` 按职责提供可在离线环境解析的 Kotlin Gradle 插件/Task。不得用混合 DEX、Bridge、单体巨型构建脚本或双 Android 工程冒充完成。
 5. **S4 收口**：清理过时的路径引用与规则入口，补最小 CI 防回流和用户可读 README，按 Issue #61 清单逐项更新实测证据；无证据项目保留 OPEN、BLOCKED 或 NOT RUN。
 
 ### 11.3 逐批验收、证据和保护

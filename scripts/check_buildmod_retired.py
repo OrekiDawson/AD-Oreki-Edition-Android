@@ -16,7 +16,8 @@ RETIRED_PATHS = (
 PRODUCTION_SURFACES = (
     ROOT / ".github/workflows",
     ROOT / "scripts/ci",
-    ROOT / "agp",
+    ROOT / "app",
+    ROOT / "build-logic",
 )
 FORBIDDEN = (
     re.compile(r"\bscripts/build_mod\.py\b"),
@@ -34,8 +35,8 @@ def main() -> int:
         if path.exists():
             failures.append("退役文件仍存在: " + str(path.relative_to(ROOT)))
 
-    agp_root = ROOT / "agp/build.gradle.kts"
-    agp_app = ROOT / "agp/app/build.gradle.kts"
+    agp_root = ROOT / "build.gradle.kts"
+    agp_app = ROOT / "app/build.gradle.kts"
     candidate = ROOT / ".github/workflows/candidate-unified.yml"
     for path in (agp_root, agp_app, candidate):
         if not path.is_file():
@@ -43,7 +44,7 @@ def main() -> int:
 
     if candidate.is_file():
         candidate_text = candidate.read_text(encoding="utf-8")
-        if "bash ./gradlew -p agp :app:assembleRelease" not in candidate_text:
+        if "bash ./gradlew :app:assembleRelease" not in candidate_text:
             failures.append("candidate 未使用 AGP Release 入口")
         for forbidden in ("modtree", "work/mod"):
             if forbidden in candidate_text:

@@ -2,6 +2,11 @@
 
 > 基线：2026-11-14 android origin/main 7af89b4f + 技术分支 r107-01/agp-runtime（cc6f9053）。
 > 本文只记录**实际启用路径**与迁移目标，不机械迁移历史函数；状态严格用 PASS / FAIL / BLOCKED / NOT RUN。
+>
+> **R126 现行状态（2026-11-23）**：`scripts/build_mod.py`、旧根 Groovy
+> `build.gradle` / `settings.gradle` 与旧生产包装脚本已物理删除。正式入口为根级
+> `./gradlew :app:assembleRelease`，复杂完整游戏逻辑由 `build-logic/` included build 承担。
+> 以下阶段记录保留为历史证据，不再代表当前文件仍存在。
 
 ## 0. 现状事实（脚本实测）
 

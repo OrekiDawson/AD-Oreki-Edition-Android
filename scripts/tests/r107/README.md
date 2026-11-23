@@ -7,7 +7,7 @@
 
 ```bash
 python3 scripts/tests/r107/accept_apk.py \
-  --apk agp/app/build/outputs/apk/release/app-release.apk \
+  --apk app/build/outputs/apk/release/app-release.apk \
   --reference-apk /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk \
   --out-dir <dir>
 ```

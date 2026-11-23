@@ -42,7 +42,7 @@ license: 项目内部技能，遵循仓库 AGENTS.md 与 docs/rules/ANDROID.md
    - 在原版混淆 ABI 对应的现代字节码/JAR 适配层中替换方法体为 trampoline，并加写入断言。
    - 锚点断言必须 `count == 1`，否则中止构建。
 5. **构建与验证**
-   - `./gradlew -p agp :app:assembleRelease`（AGP built-in Kotlin → D8/R8 → DEX → APK）。
+   - `./gradlew :app:assembleRelease`（AGP built-in Kotlin → D8/R8 → DEX → APK）。
    - 确认候选 APK 内含新类：`unzip -l` 或 `dexdump` 查 `Lkajfosz/antimatterdimensions/oreki/<新类>;`。
    - 运行期用 logcat 标记串确认桥被调用（例如 `OREKI_*` 前缀）。
 6. **回退准备**
@@ -86,7 +86,7 @@ rg -n "\.method public final g\(\)Z" work/base_decoded_321/smali_classes2/bm4.sm
 #    :oreki_allow
 
 # 4) 构建 + 验证
-./gradlew -p agp :app:assembleRelease
+./gradlew :app:assembleRelease
 unzip -l build/gradle-stage/反物质维度.apk | grep -i oreki
 adb logcat -d | rg "OREKI_NAV"
 ```

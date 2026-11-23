@@ -81,10 +81,23 @@ def check_layout(root: Path) -> list[str]:
                          Path("app/build.gradle.kts")):
             if not (root / relative).is_file():
                 problems.append(f"root AGP phase missing required build file: {relative}")
+        for relative in (Path("build-logic/settings.gradle.kts"),
+                         Path("build-logic/build.gradle.kts")):
+            if not (root / relative).is_file():
+                problems.append(f"root AGP phase missing build-logic entry: {relative}")
+        if (root / "agp").exists():
+            problems.append("root AGP phase must not retain nested agp/ project")
         build_path = root / "app/build.gradle.kts"
         settings = root / "settings.gradle.kts"
-        if settings.is_file() and 'include(":app")' not in settings.read_text(encoding="utf-8"):
-            problems.append("root settings.gradle.kts must include :app")
+        if settings.is_file():
+            settings_text = settings.read_text(encoding="utf-8")
+            if 'include(":app")' not in settings_text:
+                problems.append("root settings.gradle.kts must include :app")
+            included = re.findall(r'(?m)^\s*include\s*\(([^)]*)\)', settings_text)
+            normalized = [item for item in included if item.strip() != '":app"']
+            if normalized:
+                problems.append("root settings.gradle.kts contains non-app Android modules: "
+                                + "; ".join(normalized))
         if build_path.is_file():
             build = build_path.read_text(encoding="utf-8")
             if 'com.android.application' not in build:

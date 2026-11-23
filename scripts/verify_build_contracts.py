@@ -48,7 +48,11 @@ STAGE_AUTO_KT = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "Ore
 STORE_POLICY_KT = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiShopRules.kt"
 STORE_TRANSFORMER = ROOT / "scripts" / "agp" / "store_policy" / "StorePolicyTransformer.java"
 STORE_HARNESS = ROOT / "scripts" / "agp" / "apply_store_policy.py"
-AGP_BUILD = ROOT / "agp" / "app" / "build.gradle.kts"
+AGP_BUILD = ROOT / "app" / "build.gradle.kts"
+STORE_POLICY_BUILD = (
+    ROOT / "build-logic" / "src" / "main" / "kotlin" / "kajfosz"
+    / "antimatterdimensions" / "buildlogic" / "OrekiStorePolicyPlugin.kt"
+)
 COMPATIBILITY = ROOT / "baseline" / "versions" / "3.21" / "compatibility.json"
 BUSINESS_CLASSES = ROOT / "scripts" / "kotlin_business_classes.txt"
 PAYLOAD_SMALI = ROOT / "scripts" / "payload" / "smali"
@@ -387,7 +391,7 @@ def check_store_policy(policy_src: str | None = None,
     policy = policy_src if policy_src is not None else _read(STORE_POLICY_KT)
     transformer = transformer_src if transformer_src is not None else _read(STORE_TRANSFORMER)
     harness = harness_src if harness_src is not None else _read(STORE_HARNESS)
-    agp = agp_src if agp_src is not None else _read(AGP_BUILD)
+    agp = agp_src if agp_src is not None else _read(AGP_BUILD) + "\n" + _read(STORE_POLICY_BUILD)
 
     for required in (
         "fun clampStds(raw: Int): Int = raw",
@@ -424,9 +428,9 @@ def check_store_policy(policy_src: str | None = None,
     for required in ("non_target_entries_byte_identical", "save fields changed", "ABI methods changed"):
         if required not in harness:
             _fail("[R121-01] JAR 字段/ABI 保真校验缺失: " + required)
-    if "implementation(files(applyStorePolicy.map { storePolicyGameJar }))" not in agp:
+    if 'tasks.named("applyStorePolicy")' not in agp or "game-hybrid-sig-store-policy.jar" not in agp:
         _fail("[R121-01] AGP 必须依赖策略后 JAR，而不是原始 game JAR")
-    if "dependsOn(applyStorePolicy)" not in agp:
+    if "dependsOn(applyTask)" not in agp:
         _fail("[R121-01] preBuild 必须先执行 applyStorePolicy")
     if '-> !OrekiStorePolicy.isRemovedStoreTab(tabName)' not in _read(STAGE_AUTO_KT):
         _fail("[R121-01] 商店父页签/子页签门禁必须返回 false")
@@ -2194,9 +2198,9 @@ def _selftest_source():
                     '"isAdBonusEffectEnabled"', '"missingAdPolicy"')))
     expect_fail("store_policy: AGP 绕过策略 JAR",
                 lambda: check_store_policy(
-                    agp_src=_read(AGP_BUILD).replace(
-                        "implementation(files(applyStorePolicy.map { storePolicyGameJar }))",
-                        "implementation(files(jar))")))
+                    agp_src=("files(tasks.named(\"applyStorePolicy\").map {\n"
+                             "File(repoRoot, \"build/agp-store-policy/game-hybrid-sig-store-policy.jar\")\n"
+                             "})").replace("game-hybrid-sig-store-policy.jar", "raw.jar")))
     return failures
 
 

@@ -34,6 +34,11 @@
 # ---------- 4b. Gradle（R4）----------
 # Gradle 自己的缓存、暂存产物与报告都可重建；build.gradle / wrapper / gradlew 要入库。
 /.gradle/
+/build-logic/.gradle/
+/build-logic/build/
+/app/build/
+/.kotlin/
+/app/.kotlin/
 /build/gradle-stage/
 /build/gradle-reports/
 /build/gradle-verify-apk/

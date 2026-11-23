@@ -24,7 +24,7 @@ advisory（记录但不改变判定）：dex-count、cross-dex-duplicates、
 
 示例：
   python3 scripts/tests/r107/accept_apk.py \
-      --apk agp/app/build/outputs/apk/release/app-release.apk \
+      --apk app/build/outputs/apk/release/app-release.apk \
       --reference-apk /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk \
       --out-dir reports/R107-01/test-ci/v7-baseline
 """

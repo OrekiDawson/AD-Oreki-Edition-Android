@@ -13,18 +13,24 @@ policy = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(policy)
 
 
+def build_text() -> str:
+    paths = [ROOT / "app/build.gradle.kts", *sorted((ROOT / "build-logic").rglob("*.kts")),
+             *sorted((ROOT / "build-logic").rglob("*.kt"))]
+    return "\n".join(path.read_text(encoding="utf-8") for path in paths if path.is_file())
+
+
 class AgpCandidateWiringTests(unittest.TestCase):
     def test_repository_candidate_workflow_satisfies_agp_only_policy(self):
         policy.check_candidate(ROOT)
 
     def test_workflow_invokes_agp_fullgame_build(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("bash ./gradlew -p agp :app:assembleRelease", text)
+        self.assertIn("bash ./gradlew :app:assembleRelease", text)
         self.assertIn("-PorekiFullGame=true", text)
         self.assertIn("-PorekiGameJar=", text)
         self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', text)
         self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', text)
-        self.assertIn("enableV3Signing", (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8"))
+        self.assertIn("enableV3Signing", (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8"))
 
     def test_workflow_emits_agp_provenance_and_contract_evidence(self):
         text = WORKFLOW.read_text(encoding="utf-8")
@@ -93,15 +99,15 @@ class AgpCandidateWiringTests(unittest.TestCase):
         self.assertTrue(report["prepared_dir"].endswith("prepared"))
         self.assertEqual(len(calls), 4)
 
-    def test_workflow_resigns_with_v2_and_v3_before_evidence(self):
+    def test_workflow_verifies_agp_signature_without_resigning(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("Re-sign AGP APK with both v2 and v3 schemes", text)
-        self.assertIn("--v2-signing-enabled true", text)
-        self.assertIn("--v3-signing-enabled true", text)
+        self.assertIn("Verify AGP-produced signature without re-signing", text)
+        self.assertIn("apksigner", text)
+        self.assertNotIn("apksigner sign", text)
         self.assertIn("--min-sdk-version 24", text)
-        resign = text.index("Re-sign AGP APK with both v2 and v3 schemes")
+        verify_signature = text.index("Verify AGP-produced signature without re-signing")
         provenance = text.index("Write AGP provenance, candidate metadata and release manifest")
-        self.assertLess(resign, provenance)
+        self.assertLess(verify_signature, provenance)
 
     def test_tool_report_honors_android_sdk_env(self):
         spec = importlib.util.spec_from_file_location(

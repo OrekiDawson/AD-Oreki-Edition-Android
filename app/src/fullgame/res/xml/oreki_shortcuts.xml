@@ -9,6 +9,6 @@
         <intent
             android:action="android.intent.action.MAIN"
             android:targetClass="kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity"
-            android:targetPackage="com.oreki.antimatterdimensions" />
+            android:targetPackage="@string/oreki_shortcut_target_package" />
     </shortcut>
 </shortcuts>

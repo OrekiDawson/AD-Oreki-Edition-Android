@@ -66,7 +66,9 @@ class SpeedBoundPolicyTests(unittest.TestCase):
     def test_agp_game_jar_transformer_owns_speed_abi(self):
         transformer = TRANSFORMER.read_text(encoding="utf-8")
         apply_policy = APPLY_POLICY.read_text(encoding="utf-8")
-        gradle = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+        build_paths = [ROOT / "app/build.gradle.kts", *sorted((ROOT / "build-logic").rglob("*.kts")),
+                       *sorted((ROOT / "build-logic").rglob("*.kt"))]
+        gradle = "\n".join(path.read_text(encoding="utf-8") for path in build_paths if path.is_file())
         self.assertIn("OrekiSpeedPolicy", transformer)
         self.assertIn('methodName.equals("mult")', transformer)
         self.assertIn('methodName.equals("set")', transformer)
@@ -75,14 +77,13 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn('"speedUiText"', transformer)
         self.assertIn('"speedResetDefault"', transformer)
         self.assertIn('"resetDefault"', transformer)
-        self.assertIn("androidComponents.sdkComponents.bootClasspath", gradle)
-        self.assertIn('it.name == "android.jar"', gradle)
-        self.assertIn("inputs.file(transformerAndroidJar)", gradle)
+        self.assertIn('platforms/android-37.0/android.jar', gradle)
+        self.assertIn("inputs.files(script, transformer, asmJar, androidJar)", gradle)
         self.assertIn('"kajfosz/antimatterdimensions/OrekiSpeed.class"', apply_policy)
         self.assertIn("SpeedSettingsActivity.class", apply_policy)
         self.assertIn("SettingsClickListener.class", apply_policy)
         self.assertIn("--android-jar", apply_policy)
-        self.assertIn("doFirst {", gradle)
+        self.assertIn("doFirstAction {", gradle)
 
     def test_transformer_default_matches_kotlin_source_of_truth(self):
         kotlin = (

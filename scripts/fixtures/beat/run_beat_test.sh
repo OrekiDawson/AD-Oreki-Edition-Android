@@ -36,7 +36,7 @@ esac
 ANDROID_HOME="$ANDROID_HOME" \
 ANDROID_SDK_ROOT="$ANDROID_HOME" \
 JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}" \
-bash "$ROOT/gradlew" -p "$ROOT/agp" :app:testDebugUnitTest \
+bash "$ROOT/gradlew" :app:testDebugUnitTest \
   "${TEST_ARGS[@]}" \
   --offline --no-daemon --rerun --console=plain
 echo "$SUCCESS_MESSAGE"

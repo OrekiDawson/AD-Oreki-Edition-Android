@@ -40,20 +40,29 @@ def production_application_identity_present(app: str) -> bool:
     if f'applicationId = "{APPLICATION_ID}"' in app:
         return True
     conditional = (
+        r'applicationId\s*=\s*if\s*\(\s*fullGame\s*\)\s*\{\s*'
+        + '"' + re.escape(APPLICATION_ID) + '"'
+        + r'\s*\}\s*else\s*\{\s*'
+        + '"' + re.escape(BRIDGE_APPLICATION_ID) + '"'
+        + r'\s*\}'
+    )
+    if re.search(conditional, app, re.DOTALL):
+        return True
+    inline = (
         r'applicationId\s*=\s*if\s*\(\s*fullGame\s*\)\s*'
         + '"' + re.escape(APPLICATION_ID) + '"'
         + r'\s*else\s*'
         + '"' + re.escape(BRIDGE_APPLICATION_ID) + '"'
     )
-    return re.search(conditional, app) is not None
+    return re.search(inline, app) is not None
 
 
 def check_candidate(root: Path = ROOT) -> None:
     """Reject the legacy production workflow even when AGP debug parity passes."""
     for retired in ("scripts/build_mod.py", "scripts/oreki_dark_theme.py", "build.gradle", "settings.gradle"):
         require(not (root / retired).exists(), "retired production entry still exists: " + retired)
-    gradle = (root / "agp/build.gradle.kts").read_text(encoding="utf-8")
-    app = (root / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+    gradle = (root / "build.gradle.kts").read_text(encoding="utf-8")
+    app = (root / "app/build.gradle.kts").read_text(encoding="utf-8")
     workflow = (root / WORKFLOW).read_text(encoding="utf-8")
     require(f'id("com.android.application") version "{AGP_VERSION}"' in gradle,
             "production AGP plugin is not pinned to 9.5.2")
@@ -65,7 +74,7 @@ def check_candidate(root: Path = ROOT) -> None:
             "standalone KGP is forbidden in AGP production")
     require("builtInKotlin=false" not in gradle + app,
             "built-in Kotlin was explicitly disabled")
-    require("bash ./gradlew -p agp :app:assembleRelease" in workflow,
+    require("bash ./gradlew :app:assembleRelease" in workflow,
             "production workflow does not invoke the real AGP release task")
     # Do not prohibit D8/R8/aapt2 inside AGP, or legacy parity in *source CI*.
     forbidden = (

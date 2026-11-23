@@ -22,7 +22,7 @@ class DirectoryLayoutTests(unittest.TestCase):
         self.write("scripts/payload/kotlin/demo/Example.kt", "package demo\nclass Example\n")
         self.write("agp/settings.gradle.kts", 'include(":app")\n')
         self.write("agp/app/build.gradle.kts", '''
-sourceSets["main"].kotlin.srcDirs(
+sourceSets["main"].kotlin.directories.addAll(
     File(repoRoot, "scripts/payload/kotlin"),
     File(repoRoot, "build/kt/generated"),
 )
@@ -58,7 +58,7 @@ sourceSets["main"].kotlin.srcDirs(
         self.phase("dual")
         self.write("app/src/main/kotlin/demo/Example.kt", "package demo\nclass Example\n")
         self.write("agp/app/build.gradle.kts", '''
-sourceSets["main"].kotlin.srcDirs(
+sourceSets["main"].kotlin.directories.addAll(
     File(repoRoot, "scripts/payload/kotlin"),
     File(repoRoot, "app/src/main/kotlin"),
     File(repoRoot, "build/kt/generated"),
@@ -76,9 +76,18 @@ sourceSets["main"].kotlin.srcDirs(
         self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
         self.assertTrue(guard.check_layout(self.root))
         (self.root / "scripts/payload/kotlin/demo/Example.kt").unlink()
+        for path in (
+            self.root / "agp/app/build.gradle.kts",
+            self.root / "agp/settings.gradle.kts",
+        ):
+            path.unlink()
+        for directory in (self.root / "agp/app", self.root / "agp"):
+            directory.rmdir()
         self.write("settings.gradle.kts", 'include(":app")\n')
         self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
         self.write("app/build.gradle.kts", 'plugins { id("com.android.application") }\n')
+        self.write("build-logic/settings.gradle.kts", 'rootProject.name = "build-logic"\n')
+        self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
         self.assertEqual([], guard.check_layout(self.root))
 
     def test_invalid_phase_is_rejected(self):

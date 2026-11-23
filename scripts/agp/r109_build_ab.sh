@@ -45,16 +45,16 @@ run_variant() {
   mkdir -p "$OUTDIR/$name"
   echo "[r109] build $name (xmx=$XMX)"
   # 清掉上一次 R8 构建残留的 mapping，避免 R8 OFF 变体误把旧 mapping 当本变体产物。
-  rm -f "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt"
-  ( cd "$ROOT" && bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true \
+  rm -f "$ROOT/app/build/outputs/mapping/release/mapping.txt"
+  ( cd "$ROOT" && bash ./gradlew :app:assembleRelease -PorekiFullGame=true \
       -PorekiGameJar="$JAR" "$@" --console=plain --no-daemon \
       -Dorg.gradle.jvmargs="-Xmx$XMX -XX:MaxMetaspaceSize=768m" > "$log" 2>&1 )
   local rc=$?
   echo "[r109] $name exit=$rc"
   if [ $rc -eq 0 ]; then
-    cp agp/app/build/outputs/apk/release/app-release.apk "$OUTDIR/$name/"
-    if [ -f agp/app/build/outputs/mapping/release/mapping.txt ]; then
-      cp agp/app/build/outputs/mapping/release/mapping.txt "$OUTDIR/$name/"
+    cp app/build/outputs/apk/release/app-release.apk "$OUTDIR/$name/"
+    if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
+      cp app/build/outputs/mapping/release/mapping.txt "$OUTDIR/$name/"
     fi
     python3 scripts/agp/r109_apk_metrics.py "$OUTDIR/$name/app-release.apk" --label "$name" \
       --mapping "$OUTDIR/$name/mapping.txt" \

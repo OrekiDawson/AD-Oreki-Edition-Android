@@ -9,7 +9,7 @@ OREKI_AVD_GATE_AUTHORIZED=1 时才真正执行（防止子 Agent / 误调用占�
   export OREKI_AVD_GATE_AUTHORIZED=1
   python3 scripts/tests/r107/avd_gate.py \
       --device emulator-5554 \
-      --apk agp/app/build/outputs/apk/release/app-release.apk \
+      --apk app/build/outputs/apk/release/app-release.apk \
       --mode all --allow-clear \
       --out-dir reports/R107-01/test-ci/avd-gate-<sha8>
 

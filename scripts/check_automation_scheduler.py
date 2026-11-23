@@ -374,7 +374,7 @@ _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
 _managed_ok, _legacy_ok = False, False
 _managed_out, _legacy_out = ["runner missing"], ["runner missing"]
 if _beat_runner.is_file():
-    _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
+    _test_results = ROOT / "app" / "build" / "test-results" / "testDebugUnitTest"
     _managed_classes = {
         "OrekiManagedAutobuyerAuthorityTest",
         "OrekiManagedAutobuyerScenarioTest",

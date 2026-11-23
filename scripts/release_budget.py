@@ -36,9 +36,9 @@ INPUT_DIRS = (
     "baseline/versions",
 )
 INPUT_FILES = (
-    "agp/build.gradle.kts",
-    "agp/settings.gradle.kts",
-    "agp/app/build.gradle.kts",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "app/build.gradle.kts",
     "gradle/wrapper/gradle-wrapper.properties",
     "gradlew",
     "baseline/version-config.json",

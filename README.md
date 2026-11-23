@@ -28,14 +28,14 @@
 **AGP 9.5.2 是唯一正式构建入口。** 根 Groovy 工程、`scripts/build_mod.py` 与 Python 补丁树生产链已于 R126 物理退役；历史报告只作追溯。默认命令执行 bridge/骨架包编译检查，不能拿该 bridge 包进行完整游戏安装与验收：
 
 ```bash
-./gradlew -p agp :app:assembleRelease --offline --no-daemon --console=plain
+./gradlew :app:assembleRelease --offline --no-daemon --console=plain
 ```
 
 完整游戏候选需要经过核验的官方 DEX 转换后的 JVM 游戏类 JAR，并显式指定完整游戏模式：
 
 ```bash
 GAME_JAR=/absolute/path/to/verified-game.jar
-./gradlew -p agp :app:assembleRelease \
+./gradlew :app:assembleRelease \
   -PorekiFullGame=true -PorekiGameJar="$GAME_JAR" \
   --offline --no-daemon --console=plain
 ```
@@ -49,7 +49,8 @@ GAME_JAR=/absolute/path/to/verified-game.jar
 | 路径 | 用途 |
 | --- | --- |
 | `app/src/main/kotlin/` | Android MOD 的生产 Kotlin 业务与适配代码 |
-| `agp/` | Android Gradle Plugin 工程 |
+| `app/` | 唯一 Android 应用模块与生产 Source Sets |
+| `build-logic/` | 完整游戏输入、商店策略、元数据与构建守卫 |
 | `baseline/` | 上游 APK 基线与版本资料 |
 | `scripts/` | 构建、检查、辅助工具及定向验证 |
 | `docs/` | 规则、事实索引、构建与交付说明 |

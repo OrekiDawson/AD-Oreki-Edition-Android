@@ -85,17 +85,15 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("avd-checks.json", text)
 
     def test_agp_phase1_project_is_real_and_ci_guarded(self):
-        settings = (ROOT / "agp/settings.gradle.kts").read_text()
-        root_build = (ROOT / "agp/build.gradle.kts").read_text()
-        app = (ROOT / "agp/app/build.gradle.kts").read_text()
-        props = (ROOT / "agp/gradle.properties").read_text()
+        settings = (ROOT / "settings.gradle.kts").read_text()
+        root_build = (ROOT / "build.gradle.kts").read_text()
+        app = (ROOT / "app/build.gradle.kts").read_text()
+        props = (ROOT / "gradle.properties").read_text()
         ci = (ROOT / ".github/workflows/ci.yml").read_text()
         self.assertIn('include(":app")', settings)
         self.assertIn('id("com.android.application") version "9.5.2"', root_build)
         self.assertIn('id("com.android.application")', app)
-        self.assertIn("val orekiCompileSdk = 37", app)
-        self.assertIn("compileSdk = orekiCompileSdk", app)
-        self.assertIn("app/src/main/kotlin", app)
+        self.assertIn("compileSdk = 37", app)
         self.assertIn("build/kt/generated", app)
         # AGP 9 built-in Kotlin: no Kotlin Gradle Plugin and no legacy fallbacks.
         self.assertNotIn("org.jetbrains.kotlin.android", root_build + app)
