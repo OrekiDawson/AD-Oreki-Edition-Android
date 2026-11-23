@@ -133,10 +133,22 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("inputs.files(kotlinCompileTask)", gradle)
         self.assertNotIn('"app-$variantName.apk"', gradle)
         app_gradle = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
-        self.assertIn("sourceTakeoverJavaExcludes", app_gradle)
-        self.assertIn('if (!fullGame && sourceTakeoverJavaExcludes.isNotEmpty())', app_gradle)
+        self.assertIn("sourceTakeoverClasses", app_gradle)
+        self.assertIn("sourceTakeoverKotlinExcludes", app_gradle)
+        self.assertIn("sourceTakeoverTestKotlinExcludes", app_gradle)
+        self.assertIn("prepareBridgeKotlinSources", app_gradle)
+        self.assertIn("prepareBridgeTestKotlinSources", app_gradle)
+        self.assertIn('if (!fullGame && sourceTakeoverClasses.isNotEmpty())', app_gradle)
         self.assertIn(
             "sourceSets[\"main\"].java.directories.clear()",
+            app_gradle,
+        )
+        self.assertIn(
+            "sourceSets[\"main\"].kotlin.directories.clear()",
+            app_gradle,
+        )
+        self.assertIn(
+            "sourceSets[\"test\"].kotlin.directories.clear()",
             app_gradle,
         )
 
