@@ -1,5 +1,13 @@
 # Android MOD · Agent 长期规则
 
+## Google 官方 AGP 生产构建同构（2026-11-23，长期硬规则）
+
+- **不是表面模板化**：根级标准 Gradle Kotlin DSL + 唯一 `:app` Android 应用模块，根/模块 `build.gradle.kts` 保持声明式；**真正由 AGP 管理** Kotlin/临时未改业务 Java 编译、Manifest Merger、AAPT2 资源、D8/R8、APK 打包/对齐及 `signingConfigs` 签名。官方任务 `:app:assembleDebug`/`:app:assembleRelease` 产出唯一正式 APK，不允许旧链手工二次重打包或覆盖最终 APK。
+- **构建特例只在输入侧**：原版 3.21.0 APK 特殊资源/ABI/旧码恢复等确实必要的转换放入可测试的 `build-logic/` Kotlin Gradle Task/插件，声明输入/输出并接入 AGP 公开生成源集/资源 API；可只读解析原版 APK/ZIP，但不得把 apktool/Smali 文本生产补丁、手动 DEX 合并、独立 zipalign/apksigner、生成后修改 resources.arsc 当作最终正式构建方式。AGP 内部未公开实现细节不作为稳定接口依赖。
+- **真正精简**：`app/build.gradle.kts` 仅保留插件、android DSL、依赖、Source Sets 和少量任务装配；旧 2000+ 行算法依职责拆为多个小型构建任务，而非整体搬进巨型 `.gradle.kts`/Kotlin 类。随着每个旧环节退役，同批清理 `build_mod.py` 生产调用、重复入口及最后消费者退出的旧工具，复用现有迁移台账。
+- **验收不降级**：Android Studio 根目录导入、标准任务 DAG、AGP 输出 APK、源码/资源/DEX/ABI、官方 3.21.0 兼容、签名、存档、必要 API 37 AVD 和当前 CI/发布门禁有实际证据才可宣称完成；Debug PASS 与最终 Release/玩家游戏体验 PASS 分开。原版旧 Smali/DEX 可暂时恢复成未经业务修改的 Java，任何新增或实质修改业务必须先转 Kotlin。详见 Android #52、#61；继续 R126，不新 `/goal`。
+
+
 ## 旧 Smali → Java 临时过渡与 Kotlin 改动边界（2026-11-23，长期强制）
 
 - **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
