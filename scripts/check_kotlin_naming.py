@@ -43,6 +43,12 @@ COMPAT_LAYER_FILES = {
 # 仅对确需保留的历史字段名做逐项登记，不按文件或前缀放宽。
 ABI_LEGACY_FIELDS = {
     ("OrekiAchAudit.kt", "sLast"),
+    ("OrekiEternity.kt", "sEcHoldTtl"),
+    ("OrekiEternity.kt", "sEtBefore"),
+    ("OrekiEternity.kt", "sEtPending"),
+    ("OrekiEternity.kt", "sEtTtl"),
+    ("OrekiEternity.kt", "sRu10GaveUp"),
+    ("OrekiEternity.kt", "sRu10Since"),
     ("TutorialEntry.kt", "sInstalled"),
     ("TutorialEntry.kt", "sRetry"),
 }

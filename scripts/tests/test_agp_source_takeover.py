@@ -153,8 +153,8 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         eternity = (
             ROOT
-            / "app/src/main/java/kajfosz/antimatterdimensions/oreki/"
-            "OrekiEternity.java"
+            / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/"
+            "OrekiEternity.kt"
         ).read_text(encoding="utf-8")
         stage = (
             ROOT
@@ -167,6 +167,10 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('Class.forName(\n            "vi3"', helper)
         self.assertNotIn('"l43"', eternity)
         self.assertNotIn('"r51"', eternity)
+        self.assertIn(
+            "normalStudyIndexRange(ids.size())",
+            eternity,
+        )
         self.assertNotIn('"z3"', stage)
         self.assertNotIn('"eg3"', stage)
 
