@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 MODE="${1:-all}"
 if [[ -z "${ANDROID_HOME:-}" || ! -d "${ANDROID_HOME}/platforms/android-37.0" ]]; then
-  ANDROID_HOME="/home/oreki/Android/Sdk"
+  ANDROID_HOME="/opt/android-sdk"
 fi
 case "$MODE" in
   all)

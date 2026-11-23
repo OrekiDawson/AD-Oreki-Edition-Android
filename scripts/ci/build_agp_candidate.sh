@@ -51,7 +51,7 @@ if [ "$VARIANT" = "on" ]; then APK="$OUTDIR/r8on/app-release.apk"; fi
 [ -f "$APK" ] || fail "AGP 构建未产出 APK：$APK"
 
 echo "[2/3] 签名与证书核验"
-ANDROID_HOME="${ANDROID_HOME:-/home/oreki/Android/Sdk}"
+ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1)"
 [ -n "$SIGNER" ] || fail "找不到 apksigner"
 VERBOSE="$("$SIGNER" verify --verbose --print-certs "$APK" 2>&1)" || fail "apksigner verify 失败"
