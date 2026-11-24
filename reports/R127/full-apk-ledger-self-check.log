@@ -1,0 +1,2 @@
+PASS: committed ledger is self-consistent (15319 descriptors, 1650 compiled, 347 blocked, sha256=02fce90cc68009189aa38ca25576e95a3eb381012c32afbe0a1665483298f2a0)
+PASS: full APK source ledger matches committed artifacts

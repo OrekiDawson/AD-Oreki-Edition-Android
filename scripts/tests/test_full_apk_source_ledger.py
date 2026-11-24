@@ -87,6 +87,18 @@ class FullApkSourceLedgerTest(unittest.TestCase):
                 ledger.load_local_sources((root,)),
             )
 
+    def test_committed_ledger_checks_without_external_inputs(self):
+        checked = ledger.check_committed_artifacts(
+            index_path=ledger.DEFAULT_INDEX,
+            takeover_path=ledger.DEFAULT_TAKEOVER,
+            blocked_path=ledger.DEFAULT_BLOCKED,
+            source_roots=ledger.DEFAULT_SOURCE_ROOTS,
+            csv_path=ledger.ROOT / "docs/deobfuscation/data/full-apk-source-ledger.csv",
+            summary_path=ledger.ROOT / "docs/deobfuscation/data/full-apk-source-ledger-summary.json",
+        )
+        self.assertEqual(15319, checked["total_descriptors"])
+        self.assertEqual(64, len(checked["ledger_sha256"]))
+
 
 if __name__ == "__main__":
     unittest.main()

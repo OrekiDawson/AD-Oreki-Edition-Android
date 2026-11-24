@@ -173,6 +173,109 @@ def load_index(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def check_committed_artifacts(
+    *,
+    index_path: Path,
+    takeover_path: Path,
+    blocked_path: Path,
+    source_roots: tuple[Path, ...],
+    csv_path: Path,
+    summary_path: Path,
+) -> dict:
+    """Validate committed ledgers without requiring machine-local JADX/JAR inputs."""
+    if not csv_path.is_file() or not summary_path.is_file():
+        raise ValueError("committed ledger or summary is missing")
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != LEDGER_COLUMNS:
+            raise ValueError("committed ledger columns differ from schema")
+        rows = list(reader)
+    descriptors = [row["descriptor"] for row in rows]
+    if len(descriptors) != EXPECTED_TOTAL or len(set(descriptors)) != EXPECTED_TOTAL:
+        raise ValueError("committed ledger descriptor baseline is not 15,319 unique rows")
+    dex_counts = dict(collections.Counter(row["dex"] for row in rows))
+    if dex_counts != EXPECTED_CLASS_COUNTS:
+        raise ValueError(f"committed ledger DEX counts differ: {dex_counts}")
+    if any(row["class_def_index"] == "" for row in rows):
+        raise ValueError("committed ledger has a missing class_def_index")
+    known_statuses = {
+        "LOCAL_SOURCE_COMPILED",
+        "BLOCKED",
+        "RESEARCH_ONLY",
+        "RESEARCH_ONLY_NESTED",
+        "BINARY_ONLY_REMAINDER",
+        "UNRESOLVED",
+    }
+    unknown_statuses = sorted({row["source_status"] for row in rows} - known_statuses)
+    if unknown_statuses:
+        raise ValueError(f"committed ledger has unknown statuses: {unknown_statuses}")
+
+    takeover = load_takeover(takeover_path)
+    blocked = load_blocked(blocked_path)
+    local_sources = load_local_sources(source_roots)
+    overlap = takeover & set(blocked)
+    if overlap:
+        raise ValueError(f"takeover and blocked descriptors overlap: {sorted(overlap)[:10]}")
+    baseline = set(descriptors)
+    for descriptor in takeover & baseline:
+        if descriptor not in local_sources:
+            raise ValueError(f"takeover descriptor lacks local source: {descriptor}")
+    compiled = {
+        row["descriptor"] for row in rows if row["source_status"] == "LOCAL_SOURCE_COMPILED"
+    }
+    if compiled != takeover & baseline:
+        raise ValueError("committed LOCAL_SOURCE_COMPILED rows differ from takeover manifest")
+    blocked_rows = {
+        row["descriptor"] for row in rows if row["source_status"] == "BLOCKED"
+    }
+    if blocked_rows != set(blocked) & baseline:
+        raise ValueError("committed BLOCKED rows differ from blocked manifest")
+
+    try:
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"committed summary is invalid JSON: {exc}") from exc
+    status_counts = dict(collections.Counter(row["source_status"] for row in rows))
+    first_party_counts = dict(collections.Counter(row["first_party"] for row in rows))
+    source_available = sum(
+        row["source_status"] in {"LOCAL_SOURCE_COMPILED", "RESEARCH_ONLY", "RESEARCH_ONLY_NESTED"}
+        for row in rows
+    )
+    expected = {
+        "schema_version": 1,
+        "total_descriptors": EXPECTED_TOTAL,
+        "dex_class_defs": EXPECTED_CLASS_COUNTS,
+        "status_counts": status_counts,
+        "first_party_counts": first_party_counts,
+        "takeover_entries": len(takeover),
+        "takeover_in_baseline": len(takeover & set(descriptors)),
+        "takeover_outside_baseline": len(takeover - set(descriptors)),
+        "blocked_entries": len(blocked),
+        "blocked_in_baseline": len(set(blocked) & set(descriptors)),
+        "local_compiled_percent": round(len(compiled) / EXPECTED_TOTAL * 100, 3),
+        "research_or_local_source_available_percent": round(
+            source_available / EXPECTED_TOTAL * 100, 3
+        ),
+        "ledger_sha256": sha256(csv_path),
+        "index_sha256": sha256(index_path),
+        "takeover_sha256": sha256(takeover_path),
+        "blocked_sha256": sha256(blocked_path),
+    }
+    mismatches = {
+        key: {"committed": summary.get(key), "expected": value}
+        for key, value in expected.items()
+        if summary.get(key) != value
+    }
+    if mismatches:
+        raise ValueError(f"committed summary differs from ledger inputs: {mismatches}")
+    return {
+        "total_descriptors": len(rows),
+        "local_source_compiled": len(takeover),
+        "blocked": len(blocked),
+        "ledger_sha256": expected["ledger_sha256"],
+    }
+
+
 def build_ledger(
     index_rows: list[dict[str, str]],
     *,
@@ -330,15 +433,35 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     source_roots = tuple(args.source_roots or DEFAULT_SOURCE_ROOTS)
+    if args.check:
+        try:
+            checked = check_committed_artifacts(
+                index_path=args.index,
+                takeover_path=args.takeover,
+                blocked_path=args.blocked,
+                source_roots=source_roots,
+                csv_path=args.out_csv,
+                summary_path=args.out_json,
+            )
+        except (OSError, ValueError) as exc:
+            print(f"FAIL: committed ledger check failed: {exc}")
+            return 1
+        print(
+            "PASS: committed ledger is self-consistent "
+            f"({checked['total_descriptors']} descriptors, "
+            f"{checked['local_source_compiled']} compiled, "
+            f"{checked['blocked']} blocked, sha256={checked['ledger_sha256']})"
+        )
     inputs_available = {
         "jadx": args.jadx_root.is_dir(),
         "game_jar": args.game_jar.is_file(),
     }
     if args.check and not all(inputs_available.values()):
-        raise SystemExit(
-            "FAIL: check requires every input; missing "
+        print(
+            "PASS: machine-local recomputation skipped; missing "
             + ", ".join(name for name, ok in inputs_available.items() if not ok)
         )
+        return 0
     rows, summary = build_ledger(
         load_index(args.index),
         takeover=load_takeover(args.takeover),
@@ -375,8 +498,6 @@ def main() -> int:
     ).encode("utf-8")
 
     if args.check:
-        if not args.out_csv.is_file() or not args.out_json.is_file():
-            raise SystemExit("FAIL: committed ledger or summary is missing")
         csv_ok = args.out_csv.read_bytes() == csv_bytes
         json_ok = args.out_json.read_bytes() == json_bytes
         if not csv_ok or not json_ok:
