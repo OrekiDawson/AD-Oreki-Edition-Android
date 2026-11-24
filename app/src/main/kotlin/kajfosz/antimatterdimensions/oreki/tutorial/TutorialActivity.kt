@@ -3,6 +3,8 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.DialogFragment
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
@@ -38,8 +40,93 @@ import android.widget.Toast
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-/** 教程页的真实 UI 执行类；保留原 Activity 名称和监听器 ABI。 */
+/** 兼容旧 Manifest 与监听器 ABI；游戏内入口不再启动此 Activity。 */
 class TutorialActivity : Activity() {
+    private lateinit var reader: TutorialReader
+
+    override fun onCreate(state: Bundle?) {
+        setTheme(android.R.style.Theme_Material_NoActionBar)
+        super.onCreate(state)
+        title = "Oreki 教程"
+        window.setDecorFitsSystemWindows(false)
+        reader = TutorialReader(this, this, window)
+        setContentView(reader.createView(state))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::reader.isInitialized) reader.saveState(outState)
+    }
+
+    override fun onDestroy() {
+        if (::reader.isInitialized) reader.dispose()
+        super.onDestroy()
+    }
+
+    fun onTabClick(action: Int) { if (::reader.isInitialized) reader.onTabClick(action) }
+    fun openChapterDrawer() { if (::reader.isInitialized) reader.openChapterDrawer() }
+    fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets =
+        if (::reader.isInitialized) reader.onApplyWindowInsets(view, insets) else insets
+}
+
+/** 同一游戏 Activity 所属的阅读窗口，系统返回只关闭窗口，不切换游戏 Activity。 */
+@Suppress("DEPRECATION")
+class TutorialReaderFragment : DialogFragment() {
+    private var reader: TutorialReader? = null
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val host = requireNotNull(activity)
+        val readerDialog = Dialog(host, android.R.style.Theme_Material_NoActionBar)
+        readerDialog.setOwnerActivity(host)
+        readerDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val readerWindow = requireNotNull(readerDialog.window)
+        readerWindow.setDecorFitsSystemWindows(false)
+        readerWindow.setBackgroundDrawable(ColorDrawable(Color.rgb(15, 19, 24)))
+        readerWindow.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        reader = TutorialReader(host, readerDialog.context, readerWindow)
+        readerDialog.setContentView(requireNotNull(reader).createView(savedInstanceState))
+        return readerDialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.apply {
+            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
+            decorView.requestApplyInsets()
+        }
+        reader?.applySystemBarAppearance()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        reader?.saveState(outState)
+    }
+
+    override fun onDestroyView() {
+        reader?.dispose()
+        reader = null
+        super.onDestroyView()
+    }
+
+    companion object {
+        private const val TAG = "oreki_tutorial_reader"
+
+        fun open(host: Activity) {
+            if (host.isFinishing || host.isDestroyed) return
+            val manager = host.fragmentManager
+            if (manager.isStateSaved || manager.findFragmentByTag(TAG) != null) return
+            // 使用同步事务确保连续点击不会堆叠两个阅读窗口。
+            manager.beginTransaction().add(TutorialReaderFragment(), TAG).commitNow()
+        }
+    }
+}
+
+/** 两种宿主共用同一份渲染逻辑；不读写游戏生命周期、时间戳或资源。 */
+private class TutorialReader(
+    private val owner: Activity,
+    private val context: Context,
+    private val window: Window
+) {
     private data class Record(val tag: String, val flag: String, val text: String)
     private data class Chapter(val id: String, val title: String, val start: Int, val stage: String?)
 
@@ -58,16 +145,11 @@ class TutorialActivity : Activity() {
     private lateinit var appBar: LinearLayout
     private var chapterDrawer: Dialog? = null
 
-    override fun onCreate(state: Bundle?) {
-        // 语义：教程始终使用深色表面，避免系统浅色主题覆盖正文层级。
-        setTheme(android.R.style.Theme_Material_NoActionBar)
-        super.onCreate(state)
-        title = "Oreki 教程"
-        fontScale = getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE)
+    fun createView(state: Bundle?): View {
+        fontScale = owner.getSharedPreferences("oreki_tutorial_prefs", Context.MODE_PRIVATE)
             .getInt("font_scale", 1).coerceIn(0, 2)
-        window.setDecorFitsSystemWindows(false)
         loadAsset()
-        val root = LinearLayout(this).apply {
+        val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(surface)
             setOnApplyWindowInsetsListener { view, insets ->
@@ -75,7 +157,7 @@ class TutorialActivity : Activity() {
             }
         }
         addTopBar(root)
-        contentScroll = ScrollView(this).apply {
+        contentScroll = ScrollView(context).apply {
             isFillViewport = true
             setPadding(dp(24), 0, dp(24), 0)
             // 以实际可用宽度而非屏幕像素计算阅读栏；横屏、分屏及刘海安全区同样生效。
@@ -94,7 +176,7 @@ class TutorialActivity : Activity() {
                 }
             }
         }
-        contentHost = LinearLayout(this).apply {
+        contentHost = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, dp(20), 0, dp(24))
         }
@@ -102,7 +184,6 @@ class TutorialActivity : Activity() {
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
         val reader = SwipeFrame(opening = true) { openChapterDrawer() }
         reader.addView(root, FrameLayout.LayoutParams(-1, -1))
-        setContentView(reader)
         root.requestApplyInsets()
         if (chapters.isNotEmpty()) {
             showChapter(state?.getInt("chapter", initialChapter()) ?: initialChapter())
@@ -112,12 +193,14 @@ class TutorialActivity : Activity() {
             }
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
         root.post {
+            root.requestApplyInsets()
             applySystemBarAppearance()
             fadeIn(root)
         }
+        return reader
     }
 
-    private fun applySystemBarAppearance() {
+    fun applySystemBarAppearance() {
         window.decorView.windowInsetsController?.setSystemBarsAppearance(
             0,
             WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
@@ -139,7 +222,7 @@ class TutorialActivity : Activity() {
     private fun loadAsset() {
         records.clear(); chapters.clear()
         try {
-            BufferedReader(InputStreamReader(assets.open("oreki_tutorial.txt"), Charsets.UTF_8)).use { reader ->
+            BufferedReader(InputStreamReader(context.assets.open("oreki_tutorial.txt"), Charsets.UTF_8)).use { reader ->
                 reader.forEachLine { line ->
                     if (line.isBlank() || line.startsWith("#")) return@forEachLine
                     val parts = line.split('|', limit = 3)
@@ -158,20 +241,19 @@ class TutorialActivity : Activity() {
         } catch (_: Exception) { records.clear(); chapters.clear() }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
+    fun saveState(outState: Bundle) {
         outState.putInt("chapter", currentChapter)
-        outState.putInt("reader_scroll", contentScroll.scrollY)
+        if (::contentScroll.isInitialized) outState.putInt("reader_scroll", contentScroll.scrollY)
     }
 
     private fun addTopBar(root: LinearLayout) {
-        appBar = LinearLayout(this).apply {
+        appBar = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(4), dp(8), dp(4), dp(8))
             setBackgroundColor(surface)
         }
         appBar.addView(iconButton("章节目录", "list") { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(48)))
-        val title = TextView(this).apply {
+        val title = TextView(context).apply {
             text = "Oreki 教程"; setTextColor(onSurface); textSize = 22f; gravity = Gravity.CENTER_VERTICAL
             maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
         }
@@ -180,7 +262,7 @@ class TutorialActivity : Activity() {
         root.addView(appBar, LinearLayout.LayoutParams(-1, -2))
     }
 
-    private fun iconButton(label: String, kind: String, action: () -> Unit) = ImageButton(this).apply {
+    private fun iconButton(label: String, kind: String, action: () -> Unit) = ImageButton(context).apply {
         setImageDrawable(ReaderIcon(kind))
         scaleType = android.widget.ImageView.ScaleType.CENTER
         background = RippleDrawable(
@@ -231,7 +313,7 @@ class TutorialActivity : Activity() {
     }
 
     private fun openReadingSettings() {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(context)
             .setTitle("阅读设置")
             .setSingleChoiceItems(arrayOf("小字号", "中字号", "大字号"), fontScale) { dialog, index ->
                 onTabClick(index)
@@ -245,9 +327,9 @@ class TutorialActivity : Activity() {
     private fun openSettings() {
         try {
             val settingsClass = Class.forName("kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity")
-            startActivity(Intent(this, settingsClass))
+            owner.startActivity(Intent(owner, settingsClass))
         } catch (error: Throwable) {
-            Toast.makeText(this, error.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -256,7 +338,7 @@ class TutorialActivity : Activity() {
         if (action in 0..2) {
             val scrollY = contentScroll.scrollY
             fontScale = action
-            getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE).edit().putInt("font_scale", fontScale).apply()
+            owner.getSharedPreferences("oreki_tutorial_prefs", Context.MODE_PRIVATE).edit().putInt("font_scale", fontScale).apply()
             if (chapters.isNotEmpty()) {
                 showChapter(currentChapter)
                 contentScroll.post { contentScroll.scrollTo(0, scrollY) }
@@ -268,7 +350,7 @@ class TutorialActivity : Activity() {
     private inner class SwipeFrame(
         private val opening: Boolean,
         private val swipe: () -> Unit
-    ) : FrameLayout(this@TutorialActivity) {
+    ) : FrameLayout(this@TutorialReader.context) {
         private val slop = ViewConfiguration.get(context).scaledTouchSlop
         private var startX = 0f
         private var startY = 0f
@@ -312,22 +394,23 @@ class TutorialActivity : Activity() {
 
     /** 既有入口 ABI：左侧模态章节抽屉，不改变教程 Activity 的返回栈。 */
     fun openChapterDrawer() {
-        if (chapters.isEmpty() || chapterDrawer?.isShowing == true || isFinishing) return
+        if (chapters.isEmpty() || chapterDrawer?.isShowing == true || owner.isFinishing || owner.isDestroyed) return
 
-        val dialog = Dialog(this)
+        val dialog = Dialog(context)
+        dialog.setOwnerActivity(owner)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
         chapterDrawer = dialog
 
-        val drawerWidth = minOf(dp(360), (windowManager.currentWindowMetrics.bounds.width() - dp(56)).coerceAtLeast(1))
+        val drawerWidth = minOf(dp(360), (owner.windowManager.currentWindowMetrics.bounds.width() - dp(56)).coerceAtLeast(1))
         val animated = android.animation.ValueAnimator.areAnimatorsEnabled()
         var closing = false
-        val scrim = View(this).apply {
+        val scrim = View(context).apply {
             setBackgroundColor(Color.argb(140, 0, 0, 0))
             contentDescription = "关闭章节目录"
             isFocusable = true
         }
-        val panel = LinearLayout(this).apply {
+        val panel = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(container)
             isClickable = true
@@ -350,7 +433,7 @@ class TutorialActivity : Activity() {
         scrim.setOnClickListener { closeDrawer() }
         overlay.addView(panel, FrameLayout.LayoutParams(drawerWidth, -1, Gravity.LEFT))
 
-        panel.addView(TextView(this).apply {
+        panel.addView(TextView(context).apply {
             text = "章节目录"
             textSize = 22f
             setTextColor(onSurface)
@@ -359,15 +442,15 @@ class TutorialActivity : Activity() {
             isAccessibilityHeading = true
         }, LinearLayout.LayoutParams(-1, -2))
 
-        val scroll = ScrollView(this).apply { isFillViewport = true }
-        val list = LinearLayout(this).apply {
+        val scroll = ScrollView(context).apply { isFillViewport = true }
+        val list = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), 0, dp(12), dp(12))
         }
         var selectedRow: View? = null
         chapters.forEachIndexed { index, chapter ->
             val selected = index == currentChapter
-            val item = TextView(this).apply {
+            val item = TextView(context).apply {
                 text = chapter.title
                 textSize = 16f
                 setTextColor(if (selected) onPrimaryContainer else onSurface)
@@ -427,9 +510,9 @@ class TutorialActivity : Activity() {
         // 系统返回由 Dialog 原生取消处理，下一次返回才结束教程 Activity。
     }
 
-    override fun onDestroy() {
+    fun dispose() {
         chapterDrawer?.dismiss()
-        super.onDestroy()
+        chapterDrawer = null
     }
 
     private fun showChapter(index: Int) {
@@ -456,8 +539,8 @@ class TutorialActivity : Activity() {
     }
 
     private fun addChapterNavigation() {
-        val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        fun navigationButton(label: String, target: Int) = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
+        val row = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
+        fun navigationButton(label: String, target: Int) = Button(context, null, android.R.attr.borderlessButtonStyle).apply {
             text = label
             setTextColor(if (target in chapters.indices) primary else onVariant)
             isEnabled = target in chapters.indices
@@ -466,7 +549,7 @@ class TutorialActivity : Activity() {
             setOnClickListener { showChapter(target) }
         }
         row.addView(navigationButton("上一章", currentChapter - 1), LinearLayout.LayoutParams(0, -2, 1f))
-        row.addView(TextView(this).apply {
+        row.addView(TextView(context).apply {
             text = "${currentChapter + 1} / ${chapters.size}"
             textSize = 12f; setTextColor(onVariant); gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(-2, -2))
@@ -487,7 +570,7 @@ class TutorialActivity : Activity() {
 
     /** 表格记录使用正文内的紧凑行，而不是每行一个描边卡片。 */
     private fun addTableRow(text: String) {
-        val row = LinearLayout(this).apply {
+        val row = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, dp(8), 0, dp(8))
         }
@@ -496,7 +579,7 @@ class TutorialActivity : Activity() {
                 dp(4), false, row)
         }
         contentHost.addView(row, LinearLayout.LayoutParams(-1, -2))
-        contentHost.addView(View(this).apply { setBackgroundColor(Color.argb(32, 175, 186, 198)) },
+        contentHost.addView(View(context).apply { setBackgroundColor(Color.argb(32, 175, 186, 198)) },
             LinearLayout.LayoutParams(-1, dp(1)))
     }
 
@@ -511,7 +594,7 @@ class TutorialActivity : Activity() {
 
     /** 同类型连续记录只渲染一次标题，正文不使用卡片或独立边框。 */
     private fun addSection(tag: String, items: List<Record>) {
-        val section = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val section = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         val headingColor = if (tag == "TRAP") Color.rgb(255, 180, 170) else primary
         addText(labelName(tag), 18f, headingColor, dp(8), true, section, heading = true)
         items.forEachIndexed { index, record ->
@@ -533,7 +616,7 @@ class TutorialActivity : Activity() {
 
     private fun addText(text: CharSequence, size: Float, color: Int, bottom: Int, bold: Boolean,
                         parent: LinearLayout = contentHost, heading: Boolean = false) {
-        parent.addView(TextView(this).apply {
+        parent.addView(TextView(context).apply {
             this.text = text
             setTextColor(color)
             textSize = size * when (fontScale) { 0 -> .875f; 2 -> 1.125f; else -> 1f }
@@ -557,10 +640,10 @@ class TutorialActivity : Activity() {
         return chapters.indexOfFirst { it.id == target }.takeIf { it >= 0 } ?: 0
     }
     private fun fadeIn(view: View) {
-        val enabled = try { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
+        val enabled = try { Settings.Global.getFloat(owner.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
         view.alpha = if (enabled) 0f else 1f; if (enabled) view.animate().alpha(1f).setDuration(180L).start()
     }
     private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat() }
-    private fun dp(value: Int) = (value * resources.displayMetrics.density + .5f).toInt()
-    private fun dp(value: Float) = (value * resources.displayMetrics.density + .5f).toInt()
+    private fun dp(value: Int) = (value * context.resources.displayMetrics.density + .5f).toInt()
+    private fun dp(value: Float) = (value * context.resources.displayMetrics.density + .5f).toInt()
 }
