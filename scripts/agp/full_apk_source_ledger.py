@@ -118,7 +118,8 @@ def load_jadx(root: Path, *, required: bool = True) -> dict[str, str]:
 
 def load_local_sources(roots: tuple[Path, ...]) -> dict[str, str]:
     sources: dict[str, str] = {}
-    for root in roots:
+    for requested_root in roots:
+        root = requested_root.resolve()
         if not root.is_dir():
             continue
         for path in sorted(root.rglob("*")):
@@ -128,7 +129,11 @@ def load_local_sources(roots: tuple[Path, ...]) -> dict[str, str]:
             descriptor = f"L{relative};"
             if descriptor in sources:
                 raise ValueError(f"duplicate local source descriptor: {descriptor}")
-            sources[descriptor] = path.relative_to(ROOT).as_posix()
+            sources[descriptor] = (
+                path.relative_to(ROOT).as_posix()
+                if path.is_relative_to(ROOT)
+                else path.as_posix()
+            )
     return sources
 
 

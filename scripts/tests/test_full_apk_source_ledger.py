@@ -65,6 +65,27 @@ class FullApkSourceLedgerTest(unittest.TestCase):
                 ledger.load_jar_descriptors(missing, required=False),
             )
 
+    def test_local_sources_accept_relative_and_external_roots(self):
+        with tempfile.TemporaryDirectory(dir=ledger.ROOT) as directory:
+            root = Path(directory)
+            source = root / "relative" / "A.java"
+            source.parent.mkdir()
+            source.write_text("class A {}\n", encoding="utf-8")
+            relative = root.relative_to(Path.cwd())
+            self.assertEqual(
+                {"Lrelative/A;": source.relative_to(ledger.ROOT).as_posix()},
+                ledger.load_local_sources((relative,)),
+            )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "B.java"
+            source.write_text("class B {}\n", encoding="utf-8")
+            self.assertEqual(
+                {"LB;": source.as_posix()},
+                ledger.load_local_sources((root,)),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
