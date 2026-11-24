@@ -620,3 +620,24 @@ fi1.class | Lfi1; | javac compile failure: final field a is not initialized by t
 f32.class | Lf32; | javac compile failure: final field a is not initialized by the default constructor
 r8.class | Lr8; | source takeover ABI failure: compiled class is missing 27 original API bridge methods
 u51.class | Lu51; | source takeover ABI failure: compiled class is missing 14 original API bridge methods
+cl3.class | Lcl3; | javac compile failure: missing n0() constructor
+cz3.class | Lcz3; | javac compile failure: ws5 version-49 default method, missing kj7 constructor and q(sx) override
+eh2.class | Leh2; | javac compile failure: hidden android.media.LoudnessCodecController listener unavailable
+h98.class | Lh98; | javac compile failure: missing dy7.b field
+hx8.class | Lhx8; | javac compile failure: missing ne1.l(String) method
+mz3.class | Lmz3; | javac compile failure: hidden android.view.RenderNode unavailable
+n90.class | Ln90; | javac compile failure: Property constructor signature differs from JADX output
+oe.class | Loe; | javac compile failure: BaseSavedState no-arg constructor and sj5(byte) unavailable
+oq7.class | Loq7; | javac compile failure: missing zzfmq(Throwable) constructor
+q25.class | Lq25; | javac compile failure: missing s25() constructor and x31.e(String) method
+q84.class | Lq84; | javac compile failure: missing c.j(int,c) method
+tj1.class | Ltj1; | javac compile failure: missing kn6.Y(CharSequence) override
+ua8.class | Lua8; | javac compile failure: missing dy7.f and j98.j fields; i9.zza is private
+uf.class | Luf; | javac compile failure: missing p32() and tf(byte) constructors
+vj1.class | Lvj1; | javac compile failure: missing kn6.Y(CharSequence) override
+wj1.class | Lwj1; | javac compile failure: missing kn6.Y(CharSequence) override
+xj1.class | Lxj1; | javac compile failure: missing kn6.Y(CharSequence) override
+yj1.class | Lyj1; | javac compile failure: missing kn6.Y(CharSequence) override
+zj1.class | Lzj1; | javac compile failure: missing kn6.Y(CharSequence) override
+la1.class | Lla1; | javac compile failure: Os.dup and Os.lseek throw unreported ErrnoException
+bz5.class | Lbz5; | source takeover ABI failure: compiled class is missing a(Ljava/lang/String;)V
