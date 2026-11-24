@@ -97,6 +97,8 @@ class FullApkSourceLedgerTest(unittest.TestCase):
             summary_path=ledger.ROOT / "docs/deobfuscation/data/full-apk-source-ledger-summary.json",
         )
         self.assertEqual(15319, checked["total_descriptors"])
+        self.assertEqual(1626, checked["local_source_compiled"])
+        self.assertEqual(347, checked["blocked"])
         self.assertEqual(64, len(checked["ledger_sha256"]))
 
 

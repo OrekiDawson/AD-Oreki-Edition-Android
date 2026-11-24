@@ -270,8 +270,8 @@ def check_committed_artifacts(
         raise ValueError(f"committed summary differs from ledger inputs: {mismatches}")
     return {
         "total_descriptors": len(rows),
-        "local_source_compiled": len(takeover),
-        "blocked": len(blocked),
+        "local_source_compiled": len(compiled),
+        "blocked": len(blocked_rows),
         "ledger_sha256": expected["ledger_sha256"],
     }
 
