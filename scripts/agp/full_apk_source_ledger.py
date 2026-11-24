@@ -61,6 +61,10 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def normalized_csv_bytes(path: Path) -> bytes:
+    return path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
 def manifest_lines(path: Path) -> list[str]:
     return [
         line.strip()
@@ -256,7 +260,7 @@ def check_committed_artifacts(
         "research_or_local_source_available_percent": round(
             source_available / EXPECTED_TOTAL * 100, 3
         ),
-        "ledger_sha256": sha256(csv_path),
+        "ledger_sha256": hashlib.sha256(normalized_csv_bytes(csv_path)).hexdigest(),
         "index_sha256": sha256(index_path),
         "takeover_sha256": sha256(takeover_path),
         "blocked_sha256": sha256(blocked_path),
@@ -268,6 +272,19 @@ def check_committed_artifacts(
     }
     if mismatches:
         raise ValueError(f"committed summary differs from ledger inputs: {mismatches}")
+    degraded_inputs = summary.get("degraded_inputs")
+    if degraded_inputs:
+        raise ValueError(f"committed summary has degraded inputs: {degraded_inputs}")
+    inputs_available = summary.get("inputs_available")
+    required_inputs = {"jadx", "game_jar"}
+    if (
+        not isinstance(inputs_available, dict)
+        or set(inputs_available) != required_inputs
+        or not all(inputs_available.values())
+    ):
+        raise ValueError(
+            f"committed summary lacks complete inputs_available: {inputs_available!r}"
+        )
     return {
         "total_descriptors": len(rows),
         "local_source_compiled": len(compiled),
@@ -498,7 +515,7 @@ def main() -> int:
     ).encode("utf-8")
 
     if args.check:
-        csv_ok = args.out_csv.read_bytes() == csv_bytes
+        csv_ok = normalized_csv_bytes(args.out_csv) == csv_bytes
         json_ok = args.out_json.read_bytes() == json_bytes
         if not csv_ok or not json_ok:
             print(

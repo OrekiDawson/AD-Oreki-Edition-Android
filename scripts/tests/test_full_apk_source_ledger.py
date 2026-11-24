@@ -1,4 +1,6 @@
+import json
 import os
+import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -100,6 +102,60 @@ class FullApkSourceLedgerTest(unittest.TestCase):
         self.assertEqual(1626, checked["local_source_compiled"])
         self.assertEqual(347, checked["blocked"])
         self.assertEqual(64, len(checked["ledger_sha256"]))
+
+    def test_committed_ledger_rejects_degraded_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            summary_path = root / "summary.json"
+            summary = json.loads(
+                (
+                    ledger.ROOT
+                    / "docs/deobfuscation/data/full-apk-source-ledger-summary.json"
+                ).read_text(encoding="utf-8")
+            )
+            summary["degraded_inputs"] = ["game_jar", "jadx"]
+            summary["inputs_available"] = {"jadx": False, "game_jar": False}
+            summary_path.write_text(
+                json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "degraded inputs"):
+                ledger.check_committed_artifacts(
+                    index_path=ledger.DEFAULT_INDEX,
+                    takeover_path=ledger.DEFAULT_TAKEOVER,
+                    blocked_path=ledger.DEFAULT_BLOCKED,
+                    source_roots=ledger.DEFAULT_SOURCE_ROOTS,
+                    csv_path=(
+                        ledger.ROOT
+                        / "docs/deobfuscation/data/full-apk-source-ledger.csv"
+                    ),
+                    summary_path=summary_path,
+                )
+
+    def test_committed_ledger_accepts_crlf_csv(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            csv_path = root / "ledger.csv"
+            summary_path = root / "summary.json"
+            csv_bytes = (
+                ledger.ROOT
+                / "docs/deobfuscation/data/full-apk-source-ledger.csv"
+            ).read_bytes()
+            csv_path.write_bytes(csv_bytes.replace(b"\n", b"\r\n"))
+            shutil.copyfile(
+                ledger.ROOT
+                / "docs/deobfuscation/data/full-apk-source-ledger-summary.json",
+                summary_path,
+            )
+            checked = ledger.check_committed_artifacts(
+                index_path=ledger.DEFAULT_INDEX,
+                takeover_path=ledger.DEFAULT_TAKEOVER,
+                blocked_path=ledger.DEFAULT_BLOCKED,
+                source_roots=ledger.DEFAULT_SOURCE_ROOTS,
+                csv_path=csv_path,
+                summary_path=summary_path,
+            )
+            self.assertEqual(1626, checked["local_source_compiled"])
 
 
 if __name__ == "__main__":
