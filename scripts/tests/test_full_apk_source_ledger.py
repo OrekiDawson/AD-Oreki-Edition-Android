@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -71,7 +72,7 @@ class FullApkSourceLedgerTest(unittest.TestCase):
             source = root / "relative" / "A.java"
             source.parent.mkdir()
             source.write_text("class A {}\n", encoding="utf-8")
-            relative = root.relative_to(Path.cwd())
+            relative = Path(os.path.relpath(root, Path.cwd()))
             self.assertEqual(
                 {"Lrelative/A;": source.relative_to(ledger.ROOT).as_posix()},
                 ledger.load_local_sources((relative,)),
@@ -82,7 +83,7 @@ class FullApkSourceLedgerTest(unittest.TestCase):
             source = root / "B.java"
             source.write_text("class B {}\n", encoding="utf-8")
             self.assertEqual(
-                {"LB;": source.as_posix()},
+                {"LB;": (root.resolve() / source.name).as_posix()},
                 ledger.load_local_sources((root,)),
             )
 
