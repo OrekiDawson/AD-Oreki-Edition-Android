@@ -1,0 +1,354 @@
+#!/usr/bin/env python3
+"""Build the unique 15,319-descriptor source-coverage ledger.
+
+The original APK index remains the sole descriptor inventory. This tool overlays
+the current AGP source takeover, blocked-candidate manifest, existing JADX
+research tree and frozen game JAR without running JADX, REA or a build.
+"""
+
+from __future__ import annotations
+
+import argparse
+import collections
+import csv
+import hashlib
+import json
+import zipfile
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_INDEX = ROOT / "docs/deobfuscation/data/first-party-3.21-index.csv"
+DEFAULT_TAKEOVER = ROOT / "build-logic/source-takeover.txt"
+DEFAULT_BLOCKED = ROOT / "scripts/agp/source-takeover-blocked.txt"
+DEFAULT_JADX = (
+    Path("/home/oreki/AD-Oreki-Edition/安卓端/work/output_code_321_r88/sources")
+)
+DEFAULT_GAME_JAR = Path(
+    "/home/oreki/private-staging/r113-leaffix4-tools/out/agpdex2/"
+    "game-hybrid-sig.jar"
+)
+DEFAULT_SOURCE_ROOTS = (
+    ROOT / "app/src/main/kotlin",
+    ROOT / "app/src/main/java",
+)
+EXPECTED_CLASS_COUNTS = {"classes.dex": 10708, "classes2.dex": 4611}
+EXPECTED_TOTAL = 15319
+
+LEDGER_COLUMNS = (
+    "dex",
+    "dex_sha256",
+    "class_def_index",
+    "descriptor",
+    "first_party",
+    "package_group",
+    "source_status",
+    "source_path",
+    "source_owner",
+    "compilable",
+    "abi_semantic_test",
+    "license_state",
+    "notes",
+)
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def manifest_lines(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+
+def descriptor_from_class_entry(entry: str) -> str:
+    return f"L{entry.removesuffix('.class')};"
+
+
+def load_takeover(path: Path) -> set[str]:
+    return {descriptor_from_class_entry(line) for line in manifest_lines(path)}
+
+
+def load_blocked(path: Path) -> dict[str, str]:
+    blocked: dict[str, str] = {}
+    for line in manifest_lines(path):
+        fields = [field.strip() for field in line.split("|")]
+        descriptor = next(
+            (field for field in fields if field.startswith("L") and field.endswith(";")),
+            "",
+        )
+        if not descriptor:
+            raise ValueError(f"blocked entry lacks descriptor: {line}")
+        if descriptor in blocked:
+            raise ValueError(f"duplicate blocked descriptor: {descriptor}")
+        blocked[descriptor] = fields[-1]
+    return blocked
+
+
+def jadx_descriptor(path: Path, root: Path) -> str:
+    relative = path.relative_to(root).with_suffix("").as_posix()
+    if relative.startswith("defpackage/"):
+        relative = relative.removeprefix("defpackage/")
+    return f"L{relative};"
+
+
+def load_jadx(root: Path) -> dict[str, str]:
+    sources: dict[str, str] = {}
+    if not root.is_dir():
+        return sources
+    for path in sorted(root.rglob("*.java")):
+        if path.name in {"package-info.java", "module-info.java"}:
+            continue
+        descriptor = jadx_descriptor(path, root)
+        if descriptor in sources:
+            raise ValueError(f"duplicate JADX descriptor: {descriptor}")
+        sources[descriptor] = path.as_posix()
+    return sources
+
+
+def load_local_sources(roots: tuple[Path, ...]) -> dict[str, str]:
+    sources: dict[str, str] = {}
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for path in sorted(root.rglob("*")):
+            if path.suffix not in {".java", ".kt"}:
+                continue
+            relative = path.relative_to(root).with_suffix("").as_posix()
+            descriptor = f"L{relative};"
+            if descriptor in sources:
+                raise ValueError(f"duplicate local source descriptor: {descriptor}")
+            sources[descriptor] = path.as_posix()
+    return sources
+
+
+def load_jar_descriptors(path: Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    with zipfile.ZipFile(path) as archive:
+        return {
+            descriptor_from_class_entry(name)
+            for name in archive.namelist()
+            if name.endswith(".class")
+        }
+
+
+def nested_jadx_source(descriptor: str, jadx: dict[str, str]) -> str | None:
+    candidate = descriptor
+    while "$" in candidate:
+        candidate = candidate.rsplit("$", 1)[0] + ";"
+        if candidate in jadx:
+            return jadx[candidate]
+    return None
+
+
+def load_index(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    descriptors = [row["descriptor"] for row in rows]
+    if len(descriptors) != EXPECTED_TOTAL:
+        raise ValueError(f"index total {len(descriptors)} != {EXPECTED_TOTAL}")
+    if len(set(descriptors)) != len(descriptors):
+        raise ValueError("index contains duplicate descriptors")
+    counts = collections.Counter(row["dex"] for row in rows)
+    if dict(counts) != EXPECTED_CLASS_COUNTS:
+        raise ValueError(f"index DEX counts differ: {dict(counts)}")
+    return rows
+
+
+def build_ledger(
+    index_rows: list[dict[str, str]],
+    *,
+    takeover: set[str],
+    blocked: dict[str, str],
+    jadx: dict[str, str],
+    local_sources: dict[str, str],
+    jar_descriptors: set[str],
+) -> tuple[list[dict[str, str]], dict]:
+    overlap = takeover & set(blocked)
+    if overlap:
+        raise ValueError(f"descriptors both compiled and blocked: {sorted(overlap)[:10]}")
+
+    rows: list[dict[str, str]] = []
+    for source in index_rows:
+        descriptor = source["descriptor"]
+        notes = ""
+        jadx_path = jadx.get(descriptor, "")
+        nested_path = nested_jadx_source(descriptor, jadx)
+        source_path = ""
+        if descriptor in blocked:
+            status = "BLOCKED"
+            owner = "blocked-candidate"
+            compilable = "no"
+            abi_test = "blocked"
+            license_state = (
+                "first-party-original"
+                if source["first_party"] == "yes"
+                else "third-party-unverified"
+            )
+            notes = blocked[descriptor]
+            source_path = jadx_path or (nested_path or "")
+        elif descriptor in takeover:
+            status = "LOCAL_SOURCE_COMPILED"
+            owner = "app:AGP"
+            compilable = "yes"
+            abi_test = "existing-takeover-guard"
+            license_state = "first-party-original"
+            source_path = local_sources.get(descriptor, "")
+            if not source_path:
+                raise ValueError(f"takeover descriptor lacks source file: {descriptor}")
+        elif jadx_path:
+            status = "RESEARCH_ONLY"
+            owner = "JADX-reference"
+            compilable = "not-proven"
+            abi_test = "not-run"
+            license_state = (
+                "first-party-original"
+                if source["first_party"] == "yes"
+                else "third-party-unverified"
+            )
+            source_path = jadx_path
+        elif nested_path:
+            status = "RESEARCH_ONLY_NESTED"
+            owner = "JADX-reference"
+            compilable = "not-proven"
+            abi_test = "not-run"
+            license_state = (
+                "first-party-original"
+                if source["first_party"] == "yes"
+                else "third-party-unverified"
+            )
+            source_path = nested_path
+            notes = "nested class is present in its outer JADX source file"
+        elif descriptor in jar_descriptors:
+            status = "BINARY_ONLY_REMAINDER"
+            owner = "frozen-game-jar"
+            compilable = "no"
+            abi_test = "runtime-existing"
+            license_state = "binary-only"
+            notes = "present in frozen game JAR; no matched source file"
+        else:
+            status = "UNRESOLVED"
+            owner = "unknown"
+            compilable = "unknown"
+            abi_test = "not-run"
+            license_state = "unknown"
+            notes = "not present in takeover, blocked, JADX or frozen game JAR inputs"
+
+        rows.append(
+            {
+                "dex": source["dex"],
+                "dex_sha256": source["dex_sha256"],
+                "class_def_index": source["class_def_index"],
+                "descriptor": descriptor,
+                "first_party": source["first_party"],
+                "package_group": source["package_group"],
+                "source_status": status,
+                "source_path": source_path,
+                "source_owner": owner,
+                "compilable": compilable,
+                "abi_semantic_test": abi_test,
+                "license_state": license_state,
+                "notes": notes,
+            }
+        )
+
+    if len(rows) != EXPECTED_TOTAL or len({row["descriptor"] for row in rows}) != EXPECTED_TOTAL:
+        raise ValueError("ledger does not cover the unique 15,319 descriptor baseline")
+
+    statuses = collections.Counter(row["source_status"] for row in rows)
+    summary = {
+        "schema_version": 1,
+        "total_descriptors": EXPECTED_TOTAL,
+        "dex_class_defs": EXPECTED_CLASS_COUNTS,
+        "status_counts": dict(sorted(statuses.items())),
+        "first_party_counts": dict(
+            sorted(collections.Counter(row["first_party"] for row in rows).items())
+        ),
+        "research_or_local_source_available_percent": round(
+            100.0
+            * (
+                statuses["LOCAL_SOURCE_COMPILED"]
+                + statuses["RESEARCH_ONLY"]
+                + statuses["RESEARCH_ONLY_NESTED"]
+            )
+            / EXPECTED_TOTAL,
+            3,
+        ),
+        "local_compiled_percent": round(
+            100.0 * statuses["LOCAL_SOURCE_COMPILED"] / EXPECTED_TOTAL,
+            3,
+        ),
+        "accounting_ok": sum(statuses.values()) == EXPECTED_TOTAL,
+        "takeover_entries": len(takeover),
+        "takeover_in_baseline": sum(row["descriptor"] in takeover for row in rows),
+        "takeover_outside_baseline": len(takeover - {row["descriptor"] for row in rows}),
+        "blocked_entries": len(blocked),
+        "blocked_in_baseline": sum(row["descriptor"] in blocked for row in rows),
+        "jadx_unique_descriptors": len(jadx),
+        "jar_unique_descriptors": len(jar_descriptors),
+    }
+    return rows, summary
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--index", type=Path, default=DEFAULT_INDEX)
+    parser.add_argument("--takeover", type=Path, default=DEFAULT_TAKEOVER)
+    parser.add_argument("--blocked", type=Path, default=DEFAULT_BLOCKED)
+    parser.add_argument("--jadx-root", type=Path, default=DEFAULT_JADX)
+    parser.add_argument("--game-jar", type=Path, default=DEFAULT_GAME_JAR)
+    parser.add_argument(
+        "--source-root",
+        type=Path,
+        action="append",
+        dest="source_roots",
+    )
+    parser.add_argument("--out-csv", type=Path, required=True)
+    parser.add_argument("--out-json", type=Path, required=True)
+    parser.add_argument("--check", action="store_true")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    source_roots = tuple(args.source_roots or DEFAULT_SOURCE_ROOTS)
+    rows, summary = build_ledger(
+        load_index(args.index),
+        takeover=load_takeover(args.takeover),
+        blocked=load_blocked(args.blocked),
+        jadx=load_jadx(args.jadx_root),
+        local_sources=load_local_sources(source_roots),
+        jar_descriptors=load_jar_descriptors(args.game_jar),
+    )
+    args.out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with args.out_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=LEDGER_COLUMNS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    summary.update(
+        {
+            "index_sha256": sha256(args.index),
+            "takeover_sha256": sha256(args.takeover),
+            "blocked_sha256": sha256(args.blocked),
+            "ledger_sha256": sha256(args.out_csv),
+        }
+    )
+    args.out_json.parent.mkdir(parents=True, exist_ok=True)
+    args.out_json.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
