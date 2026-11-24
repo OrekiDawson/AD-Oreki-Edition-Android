@@ -114,6 +114,10 @@ class TreeCheckWiringTest(unittest.TestCase):
                          "公开源码 CI 没有树，不得假装执行树级校验")
         self.assertNotIn("--decoded-tree", ci,
                          "公开源码 CI 没有解码基线，不得假装执行树级校验")
+        self.assertIn("id: full_game_inputs", ci)
+        self.assertIn("NOT RUN: proprietary full-game inputs are unavailable on the public runner", ci)
+        self.assertIn("NOT RUN: full-game APK build, ABI guard and DEX parity", ci)
+        self.assertIn("steps.full_game_inputs.outputs.available == 'true'", ci)
 
 
 if __name__ == "__main__":

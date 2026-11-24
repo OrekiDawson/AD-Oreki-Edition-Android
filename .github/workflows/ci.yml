@@ -250,20 +250,45 @@ jobs:
       - name: Install API 37 and pinned Build Tools
         run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
       - uses: gradle/actions/setup-gradle@v6
+      - name: Detect pinned full-game inputs
+        id: full_game_inputs
+        run: |
+          set -euo pipefail
+          if [[ -f build/inputs/game-final.jar &&
+                -d build/inputs/base_decoded_321 &&
+                -d build/inputs/mdpi_decoded_321 ]]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+            echo 'PASS: pinned full-game inputs are present'
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo 'NOT RUN: proprietary full-game inputs are unavailable on the public runner'
+          fi
       - name: Verify store-policy JAR gate self-test
         run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
       - name: Test constructor ASM invariants
         run: bash ./gradlew -p build-logic test --no-daemon --max-workers=1 --console=plain
       - name: Build AGP 9 Kotlin DEX
+        if: steps.full_game_inputs.outputs.available == 'true'
         # R111 CI-6：构建日志落盘，失败时随证据一起上传，避免只能翻折叠的 Actions 日志。
         run: |
           set -euo pipefail
           mkdir -p ci-evidence
           bash ./gradlew :app:assembleDebug :app:copyAgpKotlinClasses --no-daemon --console=plain 2>&1 | tee ci-evidence/agp-kotlin-dex-build.log
       - name: Enforce ABI guard on AGP-compiled classes
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: python3 scripts/build_kotlin.py --verify-abi --classes app/build/agp-kotlin-classes
       - name: Enforce AGP DEX parity with the legacy chain
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
+      - name: Record full-game build as NOT RUN without proprietary inputs
+        if: steps.full_game_inputs.outputs.available != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          printf '%s\n' \
+            'NOT RUN: full-game APK build, ABI guard and DEX parity require the pinned proprietary inputs.' \
+            'This public source check does not infer PASS from a skipped APK build.' \
+            | tee ci-evidence/full-game-build-not-run.txt
       - name: Upload AGP phase-1 evidence
         # R111 CI-6：无论成败都上传已产生的构建日志与 parity 结果；失败时至少保留可诊断线索，
         # 成功后仍要求 parity 证据存在（下一步单独校验，避免用 if-no-files-found: warn 掩盖缺失）。
@@ -277,4 +302,5 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Require AGP parity evidence
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: test -s agp-parity.json || { echo '::error::缺少 agp-parity.json（AGP DEX parity 未产出）'; exit 1; }

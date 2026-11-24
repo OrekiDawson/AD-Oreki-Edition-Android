@@ -32,6 +32,7 @@
 - 完整 Debug APK：PASS，56 秒。
 - `:app:assembleR8` 构建：PASS，1 分 27 秒；公共 CI 未提供生产密钥时保持未签名。
 - R8 变体 ABI/DEX 校验：NOT RUN。当前 `OrekiStorePolicyPlugin.kt` 与 `OrekiAbiPolicyPlugin.kt` 的变体循环只覆盖 Debug/Release，尚未覆盖 `r8`；该 APK 不作为发布或对照证据使用。
+- 公共 CI 会先检测 `game-final.jar`、`base_decoded_321` 与 `mdpi_decoded_321`；缺少专有输入时明确记录完整 APK、ABI 与 DEX parity 为 `NOT RUN`，不再以失败构建或跳过产物冒充源码 PASS。
 - 完整游戏资源：14973 条。
 - Source takeover ABI：1650 classes PASS。
 - Source takeover DEX：1650 classes PASS。
@@ -54,4 +55,4 @@
 
 - 未执行正式 Release 构建。
 - 未使用生产签名、AVD、线上发布或四渠道上传。
-- PR #308 原 `Kody trigger` 失败为并发取消，Kody Code Review 已在当前 Head 实际完成；新 Head 推送后需重新观察 CI。
+- PR #308 原 `Kody trigger` 失败为并发取消；当前 Head 的 CI/Kody 只能按新运行回执判定，本报告不预判后续结果。
