@@ -49,9 +49,18 @@ jobs:
           "$signer" version | tee hybrid-evidence/version.txt
           "$signer" sign --help > hybrid-evidence/sign-help.txt
           "$signer" verify --help > hybrid-evidence/verify-help.txt
-          grep -q -- '--hybrid-signer-role' hybrid-evidence/sign-help.txt
-          grep -q -- '--signer-lineage' hybrid-evidence/sign-help.txt
-          grep -q -- '--v4-signature-file' hybrid-evidence/verify-help.txt
+          missing=()
+          for option in --hybrid-signer-role --signer-lineage --hybrid-min-sdk-version; do
+            grep -Fq -- "$option" hybrid-evidence/sign-help.txt || missing+=("sign $option")
+          done
+          grep -Fq -- '--v4-signature-file' hybrid-evidence/verify-help.txt \
+            || missing+=("verify --v4-signature-file")
+          if (( ${#missing[@]} > 0 )); then
+            printf 'BLOCKED: Build Tools apksigner 缺少官方选项: %s\n' "${missing[*]}" \
+              | tee hybrid-evidence/toolchain-blocked.txt
+            echo '::error::官方 apksigner 不能完成独立 V3.2/V4 验签；本轮不得产出 PASS'
+            exit 2
+          fi
           # 临时随机密码和密钥仅存在 RUNNER_TEMP；不上传密钥、谱系或测试 APK。
           export OREKI_K0_PASS="$(openssl rand -hex 24)"
           export OREKI_CLASSICAL_PASS="$(openssl rand -hex 24)"
