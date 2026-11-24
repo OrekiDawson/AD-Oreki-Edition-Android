@@ -475,6 +475,25 @@ yj.class | Lyj; | javac compile failure: final field a is not initialized by the
 os2.class | Los2; | javac compile failure: final field a is not initialized by the available constructor
 ln3.class | Lln3; | javac compile failure: final field a is not initialized by the available constructor
 hv2.class | Lhv2; | javac compile failure: final field a is not initialized by the available constructor
+ea6.class | Lea6; | javac compile failure: cannot access xq6 malformed variable-arity method
+f33.class | Lf33; | javac compile failure: superclass gs2 requires Context; v23 constructor absent
+sp5.class | Lsp5; | javac compile failure: missing wa(int) and x31.e(String)
+d73.class | Ld73; | javac compile failure: missing ok8.z(int) override
+an6.class | Lan6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+r43.class | Lr43; | javac compile failure: cannot find symbol constructor q43()
+m90.class | Lm90; | javac compile failure: Property requires Class,String; no m90(Class,String) constructor
+tx6.class | Ltx6; | javac compile failure: missing fd7(um8,byte) constructor
+wm6.class | Lwm6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+a99.class | La99; | javac compile failure: no ca9(boolean,Object,Object,byte) constructor; lx3.q(Exception) absent
+iw8.class | Liw8; | javac compile failure: cannot find symbol constructor b()
+xl2.class | Lxl2; | javac compile failure: cannot find symbol constructor wl2()
+oa7.class | Loa7; | javac compile failure: cannot find symbol constructor ja7()
+ek1.class | Lek1; | javac compile failure: missing z42.v(int,View) override and required constructor
+xk4.class | Lxk4; | javac compile failure: final field a is not initialized by the available constructor
+su.class | Lsu; | javac compile failure: final field a is not initialized by the available constructor
+q39.class | Lq39; | javac compile failure: final field a is not initialized by the available constructor
+fb3.class | Lfb3; | source takeover ABI failure: compiled class is missing 28 original static-linkage methods
+rw7.class | Lrw7; | source takeover ABI failure: compiled class is missing uncaughtException(Thread,Throwable)
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
