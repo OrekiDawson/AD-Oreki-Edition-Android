@@ -39,6 +39,7 @@
 
 ### 2.1 Android 技术及游戏约束
 
+- **P0 正式 APK 仅 V3 签名**：minSdk 固定 32，AGP Release 仅启用 APK Signature Scheme v3.0；显式禁用 V1/V2/V4，不启用 V3.1 密钥轮换。原正式包名、签名密钥、证书 SHA-256、存档不变，禁止二次签名、修改最终 APK 或降低验签门禁。按 APK 实际 minSdk 执行 apksigner，独立检查实际签名块含 V3 而无 V2/V3.1，拒绝 V1 签名文件、V4 sidecar、错误/多证书；候选、独立验签与正式交付共用规则。必须以同包名同证书上一正式版覆盖安装、冷启动/Tick/存档通过后收口；冻结历史资产及回滚证据不改写。四渠道同一 APK/SHA-256、Kody、CI 和预算门禁不变。
 - 官方 Android 3.21.0 是兼容基线；未经授权不整体升级上游、改变包名/签名或破坏存档。实际 Gradle/AGP/JDK/D8/R8 版本以仓库当前构建配置和已验收证据为准，不使用过期版本快照指挥构建。
 - **新增或修改的游戏业务全部使用 Kotlin**；允许原版 Smali/DEX 在 ABI/行为验证后临时还原为未经业务扩展的 Java，任何对该旧 Java 的实质功能修改都必须先转 Kotlin；不在 Java/Smali 中继续开发业务。修改混淆符号前核实真实签名、调用路径和运行行为；遵守 Kotlin→DEX→APK 构建与签名流程。
 - **AGP/R8 渐进迁移**：标准 Google Android 工程、AGP、R8 和逐步淘汰 apktool 为长期目标；新链路先验证包名、资源、Kotlin→D8→DEX→APK、ABI、混淆/反射、签名、覆盖安装、真实运行及存档，再替换旧环节。禁止 Kotlin 空壳、伪迁移、在过渡 Java/Smali 中新增或修改游戏业务；JADX 使用 `jadx --deobf -d out_folder input.apk`，同一原版基线复用已导出的成果。
