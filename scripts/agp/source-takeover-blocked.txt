@@ -574,3 +574,25 @@ wa6.class | Lwa6; | javac compile failure: missing w39.p() override and construc
 x84.class | Lx84; | javac compile failure: missing k51(String,byte) constructor
 zi7.class | Lzi7; | javac compile failure: m47.v unavailable
 ft0.class | Lft0; | javac compile failure: final field b is not initialized by the default constructor
+az4.class | Laz4; | javac compile failure: long[] incorrectly shadows required translation helper q(int,Object[])
+f66.class | Lf66; | javac compile failure: missing Iterator.next() override
+fe4.class | Lfe4; | javac compile failure: missing he4() constructor
+fq6.class | Lfq6; | javac compile failure: missing mf6(byte) constructor
+g78.class | Lg78; | javac compile failure: ws5 version-49 default method and y42() constructor unavailable
+hr1.class | Lhr1; | javac compile failure: missing e(gm1,gm1) constructor
+ir1.class | Lir1; | javac compile failure: missing e(gm1,gm1) constructor
+iu6.class | Liu6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+ix.class | Lix; | javac compile failure: missing kx(int,BigDouble,double,fm1,fm1,gm1) and a() constructors
+kr1.class | Lkr1; | javac compile failure: missing e(gm1,gm1) constructor
+lr1.class | Llr1; | javac compile failure: missing e(gm1,gm1) constructor
+ls7.class | Lls7; | javac compile failure: missing je7(int) constructor
+mr1.class | Lmr1; | javac compile failure: missing e(gm1,gm1) constructor
+nr1.class | Lnr1; | javac compile failure: missing e(gm1,gm1) constructor
+r45.class | Lr45; | javac compile failure: missing ny6() constructor
+us8.class | Lus8; | javac compile failure: missing zs8(byte) constructor
+i52.class | Li52; | javac compile failure: local num may not be initialized before null check
+h52.class | Lh52; | javac compile failure: local num may not be initialized before null check
+jl7.class | Ljl7; | source takeover ABI failure: compiled class is missing a()Lcl7; and zzb()Ljava/lang/Object;
+r1.class | Lr1; | source takeover ABI failure: compiled class is missing 28 original static-linkage platform methods
+ui6.class | Lui6; | source takeover ABI failure: compiled class omits original static initializer
+yr.class | Lyr; | source takeover ABI failure: compiled class omits MutablePropertyReference1 constructor and field d

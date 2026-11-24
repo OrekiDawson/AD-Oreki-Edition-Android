@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-17",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 18,
+  "blocked_count": 22,
+  "newly_blocked_candidates": 22,
+  "previous_source_coverage": 1935,
+  "source_coverage": 1953,
+  "coverage_percent": 12.749,
+  "takeover_entries": 1977,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    "ac7.class",
+    "b14.class",
+    "bt1.class",
+    "c54.class",
+    "d08.class",
+    "hz6.class",
+    "jc4.class",
+    "m66.class",
+    "nu3.class",
+    "nw5.class",
+    "q88.class",
+    "rn0.class",
+    "uv3.class",
+    "vo4.class",
+    "wd2.class",
+    "xx4.class",
+    "z54.class",
+    "zy8.class"
+  ],
+  "blocked": [
+    "az4.class",
+    "f66.class",
+    "fe4.class",
+    "fq6.class",
+    "g78.class",
+    "hr1.class",
+    "i52.class",
+    "h52.class",
+    "ir1.class",
+    "iu6.class",
+    "ix.class",
+    "jl7.class",
+    "kr1.class",
+    "lr1.class",
+    "ls7.class",
+    "mr1.class",
+    "nr1.class",
+    "r1.class",
+    "r45.class",
+    "ui6.class",
+    "us8.class",
+    "yr.class"
+  ],
+  "verification": {
+    "prepareFullGameInputs": "PASS: 14973 resources",
+    "static_tests": "PASS: 25",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidates blocked",
+    "sourceTakeoverAbi": "PASS: 1977",
+    "sourceTakeoverDex": "PASS: 1977",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1953 local compiled, 596 blocked",
+    "debugApk": {
+      "bytes": 92876409,
+      "sha256": "0c86bbc38d9a1c6fde390de7dbc7b7a51277fc0d102f3c282434692bb8723ed8"
+    }
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-17",
+    "blocked_source_references": "blocked-source-references",
+    "digests": [
+      "blocked-source-references/SHA256SUMS"
+    ]
+  }
+}
