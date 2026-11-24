@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-04",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 20,
+  "accepted_count": 14,
+  "blocked_count": 6,
+  "previous_source_coverage": 1680,
+  "source_coverage": 1694,
+  "coverage_percent": 11.0582,
+  "accepted": [
+    "ug7",
+    "y67",
+    "a12",
+    "hc4",
+    "px0",
+    "ir",
+    "ur0",
+    "uu5",
+    "m8",
+    "q8",
+    "rq4",
+    "j93",
+    "ej",
+    "xd5"
+  ],
+  "blocked": [
+    {
+      "entry": "fa3.class",
+      "descriptor": "Lfa3;",
+      "reason": "JADX omitted inherited ua3(int,int) constructor and synthetic fa3(int,int,int) dispatch"
+    },
+    {
+      "entry": "g11.class",
+      "descriptor": "Lg11;",
+      "reason": "JADX omitted inherited constructor b62() required by superclass ABI"
+    },
+    {
+      "entry": "uq1.class",
+      "descriptor": "Luq1;",
+      "reason": "JADX omitted android.util.LruCache(int) constructor"
+    },
+    {
+      "entry": "zh7.class",
+      "descriptor": "Lzh7;",
+      "reason": "synthetic th7() constructor is absent from source and unavailable to javac"
+    },
+    {
+      "entry": "hx6.class",
+      "descriptor": "Lhx6;",
+      "reason": "JADX omitted synthetic bridge methods a()Let6; and zzb()Ljava/lang/Object; required by tm8 ABI"
+    },
+    {
+      "entry": "uw6.class",
+      "descriptor": "Luw6;",
+      "reason": "JADX omitted synthetic bridge methods a()Lqn8; and zzb()Ljava/lang/Object; required by tm8 ABI"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 31",
+    "compileDebugJavaWithJavac": "PASS",
+    "assembleDebug": "PASS after ABI failures removed",
+    "compile_attempt_failures": 4,
+    "failed_entries_removed_with_precise_blocked_reasons": true
+  }
+}

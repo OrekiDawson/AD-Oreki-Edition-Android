@@ -168,6 +168,12 @@ j58.class | Lj58; | original DEX omits required JVM zza() implementation inherit
 mb1.class | Lmb1; | dependency x38 implements malformed ws5.class default-method classfile
 mo3.class | Lmo3; | dependencies xy0(byte) and wy0(String,byte) are ACC_SYNTHETIC
 ol3.class | Lol3; | depends on blocked nl3.class and synthetic media3 dependency constructors
+fa3.class | Lfa3; | JADX omitted inherited ua3(int,int) constructor and synthetic fa3(int,int,int) dispatch
+g11.class | Lg11; | JADX omitted inherited constructor b62() required by superclass ABI
+uq1.class | Luq1; | JADX omitted android.util.LruCache(int) constructor
+zh7.class | Lzh7; | synthetic th7() constructor is absent from source and unavailable to javac
+hx6.class | Lhx6; | JADX omitted synthetic bridge methods a()Let6; and zzb()Ljava/lang/Object; required by tm8 ABI
+uw6.class | Luw6; | JADX omitted synthetic bridge methods a()Lqn8; and zzb()Ljava/lang/Object; required by tm8 ABI
 iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
 h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior
 a48.class | La48; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
