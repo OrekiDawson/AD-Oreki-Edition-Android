@@ -413,15 +413,9 @@ jobs:
           test -x "$signer"
           apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           test -s "$apk"
-          "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$apk" > "$GITHUB_WORKSPACE/candidate/signature-probe.txt"
-          grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
-            echo "::error::APK is missing v2 signature"; exit 1;
-          }
-          grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
-            echo "::error::APK is missing v3 signature"; exit 1;
-          }
-          python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' "$GITHUB_WORKSPACE/candidate/signature-probe.txt" "$EXPECTED_CERT_SHA256"
-          echo "::notice::AGP-produced APK independently verified with v2+v3 and production certificate"
+          "$signer" verify --verbose --print-certs "$apk" > "$GITHUB_WORKSPACE/candidate/signature-probe.txt"
+          python3 scripts/verify_apk_v3.py "$apk" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" "$EXPECTED_CERT_SHA256"
+          echo "::notice::AGP-produced APK independently verified with v3-only and production certificate"
 
       - name: Prepare APK tool report for contract verifiers
         working-directory: source
@@ -481,20 +475,14 @@ jobs:
             --verify-release "$cand/verify-release.json" \
             --repo-root "$GITHUB_WORKSPACE/source"
 
-      - name: Verify signed APK, v2+v3 schemes and record cert evidence
+      - name: 验证正式 APK 仅 V3 签名及证书
         run: |
           set -euo pipefail
           signer="$ANDROID_SDK_ROOT/build-tools/37.0.0/apksigner"
           test -x "$signer"
           cand="$GITHUB_WORKSPACE/candidate"
-          "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
-          PYTHONPATH="$GITHUB_WORKSPACE/source" python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' "$cand/signature.txt" "$EXPECTED_CERT_SHA256"
-          grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$cand/signature.txt" || {
-            echo "::error::APK is missing v2 signature"; exit 1;
-          }
-          grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$cand/signature.txt" || {
-            echo "::error::APK is missing v3 signature (enableV3Signing)"; exit 1;
-          }
+          "$signer" verify --verbose --print-certs "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
+          python3 "$GITHUB_WORKSPACE/source/scripts/verify_apk_v3.py" "$cand/antimatter-dimensions.apk" "$cand/signature.txt" "$EXPECTED_CERT_SHA256"
       - name: Upload candidate (not a stable release)
         uses: actions/upload-artifact@v7
         with:
