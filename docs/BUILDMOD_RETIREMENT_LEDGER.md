@@ -1427,7 +1427,7 @@ WebViewClient 单条转发语义恢复。`jb1` 遗漏原版
 - FullGame Debug APK：
   `20b003e0e6078bd9ff4a7d1153bd614741bdee49298daac5561ae9e58a34daf3`
   （83,892,408 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
-- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 3294 ms，进程存活，
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 3443 ms，进程存活，
   `gui-tick #1/#2/#3` 均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
   crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
   NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
