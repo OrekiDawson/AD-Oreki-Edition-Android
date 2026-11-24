@@ -30,7 +30,7 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
                 gravity = android.view.Gravity.CENTER
                 val vertical = dpToPx(activity, 12)
                 setPadding(0, vertical, 0, vertical)
-                setOnClickListener(TutorialEntryListener(activity, 0))
+                setOnClickListener { TutorialReaderFragment.open(activity) }
                 tag = "oreki_tutorial_entry"
             }
             val margin = dpToPx(activity, 8)
