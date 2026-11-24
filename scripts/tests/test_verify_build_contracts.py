@@ -102,8 +102,9 @@ class TreeCheckWiringTest(unittest.TestCase):
         self.assertLess(idx_tree, idx_build,
                         "原生输入复核必须排在 AGP 打包之前（失败即阻断候选）")
         self.assertIn(":app:prepareFullGameInputs :app:verifyFullGameInputs", workflow)
-        self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', workflow)
-        self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', workflow)
+        self.assertIn("build/inputs/base_decoded_321", workflow)
+        self.assertIn("build/inputs/mdpi_decoded_321", workflow)
+        self.assertNotIn("-Poreki", workflow)
         self.assertNotIn("--mod-tree work/mod", workflow)
 
     def test_public_ci_does_not_fake_tree_checks(self):
@@ -113,6 +114,18 @@ class TreeCheckWiringTest(unittest.TestCase):
                          "公开源码 CI 没有树，不得假装执行树级校验")
         self.assertNotIn("--decoded-tree", ci,
                          "公开源码 CI 没有解码基线，不得假装执行树级校验")
+        self.assertIn("id: full_game_inputs", ci)
+        self.assertIn("name: AGP 专有输入构建（缺输入时明确 NOT RUN）", ci)
+        self.assertIn("## AGP 专有输入构建：NOT RUN", ci)
+        self.assertIn("NOT RUN: full-game APK build, ABI guard and DEX parity", ci)
+        self.assertIn("steps.full_game_inputs.outputs.available == 'true'", ci)
+        self.assertIn("needs: source-policy", ci)
+        not_run_start = ci.index("Record full-game build as NOT RUN without proprietary inputs")
+        not_run_end = ci.index("Upload AGP phase-1 evidence", not_run_start)
+        not_run = ci[not_run_start:not_run_end]
+        self.assertIn("AGP专有输入构建为 NOT RUN", not_run)
+        self.assertIn("exit 1", not_run,
+                      "缺专有输入时，专有构建 check 必须失败关闭，不能以 SUCCESS 冒充完整构建")
 
 
 if __name__ == "__main__":

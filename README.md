@@ -25,22 +25,20 @@
 
 需要 JDK、Android SDK / Build Tools、Gradle Wrapper 和 adb。工具链的具体版本、基线资源及 ABI 要求以当前配置和 [构建交付规则](docs/DELIVERY_RULES.md) 为准，不使用旧报告中的固定版本代替实时检查。
 
-**AGP 9.5.2 是唯一正式构建入口。** 根 Groovy 工程、`scripts/build_mod.py` 与 Python 补丁树生产链已于 R126 物理退役；历史报告只作追溯。默认命令执行 bridge/骨架包编译检查，不能拿该 bridge 包进行完整游戏安装与验收：
+**AGP 9.5.2 是唯一正式构建入口。** 根 Groovy 工程、`scripts/build_mod.py` 与 Python 补丁树生产链已于 R126 物理退役；历史报告只作追溯。完整游戏现在是 `:app` 的默认构建对象，缺少过渡输入时必须 fail-closed：
 
 ```bash
 ./gradlew :app:assembleRelease --offline --no-daemon --console=plain
 ```
 
-完整游戏候选需要经过核验的官方 DEX 转换后的 JVM 游戏类 JAR，并显式指定完整游戏模式：
+尚未完全源码化的官方过渡输入默认从工程相对的 `build/inputs/` 读取：
 
 ```bash
-GAME_JAR=/absolute/path/to/verified-game.jar
-./gradlew :app:assembleRelease \
-  -PorekiFullGame=true -PorekiGameJar="$GAME_JAR" \
-  --offline --no-daemon --console=plain
+./gradlew :app:compileDebugJavaWithJavac --offline
+./gradlew assembleDebug --offline
 ```
 
-以上仅为本地候选命令，**没有 `-PorekiFullGame=true` 与 `-PorekiGameJar` 时不会自动注入完整游戏类**。正式候选还须按 [.github/workflows/candidate-unified.yml](.github/workflows/candidate-unified.yml) 和 [交付规则](docs/DELIVERY_RULES.md) 完成基线输入、AGP-only、签名、安装与真实运行门禁；离线缺依赖时先核实依赖来源。构建成功不等于功能通过。
+机器专属路径只能写入被忽略的 `local.properties`（`oreki.gameJar`、`oreki.officialTree`、`oreki.splitTree`）。不使用项目专用环境变量、Gradle `-P` 参数或包装命令；输入缺失时直接失败，不降级为桥接包。正式候选还须按 [.github/workflows/candidate-unified.yml](.github/workflows/candidate-unified.yml) 和 [交付规则](docs/DELIVERY_RULES.md) 完成基线输入、AGP-only、签名、安装与真实运行门禁；构建成功不等于功能通过。
 
 正式交付必须对应同一条可核查证据链：**源码 Commit → 构建配置与产物 → APK SHA-256 → 签名 → 设备安装 → 真实运行 → 结论**。不同 APK 的里程碑不可混用，正式发布还需满足平台审批与发布门禁。
 

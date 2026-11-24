@@ -25,7 +25,8 @@ class AgpR8ExperimentTests(unittest.TestCase):
         cls.r8_ab_script = R8_AB_SCRIPT.read_text(encoding="utf-8")
 
     def test_r8_is_explicitly_opt_in_and_resource_shrinking_stays_off(self):
-        self.assertIn('gradleProperty("oreki.r8")', self.gradle)
+        self.assertIn('create("r8")', self.gradle)
+        self.assertNotIn('gradleProperty("oreki.r8")', self.gradle)
         self.assertIn("isShrinkResources = false", self.gradle)
         self.assertIn('getDefaultProguardFile("proguard-android-optimize.txt")', self.gradle)
 
@@ -60,15 +61,33 @@ class AgpR8ExperimentTests(unittest.TestCase):
         self.assertEqual(name, "r8-experiment")
         run = step["run"]
         self.assertIn("--apk", run)
-        self.assertIn("--scope bridge", run)
+        self.assertIn("--scope full-game", run)
         self.assertIn("--mapping r8-evidence/optimized/mapping.txt", run)
         self.assertIn("--json r8-evidence/optimized/r8-abi-verify.json", run)
         self.assertNotIn("|| true", run)
         self.assertNotIn("continue-on-error", step)
-        self.assertNotIn("if", step)
+        self.assertEqual(step["if"], "steps.r8_inputs.outputs.available == 'true'")
         self.assertNotIn("continue-on-error", job)
-        self.assertNotIn("--scope full-game", self.workflow_text)
-        self.assertIn("当前工作流没有 full-game R8 执行者", self.workflow_text)
+        self.assertNotIn("--scope bridge", self.workflow_text)
+
+    def test_experiment_distinguishes_missing_proprietary_inputs(self):
+        job = self.workflow["jobs"]["r8-experiment"]
+        steps = job["steps"]
+        detect = next(step for step in steps if step.get("id") == "r8_inputs")
+        self.assertIn("available=false", detect["run"])
+        self.assertIn("NOT RUN", detect["run"])
+        build = next(step for step in steps if step["name"] == "构建显式启用 R8 的 Release 实验 APK")
+        self.assertEqual(build["if"], "steps.r8_inputs.outputs.available == 'true'")
+        not_run = next(step for step in steps if step["name"] == "记录缺输入时的 NOT RUN 证据")
+        self.assertEqual(not_run["if"], "steps.r8_inputs.outputs.available != 'true'")
+
+    def test_r8_variant_is_wired_into_takeover_and_android_abi_gates(self):
+        root = ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic"
+        store_policy = (root / "OrekiStorePolicyPlugin.kt").read_text(encoding="utf-8")
+        abi_policy = (root / "OrekiAbiPolicyPlugin.kt").read_text(encoding="utf-8")
+        expected = 'listOf("Debug", "Release", "R8")'
+        self.assertIn(expected, store_policy)
+        self.assertIn(expected, abi_policy)
 
     def test_experiment_triggers_when_abi_verifier_changes(self):
         triggers = self.workflow.get(True, self.workflow.get("on", {}))
@@ -101,7 +120,7 @@ class AgpR8ExperimentTests(unittest.TestCase):
 
     def test_full_game_experiment_uses_root_relative_artifacts_from_any_cwd(self):
         self.assertIn(
-            'local apk_out="$ROOT/app/build/outputs/apk/release/app-release.apk"',
+            'local apk_out="$ROOT/app/build/outputs/apk/$output_variant/app-$output_variant.apk"',
             self.r8_ab_script,
         )
         self.assertIn(

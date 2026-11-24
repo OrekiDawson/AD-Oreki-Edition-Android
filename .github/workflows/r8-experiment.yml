@@ -35,7 +35,7 @@ jobs:
         run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
 
   r8-experiment:
-    name: R8 优化前后 Release 对照（不发布）
+    name: R8 专有输入对照（缺输入时明确 NOT RUN）
     needs: r8-contract
     # 仅对 Ready PR / 手动执行双包对照；Draft 的契约守卫由 r8-contract 单独负责。
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
@@ -59,7 +59,31 @@ jobs:
         run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
       - name: 配置 Gradle
         uses: gradle/actions/setup-gradle@v6
+      - name: 检测 R8 专有完整游戏输入
+        id: r8_inputs
+        run: |
+          set -euo pipefail
+          if [[ -f build/inputs/game-final.jar &&
+                -d build/inputs/base_decoded_321 &&
+                -d build/inputs/mdpi_decoded_321 ]]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+            echo '专有完整游戏输入可用'
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            echo 'NOT RUN: 公共 runner 不提供专有完整游戏输入' >> "$GITHUB_STEP_SUMMARY"
+            echo '::warning::R8 构建与完整游戏 ABI/DEX 校验因专有输入缺失而 NOT RUN'
+          fi
+      - name: 显式声明未签名 R8 实验
+        if: steps.r8_inputs.outputs.available == 'true'
+        run: |
+          set -euo pipefail
+          printf '%s\n' \
+            'oreki.allowUnsignedReleaseExperiment=true' \
+            'oreki.allowUnsignedR8Experiment=true' \
+            > local.properties
+          echo '::warning::R8 OFF/ON 对照使用未签名实验 APK，仅作静态对照，不得发布'
       - name: 构建未启用 R8 的 Release 对照 APK
+        if: steps.r8_inputs.outputs.available == 'true'
         # 未开启 R8 的对照可使用 Gradle 正常输入追踪与缓存；显式开启 R8 的第二次构建仍强制重执行以防复用旧包。
         # R111 CI-2：不再对该确定性构建做最多 3 次整包重试（最坏情况会白跑 ~9 分钟）。
         # 构建失败即为真实失败：日志完整保留到 r8-evidence/logs，由失败证据上传；
@@ -72,17 +96,19 @@ jobs:
           test -n "$apk" || { echo 'FAIL：未找到未启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/baseline/
       - name: 构建显式启用 R8 的 Release 实验 APK
+        if: steps.r8_inputs.outputs.available == 'true'
         run: |
           set -euo pipefail
           mkdir -p r8-evidence/optimized r8-evidence/logs
-          bash ./gradlew :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8on-build.log
-          apk="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          bash ./gradlew :app:assembleR8 --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8on-build.log
+          apk="$(find app/build/outputs/apk/r8 -maxdepth 1 -type f -name '*.apk' -print -quit)"
           test -n "$apk" || { echo 'FAIL：未找到启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/optimized/
       - name: 记录 APK、mapping 与 DEX 保留统计
+        if: steps.r8_inputs.outputs.available == 'true'
         run: |
           set -euo pipefail
-          mapping='app/build/outputs/mapping/release/mapping.txt'
+          mapping='app/build/outputs/mapping/r8/mapping.txt'
           if [ -f "$mapping" ]; then
             cp "$mapping" r8-evidence/optimized/mapping.txt
           fi
@@ -124,6 +150,7 @@ jobs:
           print(json.dumps(rows, indent=2))
           PY
       - name: 记录类与方法保留统计
+        if: steps.r8_inputs.outputs.available == 'true'
         run: |
           set -euo pipefail
           apkanalyzer_bin="$(command -v apkanalyzer || true)"
@@ -153,6 +180,7 @@ jobs:
           print(json.dumps(stats, indent=2))
           PY
       - name: 验证 R8 桥接产物 ABI
+        if: steps.r8_inputs.outputs.available == 'true'
         # 构建成功不能证明 R8 未裁掉运行时按名加载的类。本工作流当前构建的是 bridge，
         # 因此只校验 bridge 范围。当前工作流没有 full-game R8 执行者，
         # 完整游戏反射/Manifest/Gson 与三项 smali→Kotlin 桥在该范围均为 NOT RUN。
@@ -162,16 +190,37 @@ jobs:
           test -n "$apk" || { echo 'FAIL：R8 ON 未产出 APK'; exit 1; }
           python3 scripts/agp/r109_verify_r8_output.py \
             --apk "$apk" \
-            --scope bridge \
+            --scope full-game \
             --mapping r8-evidence/optimized/mapping.txt \
             --json r8-evidence/optimized/r8-abi-verify.json
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
+        if: steps.r8_inputs.outputs.available == 'true'
         run: |
           set -euo pipefail
           if bash ./gradlew :app:tasks --all --no-daemon --console=plain | grep -q 'analyzeReleaseR8Config'; then
             bash ./gradlew :app:analyzeReleaseR8Config --no-daemon --console=plain
           else
             echo 'NOT RUN：当前 AGP 任务列表未提供 analyzeReleaseR8Config'
+          fi
+      - name: 记录缺输入时的 NOT RUN 证据
+        if: steps.r8_inputs.outputs.available != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p r8-evidence
+          printf '%s\n' \
+            'NOT RUN: R8 OFF/ON 构建和完整游戏 ABI/DEX 校验需要冻结的专有完整游戏输入。' \
+            '本检查没有运行 Gradle 构建，也没有把跳过结果记为 PASS。' \
+            '真实全量 R8 验证须在受保护 Runner 或本机完整输入环境执行。' \
+            | tee r8-evidence/not-run.txt
+      - name: 校验 R8 实验证据处置
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ "${{ steps.r8_inputs.outputs.available }}" == 'true' ]]; then
+            test -s r8-evidence/comparison.json
+            test -s r8-evidence/optimized/r8-abi-verify.json
+          else
+            test -s r8-evidence/not-run.txt
           fi
       - name: 上传 R8 对照证据（不用于发布）
         # R111 CI-2：失败时也上传已产生的日志/半成品证据，避免诊断信息全部丢失；

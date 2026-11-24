@@ -11,7 +11,7 @@ internal class OrekiAbiPolicyPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val config = project.orekiBuildConfig()
         project.afterEvaluate {
-            for (variant in listOf("Debug", "Release")) {
+            for (variant in listOf("Debug", "Release", "R8")) {
                 val variantName = variant.lowercase()
                 val evidence = File(
                     config.rootDir,
