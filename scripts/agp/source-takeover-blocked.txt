@@ -401,6 +401,18 @@ eq0.class | Leq0; | javac compile failure: eq0 does not override iq0.B(BigDouble
 zy3.class | Lzy3; | javac compile failure: cannot find symbol constructor no1(byte)
 az3.class | Laz3; | javac compile failure: cannot find symbol constructor no1(byte)
 d15.class | Ld15; | source takeover ABI failure: compiled class is missing 16 original JVM linkage methods
+y00.class | Ly00; | javac compile failure: cannot access x00 default method in version 49.0 classfile; override validation also fails
+j7.class | Lj7; | javac compile failure: ArrayAdapter requires a non-default constructor
+yu4.class | Lyu4; | javac compile failure: constructor vu4 requires BigDouble,BigDouble,dw
+z67.class | Lz67; | javac compile failure: missing fr5.z1(int), fl6 typed constructor, and v47.x/q47.y symbols
+fq0.class | Lfq0; | javac compile failure: fq0 does not override iq0.B(BigDouble,Object)
+vl2.class | Lvl2; | javac compile failure: no suitable fs6(Object,Object,Object,byte) constructor
+tn5.class | Ltn5; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+hr7.class | Lhr7; | javac compile failure: cannot find symbol constructor gr7()
+sh3.class | Lsh3; | javac compile failure: constructor vw3 cannot be applied to given types
+mm2.class | Lmm2; | javac compile failure: cannot find symbol constructor fv4()
+di.class | Ldi; | javac compile failure: missing w29(di) constructor and ne1.l(String)
+t76.class | Lt76; | javac compile failure: s9 requires u9; s0.Q(zzazv) and s0.T0(long) are absent
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
