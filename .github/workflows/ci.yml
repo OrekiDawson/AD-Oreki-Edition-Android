@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v6
       - name: Enforce active repository rule entrypoints
         run: |
@@ -243,10 +243,12 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
+      - name: Install API 37 and pinned Build Tools
+        run: sdkmanager --install 'platforms;android-37' 'build-tools;37.0.0'
       - uses: gradle/actions/setup-gradle@v6
       - name: Verify store-policy JAR gate self-test
         run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
