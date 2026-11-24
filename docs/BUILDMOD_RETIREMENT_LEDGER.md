@@ -1386,3 +1386,51 @@ source/target 与 class path，不再只匹配插件源码字符串。
 生产接管数保持 1650，blocked 保持 347；本批清偿的是其中一个已接管类的
 构造器 ABI 精确性。ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项
 游戏门禁仍为 **NOT RUN**。
+
+### 13.19 十五个普通原版类接管与后处理缓存正确性
+
+本批从已归档 JADX `defpackage` 源码中筛选 warning-free、JAR entry 存在且
+Smali 身份匹配的普通类，经两轮增量编译后接管：
+
+- `aq by1 dv7 gk3 jb1 jc1 mq2 n58 o15`
+- `q01 qs1 qz3 se5 v24 wg6`
+
+`aq` 的 JADX 输出遗漏了原版四个 public static Android API bridge
+`c/d/e/f`；按原 Smali 的 Activity、AutofillManager、WebView 和
+WebViewClient 单条转发语义恢复。`jb1` 遗漏原版
+`public <init>(Object)`；按 Smali 恢复字段 `e` 初始化后调用
+`Object.<init>()V`。其余 13 类无空方法、伪成员或业务改写。
+
+未能安全恢复的候选同批进入 blocked，并记录具体原因：
+
+- `j58` 缺少继承链要求的抽象 `zza()`；
+- `ra3/y93` 缺少父类构造器 ABI；
+- `gq5/ol3/mo3/g06` 的依赖构造器或方法未在 JADX 中出现；
+- `mb1/nm5` 依赖已知 blocked 的 `ws5` version-49 classfile。
+
+同时修复受控 ASM 后处理的缓存正确性：
+`bundle<Variant>ClassesToCompileJar`、`bundle<Variant>ClassesToRuntimeJar`、
+`dexBuilder<Variant>` 与 `minify<Variant>WithR8` 均显式依赖
+`adaptSourceAbi<Variant>`，且对这四个消费者关闭 up-to-date/build-cache
+复用。原因是原地 class 后处理对 Gradle 的产出快照不可见；最终集成树首次
+非强制构建确实复用了改造前 `Ljs7;` 构造器 DEX，修复后普通构建稳定通过。
+
+实际验证：
+
+- 生产接管数由 `1650` 增至 **1665**，blocked 由 `347` 增至 **356**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug`：**PASS**。
+- Classes/ABI/DEX：**1665/1665 PASS**；`unexpected_constructors=[]`。
+- Python 定向测试 **43/43 PASS**；ABI 策略测试 **6/6 PASS**；
+  build_mod 退役守卫 PASS。
+- `:build-logic:test` **10/10 PASS**。
+- FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true`：**PASS**。
+- FullGame Debug APK：
+  `20b003e0e6078bd9ff4a7d1153bd614741bdee49298daac5561ae9e58a34daf3`
+  （83,892,408 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 3294 ms，进程存活，
+  `gui-tick #1/#2/#3` 均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
+  crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
+  NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
+
+ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
+**NOT RUN**；保持 Issue #25/#52/#61/#285 OPEN。

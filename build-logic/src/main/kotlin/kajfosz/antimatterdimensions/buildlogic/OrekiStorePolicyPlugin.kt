@@ -892,10 +892,14 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     }
                     compileTask.finalizedBy(adaptSourceAbi)
                     project.tasks.matching {
-                        it.name == "dexBuilder${variant}" ||
+                        it.name == "bundle${variant}ClassesToCompileJar" ||
+                            it.name == "bundle${variant}ClassesToRuntimeJar" ||
+                            it.name == "dexBuilder${variant}" ||
                             it.name == "minify${variant}WithR8"
                     }.configureEach { transformedBytecodeConsumer ->
                         transformedBytecodeConsumer.dependsOn(adaptSourceAbi)
+                        transformedBytecodeConsumer.outputs.cacheIf { false }
+                        transformedBytecodeConsumer.outputs.upToDateWhen { false }
                     }
                     val evidence = File(
                         config.rootDir,
