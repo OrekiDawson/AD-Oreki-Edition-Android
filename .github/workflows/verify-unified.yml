@@ -157,6 +157,11 @@ jobs:
               env.write(f"EXPECTED_VERSION_NAME={name}\nEXPECTED_VERSION_CODE={code}\n")
           print(f"PASS: Approved MOD APK version {name}/{code} on frozen Android 3.21.0 baseline")
           PY
+      - name: Set up verification JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
       - name: Set up Android build tools
         uses: android-actions/setup-android@v4
         with:
@@ -164,11 +169,11 @@ jobs:
       - name: Install tools for independent APK verification
         run: |
           set -euo pipefail
-          tools="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          tools="$ANDROID_SDK_ROOT/build-tools/37.0.0"
           if [[ -x "$tools/apksigner" && -x "$tools/aapt2" ]]; then
-            echo "::notice::Android build-tools 35.0.0 already installed; skipping sdkmanager"
+            echo "::notice::Android build-tools 37.0.0 already installed; skipping sdkmanager"
           else
-            sdkmanager --install 'build-tools;35.0.0' >/dev/null
+            sdkmanager --install 'build-tools;37.0.0' >/dev/null
           fi
           test -x "$tools/apksigner"
           test -x "$tools/aapt2"
