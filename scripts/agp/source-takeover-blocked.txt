@@ -554,3 +554,23 @@ s45.class | Ls45; | javac compile failure: cannot find symbol
 ub0.class | Lub0; | javac compile failure: cannot find symbol
 w29.class | Lw29; | javac compile failure: cannot find symbol
 xv0.class | Lxv0; | javac compile failure: cannot find symbol
+au2.class | Lau2; | javac compile failure: constructor au2 cannot apply superclass ou2() or cu2()
+c48.class | Lc48; | javac compile failure: constructor mismatch with a48(String)
+e83.class | Le83; | javac compile failure: missing q51(byte) constructor
+ea8.class | Lea8; | javac compile failure: missing mx7.e/j98.h and u9.zza remains private
+hl8.class | Lhl8; | javac compile failure: zzijx cannot be converted to oy8
+ia3.class | Lia3; | javac compile failure: missing ua3(int,int) constructor
+jx1.class | Ljx1; | javac compile failure: missing ag5() constructor
+me4.class | Lme4; | javac compile failure: missing h86.x(Intent,int) override
+od8.class | Lod8; | javac compile failure: missing hx7.T/mx7.V and u9.zza remains private
+ou4.class | Lou4; | javac compile failure: qu4.o and q13(byte) unavailable
+pq8.class | Lpq8; | javac compile failure: missing e(f) constructor
+sp0.class | Lsp0; | javac compile failure: missing iq0.B(BigDouble,Object) override and Player.PelleRift
+t20.class | Lt20; | javac compile failure: missing t0() constructor
+td5.class | Ltd5; | javac compile failure: superclass sd5(Window,qx7) constructor unavailable
+u39.class | Lu39; | javac compile failure: missing xx8() constructor
+um7.class | Lum7; | javac compile failure: missing cl7(y55,ht6) constructor
+wa6.class | Lwa6; | javac compile failure: missing w39.p() override and constructor
+x84.class | Lx84; | javac compile failure: missing k51(String,byte) constructor
+zi7.class | Lzi7; | javac compile failure: m47.v unavailable
+ft0.class | Lft0; | javac compile failure: final field b is not initialized by the default constructor
