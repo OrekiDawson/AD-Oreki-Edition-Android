@@ -15,10 +15,10 @@
 
 ## 2. 构建
 
-验证使用当前分支 `66deb840`，完整游戏 Debug APK：
+验证使用当前分支最终 Debug APK：
 
-- APK 大小：83,912,477 B
-- APK SHA-256：`c28c5f285f46976b2a386c68d4fcb8ad07c273c0471c37a929f40836f6875130`
+- APK 大小：83,842,424 B
+- APK SHA-256：`17a7d6467ada667b44cd6faac3b762f5d49114dac3709680aa6a4a16cdbe8d71`
 - 安装包哈希与构建产物一致。
 - ABI：`arm64-v8a,x86_64`
 - `verifySourceTakeoverDebugAbi`：1650/1650 PASS
@@ -40,10 +40,10 @@
 
 ### 3.2 阅读教程期间 tick
 
-教程阅读层保持打开 30 秒：
+教程阅读层保持打开 60 秒：
 
-- `gui-tick #31`、`#32`、`#33` 均正常发生，间隔 10 秒。
-- `thisInfRealTime` 从 `291065` 毫秒增长到 `326113` 毫秒。
+- `gui-tick #4` 至 `#9` 共 6 次均正常发生，间隔 10 秒。
+- `thisInfRealTime` 从 `30500` 毫秒增长到 `85571` 毫秒。
 - `dumpsys activity activities` 只有 1 个 Activity 和 1 个 Window：
   `net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.AppIcon_default`。
 - 无 FATAL、ANR 或独立教程 Activity。
@@ -53,6 +53,8 @@
 - 章节抽屉打开后，第一次 `KEYCODE_BACK` 只关闭抽屉，教程正文仍显示。
 - 第二次 `KEYCODE_BACK` 关闭教程阅读层，返回“反物质维度”主页面。
 - 两次返回期间 Activity 实例保持不变。
+- 从 Home 返回后，阅读层在 `onResume` 重新注册 Back 回调；单次 `KEYCODE_BACK`
+  即可关闭阅读层并回到维度页。
 
 ### 3.4 阅读设置
 
@@ -60,7 +62,24 @@
 - 选择“大字号”后，`oreki_tutorial_prefs.xml` 写入 `font_scale=2`。
 - 关闭并重新打开教程，设置页仍选中“大字号”，偏好值保持 `2`。
 
-### 3.5 旋转
+### 3.5 后台与离线
+
+- 教程阅读中按 Home 15 秒后返回，阅读层仍保持打开，直接回到同一篇正文。
+- `thisInfRealTime` 跨 24.48 秒墙钟从 `85.571` 秒增长到 `110.023` 秒，实际增长
+  24.45 秒；没有重复累计。
+- `player.json` 在 06:09:28 更新，后台保存链正常。
+- 锁屏后唤醒、切到 Android 设置再返回，教程正文均保持打开；游戏累计时间按实际后台时长
+  于返回后继续推进，没有重复扣除或重复累计。
+
+### 3.6 Web 同条件对照
+
+本地 `serve.mjs` + Headless Chromium 412×915：
+
+- 打开 Oreki 教程弹窗并保持 12 秒，`modalOpen=true`。
+- 反物质真实增长；`player.records.realTimePlayed` 从 `356` 毫秒增长到 `12429` 毫秒。
+- 页面异常 0 条，结果为 PASS。
+
+### 3.7 旋转
 
 当前 `-gpu off -skin 540x1200` AVD 的显示旋转始终停留在 `ROTATION_0`，无法产生真实横屏配置变化；
 该项记为 `NOT RUN`，不以强制重建 Activity 代替。
@@ -69,13 +88,17 @@
 
 本机原始证据：
 
-`/home/oreki/AD-Oreki-Edition-Preserved/R128-tutorial-reader/20261125-0600-pass/`
+`/home/oreki/AD-Oreki-Edition-Preserved/R128-tutorial-reader/20261125-0610-final-pass/`
 
 包含 APK、教程阅读层截图、章节抽屉与两次返回截图、字号设置截图、运行日志、偏好 XML 和
 `SHA256SUMS`。
 
+Web 对照证据：
+
+`/home/oreki/AD-Oreki-Edition-Preserved/R128-tutorial-reader/20261125-0615-web-pass/`
+
 ## 5. 边界
 
-- 本报告证明 #307 的阅读期间在线 tick、同窗口返回栈和字号持久化。
+- 本报告证明 #307 的阅读期间在线 tick、同窗口返回栈、Home 后返回与字号持久化。
 - 不声称已完成 180 分钟新档验收、完整五项游戏门禁或正式发布。
 - 旋转恢复因当前 AVD 无法旋转记为 `NOT RUN`。

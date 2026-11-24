@@ -95,9 +95,18 @@ class TutorialReaderFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        installBackHandler(requireNotNull(activity))
         view.requestApplyInsets()
         reader?.applySystemBarAppearance()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.let(::installBackHandler)
+    }
+
+    override fun onPause() {
+        activity?.let(::uninstallBackHandler)
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -108,19 +117,7 @@ class TutorialReaderFragment : Fragment() {
     override fun onDestroyView() {
         reader?.dispose()
         reader = null
-        activity?.let { host ->
-            backInvokedCallback?.let { callback ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    host.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
-                }
-            }
-            if (host.window.callback === backInterceptor) {
-                host.window.callback = originalWindowCallback
-            }
-        }
-        backInvokedCallback = null
-        backInterceptor = null
-        originalWindowCallback = null
+        activity?.let(::uninstallBackHandler)
         super.onDestroyView()
     }
 
@@ -131,6 +128,7 @@ class TutorialReaderFragment : Fragment() {
     }
 
     private fun installBackHandler(host: Activity) {
+        uninstallBackHandler(host)
         val original = host.window.callback
         val interceptor = object : Window.Callback by original {
             override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -152,6 +150,20 @@ class TutorialReaderFragment : Fragment() {
                 callback,
             )
         }
+    }
+
+    private fun uninstallBackHandler(host: Activity) {
+        backInvokedCallback?.let { callback ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                host.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
+            }
+        }
+        if (host.window.callback === backInterceptor) {
+            host.window.callback = originalWindowCallback
+        }
+        backInvokedCallback = null
+        backInterceptor = null
+        originalWindowCallback = null
     }
 
     companion object {
