@@ -191,7 +191,7 @@ jobs:
           badging = pathlib.Path('candidate/badging.txt').read_text()
           m = re.search(r"(?m)^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", badging)
           if not m: sys.exit('FAIL: Cannot read package metadata')
-          sdk = re.search(r"(?m)^sdkVersion:'(\d+)'", badging)
+          sdk = re.search(r"(?m)^(?:sdkVersion|minSdkVersion):'(\d+)'", badging)
           if not sdk or int(sdk.group(1)) != 32: sys.exit('FAIL: APK minSdk must be 32 for the V3-only release policy')
           expected = (os.environ['EXPECTED_PACKAGE'], os.environ['EXPECTED_VERSION_CODE'], os.environ['EXPECTED_VERSION_NAME'])
           if m.groups() != expected: sys.exit(f'FAIL: APK package/version mismatch: {m.groups()}')

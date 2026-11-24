@@ -11,7 +11,10 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from verify_apk_v3 import MAGIC, V2_ID, V3_ID, V31_ID, signing_block_ids
+if __package__:
+    from .verify_apk_v3 import MAGIC, V2_ID, V3_ID, V31_ID, signing_block_ids
+else:
+    from verify_apk_v3 import MAGIC, V2_ID, V3_ID, V31_ID, signing_block_ids
 
 V32_ID = 0x70E1C89F
 HEX = re.compile(r"[0-9a-f]{64}")
@@ -52,24 +55,6 @@ def signer_args(path, alias, env):
             "--ks-pass", "env:" + env, "--key-pass", "env:" + env]
 
 
-def expect_scheme(output, scheme):
-    if not re.search(r"(?m)^Verified using v" + re.escape(scheme) +
-                     r" scheme \([^)]*\): true\s*$", output):
-        raise ValueError("官方验签未确认 v" + scheme)
-
-
-def certs(output):
-    return set(x.lower() for x in re.findall(
-        r"(?im)^.*certificate SHA-256 digest:\s*([0-9a-f]{64})\s*$", output))
-
-
-def role_certs(output, role):
-    return set(x.lower() for x in re.findall(
-        r"(?im)^V3\.2 Hybrid " + role +
-        r" Signer[^\n]*:\s*certificate SHA-256 digest:\s*([0-9a-f]{64})\s*$",
-        output))
-
-
 def verify_pair(signer, apk, expected):
     if len(set(expected)) != 3 or not all(HEX.fullmatch(x) for x in expected):
         raise ValueError("必须钉住三个互不相同的真实 SHA-256 证书指纹")
@@ -79,35 +64,37 @@ def verify_pair(signer, apk, expected):
     sidecar = Path(str(apk) + ".idsig")
     if not sidecar.is_file() or not sidecar.stat().st_size:
         raise ValueError("缺少 V4 idsig")
-    evidence = {}
-    for lo, hi in ((32, 32), (36, 36), (37, 37)):
-        output = run([signer, "verify", "--verbose", "--print-certs",
-                      "--min-sdk-version", lo, "--max-sdk-version", hi,
-                      "--v4-signature-file", sidecar, apk])
-        expect_scheme(output, "4")
-        if lo < 37:
-            expect_scheme(output, "3")
-            if certs(output) != {expected[0]}:
-                raise ValueError("旧平台签名身份与 K0 不符")
-        else:
-            expect_scheme(output, "3.2")
-            if role_certs(output, "Classical") != {expected[1]}:
-                raise ValueError("V3.2 经典证书与 C_K1 不符")
-            if role_certs(output, "PQC") != {expected[2]}:
-                raise ValueError("V3.2 PQC 证书与 PQC_K1 不符")
-            if not certs(output) <= set(expected):
-                raise ValueError("存在未批准证书")
-        evidence[str(lo)] = output
-    # 跨 API 范围验签亦必须通过，不能仅依赖各端点。
-    evidence["32-37"] = run([signer, "verify", "--verbose", "--print-certs",
-                            "--min-sdk-version", 32, "--max-sdk-version", 37,
-                            "--v4-signature-file", sidecar, apk])
-    expect_scheme(evidence["32-37"], "3.2")
-    expect_scheme(evidence["32-37"], "4")
+    apksig_jar = signer.parent / "lib" / "apksigner.jar"
+    helper = Path(__file__).resolve().parent / "apksig" / "VerifyHybridApk.java"
+    if not apksig_jar.is_file() or not helper.is_file():
+        raise ValueError("缺少官方 apksig verifier jar 或 Java bridge")
+    java_home = os.environ.get("JAVA_HOME")
+    java = Path(java_home) / "bin" / "java" if java_home else Path("java")
+    output = run([java, "-cp", apksig_jar, helper, apk, sidecar])
+    v3 = {}
+    v32 = {}
+    v4 = {}
+    for line in output.splitlines():
+        fields = line.split("\t")
+        if fields[0] == "V3_CERT":
+            v3[fields[1]] = fields[2].removeprefix("sha256=")
+        elif fields[0] == "V32_CLASSICAL":
+            v32["classical"] = fields[2].removeprefix("sha256=")
+        elif fields[0] == "V32_PQC":
+            v32["pqc"] = fields[2].removeprefix("sha256=")
+        elif fields[0] == "V4_CERT":
+            v4.setdefault(fields[1], set()).add(fields[2].removeprefix("sha256="))
+    if v3.get("api=32") != expected[0] or v3.get("api=36") != expected[0]:
+        raise ValueError("API 32/36 签名身份与 K0 不符")
+    if v32 != {"classical": expected[1], "pqc": expected[2]}:
+        raise ValueError("V3.2 classical/PQC 证书与批准身份不符")
+    allowed = set(expected)
+    if any(not certs or not certs <= allowed for certs in v4.values()):
+        raise ValueError("V4 signer 缺失或含未批准证书")
     return {"apk_sha256": sha256(apk), "idsig_sha256": sha256(sidecar),
             "certificates": dict(zip(("K0", "C_K1", "PQC_K1"), expected)),
             "signature_block_ids": sorted(hex(x) for x in ids),
-            "official_verification": evidence}
+            "official_verification": output}
 
 
 def sign_pair(args):
@@ -138,10 +125,27 @@ def sign_pair(args):
         command += signer_args(args.pqc, args.pqc_alias, "OREKI_PQC_PASS")
         run(command)
         report = verify_pair(args.apksigner, out, args.cert)
-        # APK 与 V4 sidecar 都通过后才移出隔离目录，供后续原子发布流程消费。
-        out.rename(args.output)
-        Path(str(out) + ".idsig").rename(Path(str(args.output) + ".idsig"))
+        publish_pair(out, args.output)
     return report
+
+
+def publish_pair(staged_apk: Path, final_apk: Path) -> None:
+    """以不覆盖目标的硬链接成对发布 APK 与 V4 sidecar。"""
+    staged_sidecar = Path(str(staged_apk) + ".idsig")
+    final_sidecar = Path(str(final_apk) + ".idsig")
+    sidecar_published = False
+    apk_published = False
+    try:
+        os.link(staged_sidecar, final_sidecar, follow_symlinks=False)
+        sidecar_published = True
+        os.link(staged_apk, final_apk, follow_symlinks=False)
+        apk_published = True
+    except BaseException:
+        if sidecar_published:
+            final_sidecar.unlink(missing_ok=True)
+        if apk_published:
+            final_apk.unlink(missing_ok=True)
+        raise
 
 
 def main():

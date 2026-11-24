@@ -216,7 +216,7 @@ def main():
 
     # ---------------- 2. 签名 ----------------
     from verify_apk_v3 import verify_v3_only
-    sdk = re.search(r"(?m)^sdkVersion:'(\d+)'", out)
+    sdk = re.search(r"(?m)^(?:sdkVersion|minSdkVersion):'(\d+)'", out)
     check("正式 APK minSdk", bool(sdk) and int(sdk.group(1)) == 32,
           sdk.group(1) if sdk else "未解析到")
     sign_v3 = tool_report.get("sign_v3") or {}

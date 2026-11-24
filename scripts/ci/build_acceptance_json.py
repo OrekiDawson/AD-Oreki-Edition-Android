@@ -119,8 +119,7 @@ def read_apk_identity(apk) -> dict:
     version_name = re.search(r"versionName='([^']+)'", out)
     if not (package and version_code and version_name):
         raise BuilderError("aapt2 badging 缺少 package/versionCode/versionName")
-    rc, sign_out = run([apksigner, "verify", "--verbose", "--print-certs",
-                        "--min-sdk-version", "24", "--max-sdk-version", "32", str(path)])
+    rc, sign_out = run([apksigner, "verify", "--verbose", "--print-certs", str(path)])
     if rc != 0:
         raise BuilderError("apksigner verify 失败: " + sign_out[-300:])
     digests = re.findall(r"certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", sign_out)
