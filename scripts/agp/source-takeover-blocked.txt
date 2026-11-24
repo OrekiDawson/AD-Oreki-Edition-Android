@@ -174,6 +174,25 @@ uq1.class | Luq1; | JADX omitted android.util.LruCache(int) constructor
 zh7.class | Lzh7; | synthetic th7() constructor is absent from source and unavailable to javac
 hx6.class | Lhx6; | JADX omitted synthetic bridge methods a()Let6; and zzb()Ljava/lang/Object; required by tm8 ABI
 uw6.class | Luw6; | JADX omitted synthetic bridge methods a()Lqn8; and zzb()Ljava/lang/Object; required by tm8 ABI
+a61.class | La61; | JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor
+c50.class | Lc50; | JADX omitted inherited e50() constructor
+d58.class | Ld58; | JADX omitted required zza() implementation inherited from k25
+d65.class | Ld65; | JADX omitted inherited f34(km1) constructor
+dc3.class | Ldc3; | JADX omitted inherited fc3() constructor
+f52.class | Lf52; | JADX omitted inherited b62() constructor
+ge4.class | Lge4; | JADX omitted inherited he4() constructor
+gh3.class | Lgh3; | JADX omitted inherited d(int,String,fm1,gm1,boolean,gm1,al2,al2,gm1,iq0,double,gm1) constructor and synthetic Player.PelleRift ABI
+ih3.class | Lih3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+ik6.class | Lik6; | JADX omitted inherited ag5() constructor
+jh3.class | Ljh3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+la3.class | Lla3; | JADX omitted inherited ua3(int,int) and synthetic la3(int,int,int) constructors
+lh3.class | Llh3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+oc3.class | Loc3; | JADX omitted inherited qc3() constructor
+pb2.class | Lpb2; | JADX omitted inherited q71() constructor and referenced synthetic f04.b field
+r74.class | Lr74; | JADX omitted inherited gr(long) constructor
+ti3.class | Lti3; | JADX omitted inherited ii3(...) constructor and up0.z/BigDouble ABI differs
+x93.class | Lx93; | JADX omitted inherited ua3(int,int) and synthetic x93(int,int,int) constructors
+y51.class | Ly51; | JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor
 iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
 h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior
 a48.class | La48; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
