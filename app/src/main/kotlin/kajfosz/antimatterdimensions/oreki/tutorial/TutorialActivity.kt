@@ -30,6 +30,7 @@ import android.text.Layout
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BulletSpan
+import android.text.style.StyleSpan
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -435,7 +436,20 @@ class TutorialActivity : Activity() {
         if (chapters.isEmpty()) return
         currentChapter = index.coerceIn(0, chapters.lastIndex); contentHost.removeAllViews()
         val end = chapters.getOrNull(currentChapter + 1)?.start ?: records.size
-        records.subList(chapters[currentChapter].start + 1, end).forEach { render(it) }
+        val body = records.subList(chapters[currentChapter].start + 1, end)
+        var cursor = 0
+        while (cursor < body.size) {
+            val record = body[cursor]
+            if (record.tag in setOf("GOAL", "ENTRY", "DONE", "NEXT", "NUM", "TRAP", "NOTE")) {
+                var next = cursor + 1
+                while (next < body.size && body[next].tag == record.tag) next++
+                addSection(record.tag, body.subList(cursor, next))
+                cursor = next
+            } else {
+                render(record)
+                cursor++
+            }
+        }
         addChapterNavigation()
         contentScroll.scrollTo(0, 0)
         fadeIn(contentHost)
@@ -466,44 +480,48 @@ class TutorialActivity : Activity() {
             "SUB" -> addText(record.text, 16f, onVariant, dp(24), false)
             // STAGE 是生成链用于阶段定位的内部键（如 early），不向玩家展示。
             "STAGE" -> Unit
-            "GOAL", "ENTRY", "DONE", "NEXT", "NUM", "TRAP", "NOTE" -> addBlock(record.text, record.tag)
             "STEP", "BUY", "AUTO", "CHAL" -> addParagraph(record.text, bullet = true)
             "TBL" -> addTableRow(record.text)
         }
     }
 
-    /** 窄屏按原顺序呈现键值，避免多列挤压导致数字、中文与长条件难读。 */
+    /** 表格记录使用正文内的紧凑行，而不是每行一个描边卡片。 */
     private fun addTableRow(text: String) {
-        val tableRow = LinearLayout(this).apply {
+        val row = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(12), dp(16), dp(8))
-            background = shape(container, 12f)
+            setPadding(0, dp(8), 0, dp(8))
         }
-        text.split("｜").forEach { column ->
-            val separator = column.indexOf('：')
-            if (separator > 0) {
-                addText(column.substring(0, separator), 14f, onPrimaryContainer, dp(4), true, tableRow)
-                addText(column.substring(separator + 1), 16f, onSurface, dp(10), false, tableRow)
-            } else {
-                addText(column, 16f, onSurface, dp(10), false, tableRow)
-            }
+        text.split("｜").forEachIndexed { index, column ->
+            addText(emphasizeKey(column), 16f, if (index == 0) onSurface else onVariant,
+                dp(4), false, row)
         }
-        contentHost.addView(tableRow, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
+        contentHost.addView(row, LinearLayout.LayoutParams(-1, -2))
+        contentHost.addView(View(this).apply { setBackgroundColor(Color.argb(32, 175, 186, 198)) },
+            LinearLayout.LayoutParams(-1, dp(1)))
     }
 
-    private fun addBlock(text: String, label: String) {
-        val warning = label == "TRAP"
-        val block = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            if (warning) {
-                setPadding(dp(16), dp(12), dp(16), dp(12))
-                background = shape(Color.rgb(55, 38, 38), 12f)
-            }
+    /** 仅强调首个中文冒号之前的键名，保留原文和数值，不强制窄屏分列。 */
+    private fun emphasizeKey(text: String): CharSequence {
+        val separator = text.indexOf('：')
+        if (separator <= 0 || separator > 32) return text
+        return SpannableString(text).apply {
+            setSpan(StyleSpan(android.graphics.Typeface.BOLD), 0, separator + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        addText(labelName(label), 14f, if (warning) Color.rgb(255, 180, 170) else primary,
-            dp(4), true, block, heading = true)
-        addText(text, 16f, onSurface, 0, false, block)
-        contentHost.addView(block, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(16) })
+    }
+
+    /** 同类型连续记录只渲染一次标题，正文不使用卡片或独立边框。 */
+    private fun addSection(tag: String, items: List<Record>) {
+        val section = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val headingColor = if (tag == "TRAP") Color.rgb(255, 180, 170) else primary
+        addText(labelName(tag), 18f, headingColor, dp(8), true, section, heading = true)
+        items.forEachIndexed { index, record ->
+            val text = if (tag == "NUM") emphasizeKey(record.text) else record.text
+            val paragraph = if (tag == "TRAP" && items.size > 1) SpannableString(text).apply {
+                if (length > 0) setSpan(BulletSpan(dp(8), onVariant, dp(2)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else text
+            addText(paragraph, 16f, onSurface, if (index == items.lastIndex) 0 else dp(8), false, section)
+        }
+        contentHost.addView(section, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(20) })
     }
 
     private fun addParagraph(text: String, bullet: Boolean = false) {
