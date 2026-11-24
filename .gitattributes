@@ -38,6 +38,7 @@
 *.md text eol=lf
 *.txt text eol=lf
 *.toml text eol=lf
+*.csv text eol=lf
 *.css text eol=lf
 *.html text eol=lf
 *.smali text eol=lf
