@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "counts": {
+    "java_files": 128,
+    "warning_free_class": 54,
+    "jar_present": 54,
+    "smali_verified": 33,
+    "already_in_manifest": 0,
+    "existing_source": 0,
+    "reused_existing": 0,
+    "emitted": 33
+  },
+  "emitted": [
+    {
+      "descriptor": "Lxu8;",
+      "entry": "xu8.class",
+      "source": "xu8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lab1;",
+      "entry": "ab1.class",
+      "source": "ab1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lkt7;",
+      "entry": "kt7.class",
+      "source": "kt7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lzu3;",
+      "entry": "zu3.class",
+      "source": "zu3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lsf7;",
+      "entry": "sf7.class",
+      "source": "sf7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lbk8;",
+      "entry": "bk8.class",
+      "source": "bk8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lfb1;",
+      "entry": "fb1.class",
+      "source": "fb1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lfd2;",
+      "entry": "fd2.class",
+      "source": "fd2.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lq37;",
+      "entry": "q37.class",
+      "source": "q37.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lh26;",
+      "entry": "h26.class",
+      "source": "h26.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lg71;",
+      "entry": "g71.class",
+      "source": "g71.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lgc9;",
+      "entry": "gc9.class",
+      "source": "gc9.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Llr6;",
+      "entry": "lr6.class",
+      "source": "lr6.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lw52;",
+      "entry": "w52.class",
+      "source": "w52.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lwk2;",
+      "entry": "wk2.class",
+      "source": "wk2.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lme;",
+      "entry": "me.class",
+      "source": "me.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lbh8;",
+      "entry": "bh8.class",
+      "source": "bh8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lq58;",
+      "entry": "q58.class",
+      "source": "q58.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lqh8;",
+      "entry": "qh8.class",
+      "source": "qh8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lwh8;",
+      "entry": "wh8.class",
+      "source": "wh8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lwn2;",
+      "entry": "wn2.class",
+      "source": "wn2.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lj75;",
+      "entry": "j75.class",
+      "source": "j75.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Li98;",
+      "entry": "i98.class",
+      "source": "i98.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lei7;",
+      "entry": "ei7.class",
+      "source": "ei7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Loz0;",
+      "entry": "oz0.class",
+      "source": "oz0.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lmm6;",
+      "entry": "mm6.class",
+      "source": "mm6.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ly26;",
+      "entry": "y26.class",
+      "source": "y26.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lvb5;",
+      "entry": "vb5.class",
+      "source": "vb5.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ln75;",
+      "entry": "n75.class",
+      "source": "n75.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ld34;",
+      "entry": "d34.class",
+      "source": "d34.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lpa7;",
+      "entry": "pa7.class",
+      "source": "pa7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lbz7;",
+      "entry": "bz7.class",
+      "source": "bz7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lox7;",
+      "entry": "ox7.class",
+      "source": "ox7.java",
+      "reused_existing": false
+    }
+  ]
+}

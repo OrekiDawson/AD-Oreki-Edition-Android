@@ -730,3 +730,15 @@ wo8.class | Lwo8; | javac compile failure: abstract l1 ABI and to8 constructor d
 s98.class | Ls98; | javac compile failure: f98 constructor and do2 override differ from JADX output
 aq7.class | Laq7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
 ut7.class | Lut7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+ox7.class | Lox7; | JADX ConstructorVisitor and method generation errors prevented recovery of the original f() ABI
+lr6.class | Llr6; | javac compile failure: ag5 constructor signature differs from JADX output
+bh8.class | Lbh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+sf7.class | Lsf7; | javac compile failure: overloaded frozen zza methods make JADX dispatch ambiguous
+i98.class | Li98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+ei7.class | Lei7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+zu3.class | Lzu3; | javac compile failure: c61 constructor signature differs from JADX output
+qh8.class | Lqh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+me.class | Lme; | javac compile failure: ne field n0 is absent from recovered source ABI
+h26.class | Lh26; | javac compile failure: d46 field f is absent from recovered source ABI
+wh8.class | Lwh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+q58.class | Lq58; | javac compile failure: dependency ws5 is a blocked version-49 classfile
