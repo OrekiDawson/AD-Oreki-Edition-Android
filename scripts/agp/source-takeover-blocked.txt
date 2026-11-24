@@ -515,6 +515,23 @@ rj4.class | Lrj4; | javac compile failure: inner a requires Object,pz4,Object
 d82.class | Ld82; | javac compile failure: final field a is not initialized by the available constructor
 zh8.class | Lzh8; | javac compile failure: final field a is not initialized by the available constructor
 o9.class | Lo9; | javac compile failure: final field a is not initialized by the available constructor
+ol5.class | Lol5; | javac compile failure: missing Firebase internal package and w16/c0 ABI
+ll7.class | Lll7; | javac compile failure: referenced symbol unavailable
+ra9.class | Lra9; | javac compile failure: unavailable superclass and constructor; referenced symbol absent
+vc7.class | Lvc7; | javac compile failure: referenced symbol unavailable
+vn7.class | Lvn7; | javac compile failure: referenced symbol unavailable
+cq0.class | Lcq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+dl7.class | Ldl7; | javac compile failure: superclass cl7 requires unavailable constructor
+k4.class | Lk4; | javac compile failure: referenced symbol unavailable
+ja2.class | Lja2; | javac compile failure: referenced symbol unavailable
+lx6.class | Llx6; | javac compile failure: referenced symbol unavailable
+dv8.class | Ldv8; | javac compile failure: hs1/vw7 constructors and referenced symbol unavailable
+z86.class | Lz86; | javac compile failure: referenced symbol unavailable
+w17.class | Lw17; | javac compile failure: PathClassLoader requires a non-default constructor
+c47.class | Lc47; | javac compile failure: missing fr5.z1(int), n06/bl6 typed constructors, and vf5.U
+uw.class | Luw; | javac compile failure: bt0() constructor absent
+c01.class | Lc01; | javac compile failure: missing z40(int) and zz0(int) constructors
+kc7.class | Lkc7; | javac compile failure: interface depends on blocked vc7 descriptor
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
