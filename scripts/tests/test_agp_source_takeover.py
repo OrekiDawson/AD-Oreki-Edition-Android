@@ -297,27 +297,21 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("inputs.files(kotlinCompileTask)", gradle)
         self.assertNotIn('"app-$variantName.apk"', gradle)
         app_gradle = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
-        self.assertIn("sourceTakeoverClasses", app_gradle)
-        self.assertIn("sourceTakeoverKotlinExcludes", app_gradle)
-        self.assertIn("fullGameOnlyKotlinExcludes", app_gradle)
-        self.assertIn("sourceTakeoverTestKotlinExcludes", app_gradle)
-        self.assertIn('"R126SyntheticAccess.kt"', app_gradle)
-        self.assertIn('"R126SyntheticAccessTest.kt"', app_gradle)
-        self.assertIn("prepareBridgeKotlinSources", app_gradle)
-        self.assertIn("prepareBridgeTestKotlinSources", app_gradle)
-        self.assertIn('if (!fullGame && sourceTakeoverClasses.isNotEmpty())', app_gradle)
-        self.assertIn(
-            "sourceSets[\"main\"].java.directories.clear()",
-            app_gradle,
-        )
-        self.assertIn(
-            "sourceSets[\"main\"].kotlin.directories.clear()",
-            app_gradle,
-        )
-        self.assertIn(
-            "sourceSets[\"test\"].kotlin.directories.clear()",
-            app_gradle,
-        )
+        self.assertIn('applicationId = "net.oreki.antimatterdimensions"', app_gradle)
+        self.assertIn('sourceSets["main"].apply', app_gradle)
+        self.assertNotIn('gradleProperty("orekiFullGame")', app_gradle)
+        self.assertNotIn('gradleProperty("orekiGameJar")', app_gradle)
+        self.assertNotIn("prepareBridgeKotlinSources", app_gradle)
+        self.assertNotIn('gradleProperty("oreki.r8")', app_gradle)
+        self.assertIn('create("r8")', app_gradle)
+        build_config = (
+            ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiBuildConfig.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn('"oreki.gameJar"', build_config)
+        self.assertIn('"oreki.officialTree"', build_config)
+        self.assertIn('"oreki.splitTree"', build_config)
+        self.assertNotIn('gradleProperty("orekiGameJar")', build_config)
 
     def test_constructor_shims_are_removed_with_fail_closed_evidence(self):
         gradle = (

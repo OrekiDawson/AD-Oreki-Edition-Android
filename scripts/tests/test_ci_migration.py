@@ -127,7 +127,8 @@ class UnifiedMigrationTests(unittest.TestCase):
         on_command = next(line for line in workflow.splitlines()
                           if "tee r8-evidence/logs/r8on-build.log" in line)
         self.assertNotIn("--rerun-tasks", off_command)
-        self.assertIn("-Poreki.r8=true --rerun-tasks", on_command)
+        self.assertIn(":app:assembleR8", on_command)
+        self.assertIn("--rerun-tasks", on_command)
         self.assertIn("if: always()", workflow)
         self.assertIn("name: android-r8-experiment-${{ github.sha }}", workflow)
 

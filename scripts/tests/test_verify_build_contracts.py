@@ -102,8 +102,9 @@ class TreeCheckWiringTest(unittest.TestCase):
         self.assertLess(idx_tree, idx_build,
                         "原生输入复核必须排在 AGP 打包之前（失败即阻断候选）")
         self.assertIn(":app:prepareFullGameInputs :app:verifyFullGameInputs", workflow)
-        self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', workflow)
-        self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', workflow)
+        self.assertIn("build/inputs/base_decoded_321", workflow)
+        self.assertIn("build/inputs/mdpi_decoded_321", workflow)
+        self.assertNotIn("-Poreki", workflow)
         self.assertNotIn("--mod-tree work/mod", workflow)
 
     def test_public_ci_does_not_fake_tree_checks(self):

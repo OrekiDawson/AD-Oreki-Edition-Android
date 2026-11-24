@@ -16,7 +16,6 @@ JAR=""
 VARIANT="both"
 OUTDIR="$ROOT/build/r109-r8/ab"
 XMX="1536m"
-EXTRA_GRADLE_ARGS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -24,8 +23,6 @@ while [ $# -gt 0 ]; do
     --variant) VARIANT="$2"; shift 2 ;;
     --outdir) OUTDIR="$2"; shift 2 ;;
     --xmx) XMX="$2"; shift 2 ;;
-    -PorekiOfficialTree=*|-PorekiSplitTree=*|-PorekiFullGameStage=*)
-      EXTRA_GRADLE_ARGS+=("$1"); shift ;;
     *) echo "unknown arg $1" >&2; exit 2 ;;
   esac
 done
@@ -37,6 +34,8 @@ if [ -z "${OREKI_KS_PASS:-}" ] && [ -f "$ROOT/keys/密码.txt" ]; then
   OREKI_KS_PASS="$(cat "$ROOT/keys/密码.txt")"
 fi
 export OREKI_KS_PASS
+mkdir -p "$ROOT/build/inputs"
+install -m 0644 "$JAR" "$ROOT/build/inputs/game-final.jar"
 mkdir -p "$OUTDIR"
 
 run_variant() {
@@ -46,15 +45,22 @@ run_variant() {
   echo "[r109] build $name (xmx=$XMX)"
   # 清掉上一次 R8 构建残留的 mapping，避免 R8 OFF 变体误把旧 mapping 当本变体产物。
   rm -f "$ROOT/app/build/outputs/mapping/release/mapping.txt"
-  ( cd "$ROOT" && bash ./gradlew :app:assembleRelease -PorekiFullGame=true \
-      -PorekiGameJar="$JAR" "$@" --console=plain --no-daemon \
+  local gradle_task=":app:assembleRelease"
+  local output_variant="release"
+  if [ "$name" = "r8on" ]; then
+    gradle_task=":app:assembleR8"
+    output_variant="r8"
+  fi
+  ( cd "$ROOT" && bash ./gradlew "$gradle_task" "$@" --console=plain --no-daemon \
       -Dorg.gradle.jvmargs="-Xmx$XMX -XX:MaxMetaspaceSize=768m" > "$log" 2>&1 )
   local rc=$?
   echo "[r109] $name exit=$rc"
   if [ $rc -eq 0 ]; then
-    cp app/build/outputs/apk/release/app-release.apk "$OUTDIR/$name/"
-    if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
-      cp app/build/outputs/mapping/release/mapping.txt "$OUTDIR/$name/"
+    local apk="app/build/outputs/apk/$output_variant/app-${output_variant}.apk"
+    local mapping="app/build/outputs/mapping/$output_variant/mapping.txt"
+    cp "$apk" "$OUTDIR/$name/app-release.apk"
+    if [ -f "$mapping" ]; then
+      cp "$mapping" "$OUTDIR/$name/mapping.txt"
     fi
     python3 scripts/agp/r109_apk_metrics.py "$OUTDIR/$name/app-release.apk" --label "$name" \
       --mapping "$OUTDIR/$name/mapping.txt" \
@@ -68,10 +74,10 @@ RC=0
 DAEMON_PATTERN='KotlinCompileDaemon|org.gradle.launcher.daemon.bootstrap.GradleDaemon'
 DAEMONS_BEFORE=" $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null | tr '\n' ' ')"
 if [ "$VARIANT" = "off" ] || [ "$VARIANT" = "both" ]; then
-  run_variant r8off "${EXTRA_GRADLE_ARGS[@]}" || RC=1
+  run_variant r8off || RC=1
 fi
 if [ "$VARIANT" = "on" ] || [ "$VARIANT" = "both" ]; then
-  run_variant r8on -Poreki.r8=true "${EXTRA_GRADLE_ARGS[@]}" || RC=1
+  run_variant r8on || RC=1
 fi
 
 for pid in $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null); do

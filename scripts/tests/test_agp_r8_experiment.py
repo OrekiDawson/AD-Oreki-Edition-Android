@@ -25,7 +25,8 @@ class AgpR8ExperimentTests(unittest.TestCase):
         cls.r8_ab_script = R8_AB_SCRIPT.read_text(encoding="utf-8")
 
     def test_r8_is_explicitly_opt_in_and_resource_shrinking_stays_off(self):
-        self.assertIn('gradleProperty("oreki.r8")', self.gradle)
+        self.assertIn('create("r8")', self.gradle)
+        self.assertNotIn('gradleProperty("oreki.r8")', self.gradle)
         self.assertIn("isShrinkResources = false", self.gradle)
         self.assertIn('getDefaultProguardFile("proguard-android-optimize.txt")', self.gradle)
 
@@ -101,7 +102,7 @@ class AgpR8ExperimentTests(unittest.TestCase):
 
     def test_full_game_experiment_uses_root_relative_artifacts_from_any_cwd(self):
         self.assertIn(
-            'local apk_out="$ROOT/app/build/outputs/apk/release/app-release.apk"',
+            'local apk_out="$ROOT/app/build/outputs/apk/$output_variant/app-$output_variant.apk"',
             self.r8_ab_script,
         )
         self.assertIn(
