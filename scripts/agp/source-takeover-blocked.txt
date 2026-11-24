@@ -378,6 +378,29 @@ zf8.class | Lzf8; | R126 blocked-ABI recovery broad import javac/classfile failu
 zl5.class | Lzl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 zv5.class | Lzv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 zw5.class | Lzw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+kx2.class | Lkx2; | javac compile failure: cannot access ws5 default method in version 49.0 classfile; kx2 also lacks is.t()
+px5.class | Lpx5; | javac compile failure: cannot find symbol b.d(rx5)
+sx5.class | Lsx5; | javac compile failure: cannot find symbol b.d(tx5)
+wz6.class | Lwz6; | javac compile failure: cannot find symbol constructor vz6(wz6,byte)
+z90.class | Lz90; | javac compile failure: cannot find symbol constructor sj5(byte)
+yl4.class | Lyl4; | javac compile failure: constructor b requires pa,a21
+z70.class | Lz70; | javac compile failure: cannot find symbol constructor y40(byte)
+mw3.class | Lmw3; | javac compile failure: constructor a cannot be applied to given types
+pv5.class | Lpv5; | javac compile failure: cannot find symbol b.d(rv5)
+bd4.class | Lbd4; | javac compile failure: cannot find symbol constructor ad4(byte)
+ew5.class | Lew5; | javac compile failure: cannot find symbol b.d(gw5)
+cv5.class | Lcv5; | javac compile failure: cannot find symbol b.d(fv5)
+ml5.class | Lml5; | javac compile failure: missing kl5(), gl5(byte), and wa(byte) constructors
+y54.class | Ly54; | javac compile failure: eh0(byte) absent; JADX emitted five-Map constructor
+rb8.class | Lrb8; | javac compile failure: yx7.z, gx7.z, hx7.z, and mx7.T symbols are unavailable
+yy3.class | Lyy3; | javac compile failure: cannot find symbol constructor no1(byte)
+ub8.class | Lub8; | javac compile failure: missing wa(byte) and ne1.l(String)
+eg1.class | Leg1; | javac compile failure: CoroutineSingletons.a unavailable
+rx4.class | Lrx4; | javac compile failure: PathMotion requires Context,AttributeSet
+eq0.class | Leq0; | javac compile failure: eq0 does not override iq0.B(BigDouble,Object)
+zy3.class | Lzy3; | javac compile failure: cannot find symbol constructor no1(byte)
+az3.class | Laz3; | javac compile failure: cannot find symbol constructor no1(byte)
+d15.class | Ld15; | source takeover ABI failure: compiled class is missing 16 original JVM linkage methods
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
