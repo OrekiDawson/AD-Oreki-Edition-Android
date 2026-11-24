@@ -742,3 +742,58 @@ me.class | Lme; | javac compile failure: ne field n0 is absent from recovered so
 h26.class | Lh26; | javac compile failure: d46 field f is absent from recovered source ABI
 wh8.class | Lwh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
 q58.class | Lq58; | javac compile failure: dependency ws5 is a blocked version-49 classfile
+a06.class | La06; | javac compile failure: source ABI requires invalid firebase-auth-api package and zzagb type
+a09.class | La09; | javac compile failure: source ABI requires invalid firebase-auth-api package and generated classes
+a79.class | La79; | javac compile failure: source ABI requires invalid firebase-auth-api package and generated classes
+ok8.class | Lok8; | javac compile failure: source ABI requires invalid firebase-auth-api.zzanp type
+a00.class | La00; | javac compile failure: constructor y63 in class y63 cannot be applied to given types;
+a01.class | La01; | javac compile failure: constructor d01 in class d01 cannot be applied to given types;
+a07.class | La07; | javac compile failure: cannot find symbol
+a08.class | La08; | javac compile failure: cannot find symbol
+a20.class | La20; | javac compile failure: incompatible types: ze0 cannot be converted to pn1
+a22.class | La22; | javac compile failure: cannot find symbol
+a27.class | La27; | javac compile failure: constructor fs1 in class fs1 cannot be applied to given types;
+a29.class | La29; | javac compile failure: cannot find symbol
+a34.class | La34; | javac compile failure: self-reference in initializer
+a37.class | La37; | javac compile failure: cannot find symbol
+a53.class | La53; | javac compile failure: cannot find symbol
+a54.class | La54; | javac compile failure: cannot find symbol
+a58.class | La58; | javac compile failure: cannot find symbol
+a65.class | La65; | javac compile failure: cannot find symbol
+a66.class | La66; | javac compile failure: cannot find symbol
+a68.class | La68; | javac compile failure: constructor z58 in class z58 cannot be applied to given types;
+a70.class | La70; | javac compile failure: call to super must be first statement in constructor
+a72.class | La72; | javac compile failure: cannot find symbol
+a74.class | La74; | javac compile failure: cannot find symbol
+a8.class | La8; | javac compile failure: incompatible types: bad type in conditional expression
+a80.class | La80; | javac compile failure: cannot find symbol
+a87.class | La87; | javac compile failure: cannot find symbol
+a91.class | La91; | javac compile failure: cannot find symbol
+aa9.class | Laa9; | javac compile failure: cannot find symbol
+ac1.class | Lac1; | javac compile failure: incompatible types: FragmentActivity cannot be converted to MainActivity
+ac3.class | Lac3; | javac compile failure: cannot find symbol
+ag3.class | Lag3; | javac compile failure: cannot find symbol
+al.class | Lal; | javac compile failure: incompatible types: em0 cannot be converted to ln
+al0.class | Lal0; | javac compile failure: cannot find symbol
+am.class | Lam; | javac compile failure: cannot find symbol
+an.class | Lan; | javac compile failure: cannot find symbol
+aq0.class | Laq0; | javac compile failure: aq0 is not abstract and does not override abstract method B(BigDouble,Object) in iq0
+aq4.class | Laq4; | javac compile failure: cannot find symbol
+ar.class | Lar; | javac compile failure: cannot find symbol
+c13.class | Lc13; | javac compile failure: cannot find symbol
+c61.class | Lc61; | javac compile failure: cannot find symbol
+c76.class | Lc76; | javac compile failure: ag5 is abstract; cannot be instantiated
+dw.class | Ldw; | javac compile failure: method does not override or implement a method from a supertype
+fr5.class | Lfr5; | javac compile failure: cannot find symbol
+iq0.class | Liq0; | javac compile failure: cannot find symbol
+na4.class | Lna4; | javac compile failure: cannot find symbol
+p32.class | Lp32; | javac compile failure: cannot find symbol
+tw.class | Ltw; | javac compile failure: cannot find symbol
+u62.class | Lu62; | javac compile failure: cannot find symbol
+a30.class | La30; | javac compile failure: depends on blocked version-49 class ws5
+a78.class | La78; | javac compile failure: superclass p32 is blocked
+as1.class | Las1; | javac compile failure: depends on blocked version-49 class ws5
+wb6.class | Lwb6; | javac compile failure: Binder onTransact override throws RemoteException incompatibly
+a76.class | La76; | javac compile failure: final field q39 a is not initialized by the default constructor
+a73.class | La73; | javac compile failure: final fields c/d have incompatible constructor definite-assignment flow
+y63.class | Ly63; | source takeover ABI failure: missing method e(Ly63;Lkajfosz/antimatterdimensions/BigDouble;I)Ljava/lang/String;
