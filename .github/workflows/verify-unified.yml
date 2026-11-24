@@ -184,11 +184,7 @@ jobs:
           set -euo pipefail
           apk=candidate/antimatter-dimensions.apk
           "$APKSIGNER" verify --verbose --print-certs "$apk" > candidate/signature-verified.txt
-          cert="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' candidate/signature-verified.txt | head -n 1)"
-          [[ "$cert" == "$EXPECTED_CERT_SHA256" ]] || {
-            echo "::error::APK signing certificate mismatch"
-            exit 1
-          }
+          python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' candidate/signature-verified.txt "$EXPECTED_CERT_SHA256"
           "$AAPT2" dump badging "$apk" > candidate/badging.txt
           python3 - <<'PY'
           import os, pathlib, re, sys
