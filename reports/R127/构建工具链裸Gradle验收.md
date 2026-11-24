@@ -30,7 +30,8 @@
 
 - Java/Kotlin 编译：PASS，36 秒。
 - 完整 Debug APK：PASS，56 秒。
-- R8 实验 APK：PASS，1 分 27 秒；公共 CI 未提供生产密钥时保持未签名，正式 Candidate 仍由受保护任务注入密钥后验签。
+- `:app:assembleR8` 构建：PASS，1 分 27 秒；公共 CI 未提供生产密钥时保持未签名。
+- R8 变体 ABI/DEX 校验：NOT RUN。当前 `OrekiStorePolicyPlugin.kt` 与 `OrekiAbiPolicyPlugin.kt` 的变体循环只覆盖 Debug/Release，尚未覆盖 `r8`；该 APK 不作为发布或对照证据使用。
 - 完整游戏资源：14973 条。
 - Source takeover ABI：1650 classes PASS。
 - Source takeover DEX：1650 classes PASS。
