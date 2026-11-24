@@ -71,6 +71,7 @@ def structural_checks(
     game_jar: pathlib.Path,
     out_jar: pathlib.Path,
     source_takeover_entries: list[str],
+    repo_root: pathlib.Path,
 ) -> dict:
     with zipfile.ZipFile(game_jar) as before, zipfile.ZipFile(out_jar) as after:
         before_names = [entry.filename for entry in before.infolist()]
@@ -79,9 +80,19 @@ def structural_checks(
         added = sorted(set(after_names) - set(before_names))
         missing_takeovers = sorted(set(source_takeover_entries) - set(before_names))
         retained_takeovers = sorted(set(source_takeover_entries) & set(after_names))
-        if missing_takeovers:
+        source_only_missing = []
+        invalid_missing = []
+        for entry in missing_takeovers:
+            source_path = pathlib.Path(entry.removesuffix(".class"))
+            java_source = repo_root / "app" / "src" / "main" / "java" / source_path.with_suffix(".java")
+            kotlin_source = repo_root / "app" / "src" / "main" / "kotlin" / source_path.with_suffix(".kt")
+            if java_source.is_file() or kotlin_source.is_file():
+                source_only_missing.append(entry)
+            else:
+                invalid_missing.append(entry)
+        if invalid_missing:
             raise SystemExit(
-                f"FAIL: source takeover entries missing from input JAR: {missing_takeovers}"
+                f"FAIL: source takeover entries missing from input JAR and source tree: {invalid_missing}"
             )
         if retained_takeovers:
             raise SystemExit(
@@ -130,7 +141,8 @@ def structural_checks(
         ),
         "removed_entries": removed,
         "source_takeover_entries": source_takeover_entries,
-        "source_takeovers_removed": not retained_takeovers and not missing_takeovers,
+        "source_takeovers_removed": not retained_takeovers,
+        "source_only_entries": source_only_missing,
         "non_target_entries_byte_identical": True,
         "target_classes": classes,
     }
@@ -185,7 +197,12 @@ def main() -> int:
         target_text = target_report.read_text(encoding="utf-8")
     if "targets=" not in target_text:
         raise SystemExit("FAIL: transformer did not emit a target report")
-    structural = structural_checks(game_jar, out_jar, source_takeover_entries)
+    structural = structural_checks(
+        game_jar,
+        out_jar,
+        source_takeover_entries,
+        source_takeover_manifest.parent.parent,
+    )
 
     payload = {
         "schema": 1,
