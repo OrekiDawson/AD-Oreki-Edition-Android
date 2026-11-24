@@ -215,27 +215,28 @@ jobs:
           echo "::notice::Real APK build, signature, DEX contract and AVD tests require the protected local baseline and dedicated runner."
 
   source-checks:
-    # Preserve the required check name, and fail closed if EITHER parallel job fails/skips.
+    # Preserve the required check name; proprietary AGP builds are a separate,
+    # explicitly NOT RUN check when their frozen inputs are unavailable.
     name: Source checks (no proprietary APK baseline)
-    needs: [agp-kotlin-dex, source-policy]
+    needs: source-policy
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require successful AGP compilation and source-policy validation
+      - name: Require successful source-policy validation
         env:
-          AGP_RESULT: ${{ needs.agp-kotlin-dex.result }}
           POLICY_RESULT: ${{ needs.source-policy.result }}
         run: |
           set -euo pipefail
-          if [[ "$AGP_RESULT" != success || "$POLICY_RESULT" != success ]]; then
-            echo "::error::Required CI failed or was skipped: AGP=$AGP_RESULT policy=$POLICY_RESULT"
+          if [[ "$POLICY_RESULT" != success ]]; then
+            echo "::error::Required source-policy CI failed: policy=$POLICY_RESULT"
             exit 1
           fi
-          echo "PASS: both parallel CI checks completed successfully"
+          echo "PASS: public source policy completed successfully"
+          echo "NOT RUN: proprietary AGP full-game APK, ABI and DEX parity are not claimed by this check."
 
   agp-kotlin-dex:
-    name: AGP 9.5.2 Kotlin DEX parity
+    name: AGP 专有输入构建（缺输入时明确 NOT RUN）
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -250,7 +251,7 @@ jobs:
       - name: Install API 37 and pinned Build Tools
         run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
       - uses: gradle/actions/setup-gradle@v6
-      - name: Detect pinned full-game inputs
+      - name: 检测专有完整游戏输入
         id: full_game_inputs
         run: |
           set -euo pipefail
@@ -261,7 +262,13 @@ jobs:
             echo 'PASS: pinned full-game inputs are present'
           else
             echo 'available=false' >> "$GITHUB_OUTPUT"
-            echo 'NOT RUN: proprietary full-game inputs are unavailable on the public runner'
+            {
+              echo '## AGP 专有输入构建：NOT RUN'
+              echo
+              echo '公共 runner 缺少冻结的 `game-final.jar`、官方解码树和 mdpi split。'
+              echo '本检查只执行为公开源码可用的自测，不把跳过的完整游戏构建记为 PASS。'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo '::warning::专有完整游戏输入缺失；APK、ABI 与 DEX parity 为 NOT RUN'
           fi
       - name: Verify store-policy JAR gate self-test
         run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
@@ -287,8 +294,11 @@ jobs:
           mkdir -p ci-evidence
           printf '%s\n' \
             'NOT RUN: full-game APK build, ABI guard and DEX parity require the pinned proprietary inputs.' \
+            'Public source-policy checks and build-logic self-tests did run.' \
             'This public source check does not infer PASS from a skipped APK build.' \
             | tee ci-evidence/full-game-build-not-run.txt
+          echo '::error::AGP专有输入构建为 NOT RUN；该 check 不得显示为成功'
+          exit 1
       - name: Upload AGP phase-1 evidence
         # R111 CI-6：无论成败都上传已产生的构建日志与 parity 结果；失败时至少保留可诊断线索，
         # 成功后仍要求 parity 证据存在（下一步单独校验，避免用 if-no-files-found: warn 掩盖缺失）。

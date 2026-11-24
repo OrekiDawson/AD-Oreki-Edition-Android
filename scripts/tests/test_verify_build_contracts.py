@@ -115,9 +115,17 @@ class TreeCheckWiringTest(unittest.TestCase):
         self.assertNotIn("--decoded-tree", ci,
                          "公开源码 CI 没有解码基线，不得假装执行树级校验")
         self.assertIn("id: full_game_inputs", ci)
-        self.assertIn("NOT RUN: proprietary full-game inputs are unavailable on the public runner", ci)
+        self.assertIn("name: AGP 专有输入构建（缺输入时明确 NOT RUN）", ci)
+        self.assertIn("## AGP 专有输入构建：NOT RUN", ci)
         self.assertIn("NOT RUN: full-game APK build, ABI guard and DEX parity", ci)
         self.assertIn("steps.full_game_inputs.outputs.available == 'true'", ci)
+        self.assertIn("needs: source-policy", ci)
+        not_run_start = ci.index("Record full-game build as NOT RUN without proprietary inputs")
+        not_run_end = ci.index("Upload AGP phase-1 evidence", not_run_start)
+        not_run = ci[not_run_start:not_run_end]
+        self.assertIn("AGP专有输入构建为 NOT RUN", not_run)
+        self.assertIn("exit 1", not_run,
+                      "缺专有输入时，专有构建 check 必须失败关闭，不能以 SUCCESS 冒充完整构建")
 
 
 if __name__ == "__main__":
