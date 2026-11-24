@@ -73,14 +73,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p r8-evidence/optimized r8-evidence/logs
-          bash ./gradlew :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8on-build.log
-          apk="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          bash ./gradlew :app:assembleR8 --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8on-build.log
+          apk="$(find app/build/outputs/apk/r8 -maxdepth 1 -type f -name '*.apk' -print -quit)"
           test -n "$apk" || { echo 'FAIL：未找到启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/optimized/
       - name: 记录 APK、mapping 与 DEX 保留统计
         run: |
           set -euo pipefail
-          mapping='app/build/outputs/mapping/release/mapping.txt'
+          mapping='app/build/outputs/mapping/r8/mapping.txt'
           if [ -f "$mapping" ]; then
             cp "$mapping" r8-evidence/optimized/mapping.txt
           fi

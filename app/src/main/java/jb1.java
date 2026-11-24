@@ -5,6 +5,10 @@ public final class jb1 {
     public int d;
     public Object e;
 
+    public jb1(Object value) {
+        this.e = value;
+    }
+
     public void a(int i) {
         this.a |= i > 0;
         this.b += i;
