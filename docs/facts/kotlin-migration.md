@@ -353,3 +353,11 @@ bytes.count 预筛无效 —— 瓶颈在 IO 不在 CPU。
   （不被构建调用，不影响交付）。
 
 ---
+
+<a id="f-r126-smali-source-takeover-a5"></a>
+## R126：原版 a5.class 由 AGP 源码接管（2026-11-23）
+
+- `[读码]` 当前生产源码 [`app/src/main/java/a5.java`](../../app/src/main/java/a5.java) 定义默认包接口 `a5`，只有 `void j(Object value)`，对应原版 `La5;` 描述符；来源及首批差分证据见 [`BUILDMOD_RETIREMENT_LEDGER.md`](../BUILDMOD_RETIREMENT_LEDGER.md) 的“R126 原版 JAR 源码接管首批”。
+- `[读码]` [`build-logic/source-takeover.txt`](../../build-logic/source-takeover.txt) 的当前记录是 `a5.class`，声明从冻结游戏 JAR 排除同名 entry，交由 AGP 的 Java Source Set 编译；该静态事实不替代当前 HEAD 的最终 DEX 实测。
+- `[未知]` 这一个类的源码接管不代表原版游戏全部预编译类已迁移；全量原版类数、当前 R126 最终构建、Tick、存档与 Release 验收须另查最新产物与 Issue #52/#25，不能由本例推断 PASS。
+- 可复用操作与判断标准见 [`Smali与DEX源码恢复方法论.md`](../Smali与DEX源码恢复方法论.md)；本事实分册只保留可核查的案例及证据，不复制方法论全文。
