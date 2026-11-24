@@ -378,3 +378,25 @@ zf8.class | Lzf8; | R126 blocked-ABI recovery broad import javac/classfile failu
 zl5.class | Lzl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 zv5.class | Lzv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 zw5.class | Lzw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+a7.class | La7; | javac compile failure: cannot find symbol
+aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
+b7.class | Lb7; | javac compile failure: cannot find symbol
+bq2.class | Lbq2; | javac compile failure: incompatible types: Context cannot be converted to Service
+c7.class | Lc7; | javac compile failure: cannot find symbol
+d7.class | Ld7; | javac compile failure: cannot find symbol
+e7.class | Le7; | javac compile failure: cannot find symbol
+gk1.class | Lgk1; | javac compile failure: gk1 is not abstract and does not override abstract method v(int,View) in z42
+h43.class | Lh43; | javac compile failure: constructor a in class a cannot be applied to given types;
+i00.class | Li00; | javac compile failure: constructor d00 in class d00 cannot be applied to given types;
+lw5.class | Llw5; | javac compile failure: cannot find symbol
+m14.class | Lm14; | javac compile failure: cannot find symbol
+mb5.class | Lmb5; | javac compile failure: cannot find symbol
+md6.class | Lmd6; | javac compile failure: cannot find symbol
+ou2.class | Lou2; | javac compile failure: cannot find symbol
+pz5.class | Lpz5; | javac compile failure: constructor ys5 in class ys5 cannot be applied to given types;
+rd5.class | Lrd5; | javac compile failure: constructor qd5 in class qd5 cannot be applied to given types;
+rf7.class | Lrf7; | javac compile failure: cannot find symbol
+s45.class | Ls45; | javac compile failure: cannot find symbol
+ub0.class | Lub0; | javac compile failure: cannot find symbol
+w29.class | Lw29; | javac compile failure: cannot find symbol
+xv0.class | Lxv0; | javac compile failure: cannot find symbol
