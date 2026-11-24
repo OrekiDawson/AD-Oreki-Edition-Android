@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "counts": {
+    "java_files": 2608,
+    "warning_free_class": 812,
+    "jar_present": 812,
+    "smali_verified": 801,
+    "already_in_manifest": 791,
+    "existing_source": 0,
+    "reused_existing": 0,
+    "emitted": 10
+  },
+  "emitted": [
+    {
+      "descriptor": "Ljb1;",
+      "entry": "jb1.class",
+      "source": "jb1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljc1;",
+      "entry": "jc1.class",
+      "source": "jc1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lwg6;",
+      "entry": "wg6.class",
+      "source": "wg6.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lby1;",
+      "entry": "by1.class",
+      "source": "by1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Li0;",
+      "entry": "i0.class",
+      "source": "i0.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lj13;",
+      "entry": "j13.class",
+      "source": "j13.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljv3;",
+      "entry": "jv3.class",
+      "source": "jv3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lmw4;",
+      "entry": "mw4.class",
+      "source": "mw4.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ln08;",
+      "entry": "n08.class",
+      "source": "n08.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lnx1;",
+      "entry": "nx1.class",
+      "source": "nx1.java",
+      "reused_existing": false
+    }
+  ]
+}
