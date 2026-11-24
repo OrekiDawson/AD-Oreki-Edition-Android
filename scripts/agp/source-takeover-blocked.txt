@@ -711,3 +711,8 @@ hw3.class | Lhw3; | javac compile failure: superclass constructor and pi1.f sign
 da6.class | Lda6; | javac compile failure: j1 constructor is not visible through JADX output
 pu3.class | Lpu3; | javac compile failure: c61 constructor signature differs from JADX output
 jn2.class | Ljn2; | javac compile failure: implicit constructor cannot satisfy InsetDrawable
+ig1.class | Lig1; | javac compile failure: relocated oreki.shadow Kotlin Ref type is unavailable
+hg1.class | Lhg1; | javac compile failure: relocated oreki.shadow Kotlin Ref type is unavailable
+cv4.class | Lcv4; | javac compile failure: superclass fv4 has no matching constructor
+rp6.class | Lrp6; | javac compile failure: wb6/qp6 Binder constructor and local-interface ABI differ from JADX output
+dh1.class | Ldh1; | javac compile failure: implicit constructor cannot satisfy FloatProperty
