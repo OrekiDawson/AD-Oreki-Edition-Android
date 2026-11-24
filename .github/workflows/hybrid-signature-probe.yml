@@ -1,0 +1,97 @@
+name: P0 混合签名工具链实测（不发布）
+
+'on':
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/sign_apk_hybrid.py'
+      - '.github/workflows/hybrid-signature-probe.yml'
+      - 'scripts/verify_apk_v3.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hybrid-signature-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    name: 实测 V3.0 + V3.2 + V4
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 配置 JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: 配置 Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: 安装 API 37 与 Build Tools 37.0.0
+        run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
+      - name: 临时密钥真实签名及双文件验签
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p hybrid-evidence
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          tools="$ANDROID_SDK_ROOT/build-tools/37.0.0"
+          signer="$tools/apksigner"
+          "$signer" version | tee hybrid-evidence/version.txt
+          "$signer" sign --help > hybrid-evidence/sign-help.txt
+          "$signer" verify --help > hybrid-evidence/verify-help.txt
+          grep -q -- '--hybrid-signer-role' hybrid-evidence/sign-help.txt
+          grep -q -- '--signer-lineage' hybrid-evidence/sign-help.txt
+          grep -q -- '--v4-signature-file' hybrid-evidence/verify-help.txt
+          # 临时随机密码和密钥仅存在 RUNNER_TEMP；不上传密钥、谱系或测试 APK。
+          export OREKI_K0_PASS="$(openssl rand -hex 24)"
+          export OREKI_CLASSICAL_PASS="$(openssl rand -hex 24)"
+          export OREKI_PQC_PASS="$(openssl rand -hex 24)"
+          keytool -genkeypair -alias k0 -keyalg RSA -keysize 2048 -dname 'CN=Hybrid Probe K0' -validity 30 -storetype PKCS12 -keystore "$tmp/k0.p12" -storepass:env OREKI_K0_PASS -keypass:env OREKI_K0_PASS
+          keytool -genkeypair -alias classical -keyalg EC -groupname secp384r1 -dname 'CN=Hybrid Probe Classical' -validity 30 -storetype PKCS12 -keystore "$tmp/classical.p12" -storepass:env OREKI_CLASSICAL_PASS -keypass:env OREKI_CLASSICAL_PASS
+          keytool -genkeypair -alias pqc -keyalg ML-DSA-87 -sigalg ML-DSA-87 -dname 'CN=Hybrid Probe PQC' -validity 30 -storetype PKCS12 -keystore "$tmp/pqc.p12" -storepass:env OREKI_PQC_PASS -keypass:env OREKI_PQC_PASS
+          "$signer" rotate --out "$tmp/classical.lineage" --old-signer --ks "$tmp/k0.p12" --ks-key-alias k0 --ks-pass env:OREKI_K0_PASS --set-rollback true --new-signer --ks "$tmp/classical.p12" --ks-key-alias classical --ks-pass env:OREKI_CLASSICAL_PASS
+          "$signer" rotate --out "$tmp/pqc.lineage" --old-signer --ks "$tmp/k0.p12" --ks-key-alias k0 --ks-pass env:OREKI_K0_PASS --set-rollback true --new-signer --ks "$tmp/pqc.p12" --ks-key-alias pqc --ks-pass env:OREKI_PQC_PASS
+          k0="$(keytool -exportcert -alias k0 -keystore "$tmp/k0.p12" -storepass:env OREKI_K0_PASS | sha256sum | cut -d' ' -f1)"
+          classical="$(keytool -exportcert -alias classical -keystore "$tmp/classical.p12" -storepass:env OREKI_CLASSICAL_PASS | sha256sum | cut -d' ' -f1)"
+          pqc="$(keytool -exportcert -alias pqc -keystore "$tmp/pqc.p12" -storepass:env OREKI_PQC_PASS | sha256sum | cut -d' ' -f1)"
+          cat > "$tmp/AndroidManifest.xml" <<'XML'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="net.oreki.hybridsignature.probe" android:versionCode="1" android:versionName="1">
+            <uses-sdk android:minSdkVersion="32" android:targetSdkVersion="37"/>
+            <application android:label="Hybrid Probe" android:hasCode="false" android:debuggable="false"/>
+          </manifest>
+          XML
+          "$tools/aapt2" link -I "$ANDROID_SDK_ROOT/platforms/android-37.0/android.jar" --manifest "$tmp/AndroidManifest.xml" -o "$tmp/unsigned.apk"
+          python3 scripts/sign_apk_hybrid.py --apksigner "$signer" --cert "$k0" "$classical" "$pqc" --report hybrid-evidence/verified.json sign-test --input "$tmp/unsigned.apk" --output "$tmp/probe.apk" --k0 "$tmp/k0.p12" --classical "$tmp/classical.p12" --pqc "$tmp/pqc.p12" --classical-lineage "$tmp/classical.lineage" --pqc-lineage "$tmp/pqc.lineage"
+          # 对真实生成的 APK 和 sidecar 运行负向验证；任何被接受都必须阻断。
+          cp "$tmp/probe.apk.idsig" "$tmp/original.idsig"
+          rm "$tmp/probe.apk.idsig"
+          if python3 scripts/sign_apk_hybrid.py --apksigner "$signer" --cert "$k0" "$classical" "$pqc" --report "$tmp/negative.json" verify "$tmp/probe.apk"; then
+            echo 'FAIL: missing idsig accepted'; exit 1
+          fi
+          cp "$tmp/original.idsig" "$tmp/probe.apk.idsig"
+          printf '\x00' > "$tmp/probe.apk.idsig"
+          if python3 scripts/sign_apk_hybrid.py --apksigner "$signer" --cert "$k0" "$classical" "$pqc" --report "$tmp/negative.json" verify "$tmp/probe.apk"; then
+            echo 'FAIL: corrupted idsig accepted'; exit 1
+          fi
+          cp "$tmp/original.idsig" "$tmp/probe.apk.idsig"
+          if python3 scripts/sign_apk_hybrid.py --apksigner "$signer" --cert "$k0" "$pqc" "$classical" --report "$tmp/negative.json" verify "$tmp/probe.apk"; then
+            echo 'FAIL: swapped certificate identities accepted'; exit 1
+          fi
+          echo 'PASS: missing/corrupted idsig and swapped roles rejected' | tee hybrid-evidence/negative-tests.txt
+      - name: 上传工具链实测证据（不含密钥和 APK）
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: hybrid-signature-probe
+          path: hybrid-evidence/
+          retention-days: 14
