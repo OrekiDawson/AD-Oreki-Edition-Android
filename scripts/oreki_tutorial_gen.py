@@ -511,6 +511,12 @@ def validate_level2_glossary(doc: dict, path: Path | None = None) -> int:
 # 实测全包 12 个 smali / 106 条中文 const-string，全扫一遍的代价可以忽略。
 OREKI_SMALI_DIR = (ANDROID_ROOT / "scripts" / "payload" / "smali" / "kajfosz"
                    / "antimatterdimensions" / "oreki")
+OREKI_SOURCE_DIRS = (
+    ANDROID_ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz"
+    / "antimatterdimensions" / "oreki",
+    ANDROID_ROOT / "app" / "src" / "main" / "java" / "kajfosz"
+    / "antimatterdimensions" / "oreki",
+)
 
 # smali 的字符串字面量。只认 `const-string vX, "..."` 整行，不碰注释与指令。
 SMALI_CONST_STRING = re.compile(r'^\s*const-string(?:/jumbo)?\s+v\d+,\s*"(.*)"\s*$')
@@ -550,6 +556,128 @@ def _smali_glossary_problems(terms: list[dict], smali_dir: Path | None = None) -
                         f"{_fix_hint(t['correct'])}"
                         f"（词表 web/AD-Oreki-Edition/docs/教程术语表.md:{t['line']}）")
     return problems
+
+
+def _source_string_literals(path: Path):
+    """Yield ``(line_number, literal)`` from Kotlin/Java source.
+
+    The old production Smali package is retired, so player-visible literals now
+    live in Kotlin/Java. This small state machine skips line and block comments,
+    handles escaped characters and Kotlin raw strings, and deliberately does not
+    attempt to parse embedded expressions.
+    """
+    text = path.read_text(encoding="utf-8")
+    i = 0
+    line = 1
+    mode = "code"
+    start_line = 0
+    buf: list[str] = []
+    while i < len(text):
+        ch = text[i]
+        if mode == "code":
+            if text.startswith("//", i):
+                mode = "line-comment"
+                i += 2
+            elif text.startswith("/*", i):
+                mode = "block-comment"
+                i += 2
+            elif text.startswith('"""', i):
+                mode = "raw-string"
+                start_line = line
+                buf = []
+                i += 3
+            elif ch == '"':
+                mode = "string"
+                start_line = line
+                buf = []
+                i += 1
+            elif ch == "'":
+                mode = "char"
+                i += 1
+            else:
+                if ch == "\n":
+                    line += 1
+                i += 1
+        elif mode == "line-comment":
+            if ch == "\n":
+                line += 1
+                mode = "code"
+            i += 1
+        elif mode == "block-comment":
+            if text.startswith("*/", i):
+                mode = "code"
+                i += 2
+            else:
+                if ch == "\n":
+                    line += 1
+                i += 1
+        elif mode == "raw-string":
+            if text.startswith('"""', i):
+                yield start_line, "".join(buf)
+                mode = "code"
+                i += 3
+            else:
+                buf.append(ch)
+                if ch == "\n":
+                    line += 1
+                i += 1
+        elif mode in ("string", "char"):
+            if ch == "\\" and i + 1 < len(text):
+                buf.append(ch)
+                buf.append(text[i + 1])
+                if text[i + 1] == "\n":
+                    line += 1
+                i += 2
+            elif (mode == "string" and ch == '"') or (mode == "char" and ch == "'"):
+                if mode == "string":
+                    yield start_line, "".join(buf)
+                mode = "code"
+                i += 1
+            else:
+                buf.append(ch)
+                if ch == "\n":
+                    line += 1
+                i += 1
+
+
+def _source_glossary_problems(
+        terms: list[dict], source_dirs: tuple[Path, ...] | None = None) -> list[str]:
+    """Scan current Kotlin/Java production literals after Smali retirement."""
+    roots = source_dirs or OREKI_SOURCE_DIRS
+    files = sorted(
+        path
+        for root in roots
+        if root.is_dir()
+        for path in root.rglob("*")
+        if path.suffix in (".kt", ".java") and path.is_file()
+    )
+    if not files:
+        raise TutorialContentError(
+            "找不到 Kotlin/Java 生产源码目录 —— 旁路文案断言不能静默跳过")
+
+    problems = []
+    for source in files:
+        for lineno, literal in _source_string_literals(source):
+            lit = CORRECTION_SPAN.sub("", literal)
+            for term in terms:
+                if term["term"] in lit:
+                    display = (
+                        source.relative_to(ANDROID_ROOT)
+                        if source.is_relative_to(ANDROID_ROOT)
+                        else source
+                    )
+                    problems.append(
+                        f"{display}:{lineno} 出现禁用译名"
+                        f"「{term['term']}」，{_fix_hint(term['correct'])}"
+                        f"（词表 web/AD-Oreki-Edition/docs/教程术语表.md:{term['line']}）")
+    return problems
+
+
+def _player_text_glossary_problems(terms: list[dict]) -> list[str]:
+    """Use legacy Smali while present, otherwise the current AGP source tree."""
+    if any(OREKI_SMALI_DIR.glob("*.smali")):
+        return _smali_glossary_problems(terms)
+    return _source_glossary_problems(terms)
 
 
 def validate_level2_smali_glossary(path: Path | None = None,
@@ -617,7 +745,7 @@ def validate_level2(doc: dict, allow_draft: bool = False) -> None:
     problems.extend(_glossary_problems(doc, terms, skip_draft=allow_draft))
     # 旁路文案（手写 smali 里的中文）**不受 draft 门控**：它和「草稿写完没」无关，
     # 任何构建都会进包，所以任何口径都该对。被 allow_draft 放行的只有 JSON 草稿章。
-    problems.extend(_smali_glossary_problems(terms))
+    problems.extend(_player_text_glossary_problems(terms))
     doomed = [c for c in doc["chapters"] if c.get("stageKey") == "doomed"]
     if not doomed:
         problems.append("没有任何 stageKey=='doomed' 的章节（终局章节缺失）")
