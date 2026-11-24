@@ -2,6 +2,7 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,15 +10,21 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
+import android.view.MotionEvent
+import android.view.ViewConfiguration
+import android.view.Window
+import android.view.WindowManager
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.widget.ImageButton
+import android.widget.FrameLayout
 import android.widget.Button
 import android.text.SpannableString
 import android.text.Spanned
@@ -47,6 +54,7 @@ class TutorialActivity : Activity() {
     private lateinit var contentHost: LinearLayout
     private lateinit var contentScroll: ScrollView
     private lateinit var appBar: LinearLayout
+    private var chapterDrawer: Dialog? = null
 
     override fun onCreate(state: Bundle?) {
         // 语义：教程始终使用深色表面，避免系统浅色主题覆盖正文层级。
@@ -72,7 +80,9 @@ class TutorialActivity : Activity() {
         }
         contentScroll.addView(contentHost, ScrollView.LayoutParams(-1, -2))
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        setContentView(root)
+        val reader = SwipeFrame(opening = true) { openChapterDrawer() }
+        reader.addView(root, FrameLayout.LayoutParams(-1, -1))
+        setContentView(reader)
         root.requestApplyInsets()
         if (chapters.isNotEmpty()) {
             showChapter(state?.getInt("chapter", initialChapter()) ?: initialChapter())
@@ -182,8 +192,7 @@ class TutorialActivity : Activity() {
             when (kind) {
                 "list" -> {
                     for (y in listOf(6f, 12f, 18f)) {
-                        canvas.drawCircle(4f, y, .8f, paint)
-                        canvas.drawLine(9f, y, 20f, y, paint)
+                        canvas.drawLine(4f, y, 20f, y, paint)
                     }
                 }
                 else -> {
@@ -235,18 +244,172 @@ class TutorialActivity : Activity() {
         } else if (action >= 100 && chapters.isNotEmpty()) showChapter((action - 100).coerceIn(0, chapters.lastIndex))
     }
 
-    /** 既有入口 ABI：系统返回先取消目录对话框，阅读页仍保留原章节和滚动位置。 */
-    fun openChapterDrawer() {
-        if (chapters.isEmpty()) return
-        AlertDialog.Builder(this)
-            .setTitle("选择章节")
-            .setSingleChoiceItems(chapters.map { it.title }.toTypedArray(), currentChapter) { dialog, index ->
-                showChapter(index)
-                dialog.dismiss()
+    /** 横向手势只在方向明确后拦截，保留正文及目录的正常竖向滚动。 */
+    private inner class SwipeFrame(
+        private val opening: Boolean,
+        private val swipe: () -> Unit
+    ) : FrameLayout(this@TutorialActivity) {
+        private val slop = ViewConfiguration.get(context).scaledTouchSlop
+        private var startX = 0f
+        private var startY = 0f
+        private var tracking = false
+
+        override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = event.x
+                    startY = event.y
+                    // 从屏幕左侧内容区右滑，不排除或抢占系统边缘返回手势。
+                    tracking = !opening || startX <= minOf(width * .35f, dp(120).toFloat())
+                }
+                MotionEvent.ACTION_MOVE -> if (tracking) {
+                    val dx = event.x - startX
+                    val dy = kotlin.math.abs(event.y - startY)
+                    val directed = if (opening) dx else -dx
+                    if (dy > slop && dy > kotlin.math.abs(dx)) tracking = false
+                    if (directed > slop && directed > dy * 1.5f) return true
+                }
+                MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> tracking = false
             }
-            // 目录是独立模态窗口：系统返回只取消窗口，不结束教程 Activity。
-            .setCancelable(true)
-            .show()
+            return false
+        }
+
+        override fun onTouchEvent(event: MotionEvent): Boolean {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_UP -> {
+                    val dx = event.x - startX
+                    val dy = kotlin.math.abs(event.y - startY)
+                    val directed = if (opening) dx else -dx
+                    val accepted = tracking && directed >= dp(48) && directed > dy * 1.5f
+                    tracking = false
+                    if (accepted) swipe()
+                }
+                MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_CANCEL -> tracking = false
+            }
+            return true
+        }
+    }
+
+    /** 既有入口 ABI：左侧模态章节抽屉，不改变教程 Activity 的返回栈。 */
+    fun openChapterDrawer() {
+        if (chapters.isEmpty() || chapterDrawer?.isShowing == true || isFinishing) return
+
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        chapterDrawer = dialog
+
+        val drawerWidth = minOf(dp(360), (windowManager.currentWindowMetrics.bounds.width() - dp(56)).coerceAtLeast(1))
+        val animated = android.animation.ValueAnimator.areAnimatorsEnabled()
+        var closing = false
+        val scrim = View(this).apply {
+            setBackgroundColor(Color.argb(140, 0, 0, 0))
+            contentDescription = "关闭章节目录"
+            isFocusable = true
+        }
+        val panel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(container)
+            isClickable = true
+            accessibilityPaneTitle = "章节目录"
+        }
+        fun closeDrawer() {
+            if (closing || !dialog.isShowing) return
+            closing = true
+            if (!animated) {
+                dialog.dismiss()
+                return
+            }
+            scrim.animate().alpha(0f).setDuration(180L).start()
+            panel.animate().translationX(-drawerWidth.toFloat()).setDuration(180L)
+                .withEndAction { if (dialog.isShowing) dialog.dismiss() }.start()
+        }
+
+        val overlay = SwipeFrame(opening = false) { closeDrawer() }
+        overlay.addView(scrim, FrameLayout.LayoutParams(-1, -1))
+        scrim.setOnClickListener { closeDrawer() }
+        overlay.addView(panel, FrameLayout.LayoutParams(drawerWidth, -1, Gravity.LEFT))
+
+        panel.addView(TextView(this).apply {
+            text = "章节目录"
+            textSize = 22f
+            setTextColor(onSurface)
+            setPadding(dp(24), dp(16), dp(24), dp(16))
+            gravity = Gravity.CENTER_VERTICAL
+            isAccessibilityHeading = true
+        }, LinearLayout.LayoutParams(-1, -2))
+
+        val scroll = ScrollView(this).apply { isFillViewport = true }
+        val list = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), 0, dp(12), dp(12))
+        }
+        var selectedRow: View? = null
+        chapters.forEachIndexed { index, chapter ->
+            val selected = index == currentChapter
+            val item = TextView(this).apply {
+                text = chapter.title
+                textSize = 16f
+                setTextColor(if (selected) onPrimaryContainer else onSurface)
+                minHeight = dp(56)
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(16), dp(12), dp(16), dp(12))
+                isSelected = selected
+                isFocusable = true
+                background = RippleDrawable(
+                    android.content.res.ColorStateList.valueOf(Color.argb(36, 173, 210, 247)),
+                    shape(if (selected) Color.rgb(0, 73, 110) else Color.TRANSPARENT, 24f),
+                    shape(Color.WHITE, 24f)
+                )
+                setOnClickListener {
+                    if (!closing) {
+                        if (index != currentChapter) showChapter(index)
+                        closeDrawer()
+                    }
+                }
+            }
+            list.addView(item, LinearLayout.LayoutParams(-1, -2))
+            if (selected) selectedRow = item
+        }
+        scroll.addView(list, ScrollView.LayoutParams(-1, -2))
+        panel.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
+
+        overlay.setOnApplyWindowInsetsListener { _, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            panel.setPadding(bars.left, bars.top, 0, bars.bottom)
+            insets
+        }
+
+        dialog.setContentView(overlay)
+        dialog.setOnDismissListener {
+            panel.animate().cancel()
+            scrim.animate().cancel()
+            if (chapterDrawer === dialog) chapterDrawer = null
+        }
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            setDecorFitsSystemWindows(false)
+            setWindowAnimations(0)
+        }
+        if (animated) {
+            panel.translationX = -drawerWidth.toFloat()
+            scrim.alpha = 0f
+        }
+        dialog.show()
+        dialog.window?.setLayout(-1, -1)
+        overlay.requestApplyInsets()
+        selectedRow?.let { row -> row.post { scroll.scrollTo(0, row.top) } }
+        if (animated) {
+            panel.animate().translationX(0f).setDuration(220L).start()
+            scrim.animate().alpha(1f).setDuration(220L).start()
+        }
+        // 系统返回由 Dialog 原生取消处理，下一次返回才结束教程 Activity。
+    }
+
+    override fun onDestroy() {
+        chapterDrawer?.dismiss()
+        super.onDestroy()
     }
 
     private fun showChapter(index: Int) {
