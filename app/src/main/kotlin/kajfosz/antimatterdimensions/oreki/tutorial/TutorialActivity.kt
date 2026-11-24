@@ -80,6 +80,8 @@ class TutorialReaderFragment : Fragment() {
     private var originalWindowCallback: Window.Callback? = null
     private var backInterceptor: Window.Callback? = null
     private var backInvokedCallback: OnBackInvokedCallback? = null
+    private var originalSystemBarAppearance: Int? = null
+    private var closing = false
 
     override fun onCreateView(
         inflater: android.view.LayoutInflater,
@@ -87,6 +89,8 @@ class TutorialReaderFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val host = requireNotNull(activity)
+        originalSystemBarAppearance =
+            host.window.decorView.windowInsetsController?.systemBarsAppearance
         reader = TutorialReader(host, host, host.window) {
             closeReader()
         }
@@ -118,13 +122,16 @@ class TutorialReaderFragment : Fragment() {
         reader?.dispose()
         reader = null
         activity?.let(::uninstallBackHandler)
+        activity?.let(::restoreSystemBarAppearance)
         super.onDestroyView()
     }
 
     private fun closeReader() {
-        view?.post {
-            if (isAdded) fragmentManager.beginTransaction().remove(this).commitNow()
-        }
+        if (closing) return
+        closing = true
+        // 先恢复宿主回调；即使事务因宿主正在销毁而稍后执行，也不会继续吞掉返回键。
+        activity?.let(::uninstallBackHandler)
+        fragmentManager.beginTransaction().remove(this).commitAllowingStateLoss()
     }
 
     private fun installBackHandler(host: Activity) {
@@ -164,6 +171,16 @@ class TutorialReaderFragment : Fragment() {
         backInvokedCallback = null
         backInterceptor = null
         originalWindowCallback = null
+    }
+
+    private fun restoreSystemBarAppearance(host: Activity) {
+        val appearance = originalSystemBarAppearance ?: return
+        host.window.decorView.windowInsetsController?.setSystemBarsAppearance(
+            appearance,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+        )
+        originalSystemBarAppearance = null
     }
 
     companion object {
@@ -220,7 +237,6 @@ private class TutorialReader(
         addTopBar(root)
         contentScroll = ScrollView(context).apply {
             isFillViewport = true
-            setPadding(dp(24), 0, dp(24), 0)
             // 以实际可用宽度而非屏幕像素计算阅读栏；横屏、分屏及刘海安全区同样生效。
             addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
                 val available = right - left
@@ -231,8 +247,8 @@ private class TutorialReader(
                         else -> dp(32)
                     }
                     val gutter = maxOf(margin, (available - dp(560)) / 2)
-                    if (paddingLeft != gutter || paddingRight != gutter) {
-                        setPadding(gutter, 0, gutter, 0)
+                    if (contentHost.paddingLeft != gutter || contentHost.paddingRight != gutter) {
+                        contentHost.setPadding(gutter, dp(20), gutter, dp(24))
                     }
                 }
             }

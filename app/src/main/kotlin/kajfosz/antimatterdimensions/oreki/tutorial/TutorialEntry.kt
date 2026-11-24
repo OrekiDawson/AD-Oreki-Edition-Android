@@ -3,7 +3,6 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -70,30 +69,17 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
          */
         @JvmStatic
         private fun activateMainGameTab(activity: Activity) {
-            val root = activity.window.decorView
-            val rootRect = Rect()
-            if (!root.getGlobalVisibleRect(rootRect) || rootRect.height() <= 0) return
-            val minimumTop = rootRect.top + (rootRect.height() * 0.86f).toInt()
-            var firstBottomTab: View? = null
-            var firstLeft = Int.MAX_VALUE
-            fun visit(view: View) {
-                val visible = Rect()
-                if (view.getGlobalVisibleRect(visible) &&
-                    view.isClickable &&
-                    !view.contentDescription.isNullOrEmpty() &&
-                    visible.top >= minimumTop &&
-                    visible.height() < rootRect.height() / 6 &&
-                    visible.left < firstLeft
-                ) {
-                    firstBottomTab = view
-                    firstLeft = visible.left
-                }
-                if (view is ViewGroup) {
-                    for (index in 0 until view.childCount) visit(view.getChildAt(index))
-                }
-            }
-            visit(root)
-            firstBottomTab?.performClick()
+            val identifier = activity.resources.getIdentifier(
+                "mainTabLayout",
+                "id",
+                activity.packageName,
+            )
+            if (identifier == 0) return
+            val tabs = activity.findViewById<ViewGroup>(identifier) ?: return
+            // 只访问已知主标签容器；首项已选中时原版会禁用它，因此不会重复触发。
+            val row = tabs.getChildAt(0) as? ViewGroup ?: tabs
+            val firstTab = row.getChildAt(0) ?: return
+            if (firstTab.isEnabled) firstTab.performClick()
         }
 
         @JvmStatic

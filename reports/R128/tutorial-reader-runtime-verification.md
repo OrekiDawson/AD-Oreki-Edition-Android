@@ -12,13 +12,16 @@
 - 教程阅读层与主游戏处于同一个 Activity、同一个 Window。
 - 第一次系统返回只关闭章节抽屉，第二次系统返回关闭阅读层并回到维度页。
 - 阅读字号从“中”改为“大”后，关闭并重开教程仍保持 `font_scale=2`。
+- 阅读层关闭改为幂等、允许状态丢失的事务，并先恢复宿主 Window/返回回调。
+- 打开阅读层只点击已知 `mainTabLayout` 的首项，不按屏幕位置猜测和点击任意游戏控件。
+- 正文 gutter 由 `ScrollView` padding 改到正文容器 padding，窄屏不再裁掉段落开头或右侧。
 
 ## 2. 构建
 
 验证使用当前分支最终 Debug APK：
 
 - APK 大小：83,842,424 B
-- APK SHA-256：`17a7d6467ada667b44cd6faac3b762f5d49114dac3709680aa6a4a16cdbe8d71`
+- APK SHA-256：`61f6797c3ea19ec7fcebdcb7869e17b75b5e8e0069c6fb9fa7706d8300c0bbde`
 - 安装包哈希与构建产物一致。
 - ABI：`arm64-v8a,x86_64`
 - `verifySourceTakeoverDebugAbi`：1650/1650 PASS
@@ -84,9 +87,28 @@
 当前 `-gpu off -skin 540x1200` AVD 的显示旋转始终停留在 `ROTATION_0`，无法产生真实横屏配置变化；
 该项记为 `NOT RUN`，不以强制重建 Activity 代替。
 
+### 3.8 审查问题定向回归
+
+- 阅读中按 Home 3 秒后回到游戏，阅读层截图与离开前逐字节一致，说明视图状态保持。
+- 恢复后单次 `KEYCODE_BACK` 关闭阅读层；Activity 仍为同一个游戏 Activity，无 FATAL/ANR。
+- 从“选项”页打开教程后自动回到“维度”页；未出现错误页签或设置项被误触。
+- 最终构建在 1080×2400、密度 210 的窄屏上完整显示“先认识游戏，再看反物质如何增长”
+  等正文，不再出现首尾裁切。
+- 阅读层保持 11 秒期间 `OREKI_SCHED: gui-tick #7/#8` 均按 10 秒间隔执行；单次 Back
+  后回到维度页。
+- 首次 `swiftshader_indirect` 启动在应用加载时触发统一重型保护
+  `io_psi_full_avg10>50` 并被主动终止；改用 `-gpu off` 后完成上述全部运行验证，未提高资源阈值。
+
 ## 4. 证据路径
 
 本机原始证据：
+
+`/home/oreki/AD-Oreki-Edition-Preserved/R128-tutorial-reader/20261125-0646-final-layout/`
+
+包含最终 APK、审查修复后的正文截图、tick 日志、单次 Back、Home 恢复、Activity 与重型资源日志及
+`SHA256SUMS`。
+
+前一构建的完整 60 秒与字号证据：
 
 `/home/oreki/AD-Oreki-Edition-Preserved/R128-tutorial-reader/20261125-0610-final-pass/`
 
