@@ -2275,6 +2275,31 @@ internal object GameApi {
     }
 
     /**
+     * [R126] 当前永恒挑战是否已经满足原版完成条件。
+     *
+     * 仅调用官方挑战对象的 `z()`（goalReached）和 `O(completions)`（restrictionOk）；
+     * 不读取或写入完成位，也不代替 `prestige.c` 的真实永恒/挑战结算。
+     * EC4/EC12 的 restriction 由同一官方方法判定，不能用固定次数猜测。
+     */
+    fun currentEternityChallengeCanBeCompleted(): Boolean? = try {
+        val registry = Class.forName("x81")
+        val challenge = registry.getMethod("c").invoke(null) ?: return false
+        val completions = challenge.javaClass
+            .getMethod("I")
+            .invoke(challenge) as? Int ?: return null
+        val goalReached = challenge.javaClass
+            .getMethod("z")
+            .invoke(challenge) as? Boolean ?: return null
+        val restrictionOk = challenge.javaClass
+            .getMethod("O", Integer.TYPE)
+            .invoke(challenge, completions) as? Boolean ?: return null
+        goalReached && restrictionOk
+    } catch (t: Throwable) {
+        miss("currentEternityChallengeCanBeCompleted", t)
+        null
+    }
+
+    /**
      * 当前普通挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。
      *
      * 该读取只用于高成本自动化让路判定，不修改挑战状态，也不替代原版结算。
