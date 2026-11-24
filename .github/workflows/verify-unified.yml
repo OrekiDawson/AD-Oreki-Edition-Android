@@ -184,13 +184,15 @@ jobs:
           set -euo pipefail
           apk=candidate/antimatter-dimensions.apk
           "$APKSIGNER" verify --verbose --print-certs "$apk" > candidate/signature-verified.txt
-          python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' candidate/signature-verified.txt "$EXPECTED_CERT_SHA256"
+          python3 scripts/verify_apk_v3.py "$apk" candidate/signature-verified.txt "$EXPECTED_CERT_SHA256"
           "$AAPT2" dump badging "$apk" > candidate/badging.txt
           python3 - <<'PY'
           import os, pathlib, re, sys
           badging = pathlib.Path('candidate/badging.txt').read_text()
           m = re.search(r"(?m)^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", badging)
           if not m: sys.exit('FAIL: Cannot read package metadata')
+          sdk = re.search(r"(?m)^sdkVersion:'(\d+)'", badging)
+          if not sdk or int(sdk.group(1)) != 32: sys.exit('FAIL: APK minSdk must be 32 for the V3-only release policy')
           expected = (os.environ['EXPECTED_PACKAGE'], os.environ['EXPECTED_VERSION_CODE'], os.environ['EXPECTED_VERSION_NAME'])
           if m.groups() != expected: sys.exit(f'FAIL: APK package/version mismatch: {m.groups()}')
           print('PASS: APK signer certificate, package and approved MOD release version')
