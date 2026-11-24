@@ -223,7 +223,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require successful source-policy validation
+      - name: 要求源码策略校验成功
         env:
           POLICY_RESULT: ${{ needs.source-policy.result }}
         run: |
@@ -248,7 +248,7 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - name: Install API 37 and pinned Build Tools
+      - name: 安装 API 37 与固定版本 Build Tools
         run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
       - uses: gradle/actions/setup-gradle@v6
       - name: 检测专有完整游戏输入
@@ -265,7 +265,7 @@ jobs:
             {
               echo '## AGP 专有输入构建：NOT RUN'
               echo
-              echo '公共 runner 缺少冻结的 `game-final.jar`、官方解码树和 mdpi split。'
+              echo '公共 runner 缺少冻结的 game-final.jar、官方解码树和 mdpi split。'
               echo '本检查只执行为公开源码可用的自测，不把跳过的完整游戏构建记为 PASS。'
             } >> "$GITHUB_STEP_SUMMARY"
             echo '::warning::专有完整游戏输入缺失；APK、ABI 与 DEX parity 为 NOT RUN'
