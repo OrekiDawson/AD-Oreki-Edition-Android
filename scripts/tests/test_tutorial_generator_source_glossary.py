@@ -39,6 +39,21 @@ class TutorialGeneratorSourceGlossaryTest(unittest.TestCase):
             with self.assertRaises(gen.TutorialContentError):
                 gen._source_glossary_problems(self.terms, (Path(directory),))
 
+    def test_web_worktree_name_is_normalized_in_payload_header(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = (
+                Path(directory)
+                / "web"
+                / "r127-birthday-web-main"
+                / "src"
+                / "core"
+                / "oreki-tutorial-data.json"
+            )
+            self.assertEqual(
+                "web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json",
+                gen._rel(path),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

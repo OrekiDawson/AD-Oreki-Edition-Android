@@ -1333,8 +1333,13 @@ def _rel(path: Path) -> str:
     resolved = path.resolve()
     parts = resolved.parts
     for i in range(len(parts) - 1):
-        if parts[i] == "web" and parts[i + 1] == "AD-Oreki-Edition":
-            return "/".join(parts[i:])
+        if parts[i] != "web":
+            continue
+        try:
+            src = parts.index("src", i + 2)
+        except ValueError:
+            continue
+        return "/".join(("web", "AD-Oreki-Edition", *parts[src:]))
     try:
         return resolved.relative_to(REPO_ROOT).as_posix()
     except ValueError:
