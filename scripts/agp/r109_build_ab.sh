@@ -56,15 +56,22 @@ run_variant() {
   local rc=$?
   echo "[r109] $name exit=$rc"
   if [ $rc -eq 0 ]; then
-    local apk="app/build/outputs/apk/$output_variant/app-${output_variant}.apk"
-    local mapping="app/build/outputs/mapping/$output_variant/mapping.txt"
+    local apk="$ROOT/app/build/outputs/apk/$output_variant/app-${output_variant}.apk"
+    if [ ! -f "$apk" ]; then
+      apk="$ROOT/app/build/outputs/apk/$output_variant/app-${output_variant}-unsigned.apk"
+    fi
+    if [ ! -f "$apk" ]; then
+      echo "[r109] $name 未找到签名或未签名 APK: $output_variant" >&2
+      return 1
+    fi
+    local mapping="$ROOT/app/build/outputs/mapping/$output_variant/mapping.txt"
     cp "$apk" "$OUTDIR/$name/app-release.apk"
     if [ -f "$mapping" ]; then
       cp "$mapping" "$OUTDIR/$name/mapping.txt"
     fi
     python3 scripts/agp/r109_apk_metrics.py "$OUTDIR/$name/app-release.apk" --label "$name" \
       --mapping "$OUTDIR/$name/mapping.txt" \
-      --json "$OUTDIR/$name/metrics.json" > /dev/null 2>&1 || true
+      --json "$OUTDIR/$name/metrics.json" > /dev/null
   fi
   return $rc
 }

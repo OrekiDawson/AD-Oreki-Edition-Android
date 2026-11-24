@@ -99,10 +99,40 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertNotIn("org.jetbrains.kotlin.android", root_build + app)
         self.assertNotIn("builtInKotlin", props)
         self.assertNotIn("android.newDsl", props)
-        self.assertIn("AGP 9.5.2 Kotlin DEX parity", ci)
+        self.assertIn("AGP 专有输入构建（缺输入时明确 NOT RUN）", ci)
         self.assertIn("scripts/verify_agp_parity.py", ci)
         self.assertIn("--verify-abi", ci)
         self.assertIn("agp-kotlin-dex", ci)
+
+    def test_root_app_is_complete_game_without_project_specific_gradle_switches(self):
+        app = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        build_config = (
+            ROOT
+            / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/OrekiBuildConfig.kt"
+        ).read_text(encoding="utf-8")
+        candidate = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
+        r8 = (ROOT / ".github/workflows/r8-experiment.yml").read_text(encoding="utf-8")
+
+        self.assertIn('applicationId = "net.oreki.antimatterdimensions"', app)
+        self.assertIn('applicationIdSuffix = ".debug"', app)
+        self.assertIn('create("r8")', app)
+        self.assertIn("build/inputs/game-final.jar", build_config)
+        self.assertIn("build/inputs/base_decoded_321", build_config)
+        self.assertIn("build/inputs/mdpi_decoded_321", build_config)
+
+        for forbidden in (
+            'gradleProperty("orekiFullGame")',
+            'gradleProperty("oreki.r8")',
+            'gradleProperty("orekiGameJar")',
+            'gradleProperty("orekiOfficialTree")',
+            'gradleProperty("orekiSplitTree")',
+            'gradleProperty("orekiFullGameStage")',
+        ):
+            self.assertNotIn(forbidden, app + build_config)
+
+        for workflow in (candidate, r8):
+            self.assertNotIn("-Poreki", workflow)
+        self.assertIn(":app:assembleR8", r8)
 
 
     def test_r8_experiment_cancels_stale_pr_head_and_skips_draft(self):
@@ -143,8 +173,26 @@ class UnifiedMigrationTests(unittest.TestCase):
                         ci.index("actions/setup-java@v6"))
         # 不允许为了加速而变更生产构建验证所需的 Required Check 名称及依赖。
         self.assertIn("name: Source checks (no proprietary APK baseline)", ci)
-        self.assertIn("needs: [agp-kotlin-dex, source-policy]", ci)
+        self.assertIn("needs: source-policy", ci)
         self.assertIn("if: always()", ci)
+
+    def test_release_and_r8_signing_dispositions_are_explicit(self):
+        app = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn('getProperty("oreki.allowUnsignedReleaseExperiment")', app)
+        self.assertIn('getProperty("oreki.allowUnsignedR8Experiment")', app)
+        self.assertIn("dependsOn(verifyReleaseSigning)", app)
+        self.assertIn("dependsOn(verifyR8SigningDisposition)", app)
+        self.assertIn("unsigned-release-experiment-explicit", app)
+        self.assertIn("unsigned-experiment-explicit", app)
+
+    def test_app_and_build_logic_share_full_game_stage_override(self):
+        app = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        build_config = (
+            ROOT
+            / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/OrekiBuildConfig.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn('localOrProjectPath("oreki.fullGameStage"', app)
+        self.assertIn('"oreki.fullGameStage"', build_config)
 
     def test_pr_summary_draft_sync_is_skipped_but_ready_for_review_is_kept(self):
         summary = (ROOT / ".github/workflows/pr-review-summary.yml").read_text(encoding="utf-8")

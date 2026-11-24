@@ -301,7 +301,10 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('applicationIdSuffix = ".debug"', app_gradle)
         self.assertIn('manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))', app_gradle)
         self.assertIn('create("r8")', app_gradle)
+        self.assertIn("sourceTakeoverEntries", gradle)
+        self.assertNotIn("sourceTakeoverClasses", app_gradle)
         self.assertNotIn("prepareBridgeKotlinSources", app_gradle)
+        self.assertNotIn("prepareBridgeTestKotlinSources", app_gradle)
         self.assertNotIn("agpbridge", app_gradle)
 
     def test_constructor_shims_are_removed_with_fail_closed_evidence(self):
