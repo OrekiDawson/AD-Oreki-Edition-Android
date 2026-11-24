@@ -210,14 +210,9 @@ def parse_cert_digests(output: str) -> list[str]:
             re.findall(r"certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", output)]
 
 
-def verify_signature(apk: Path, apksigner: Path | None, expected_cert: str) -> str:
-    if apksigner is None:
-        raise PullError("未找到 apksigner；请设置 OREKI_APKSIGNER 或 ANDROID_SDK_ROOT")
-    result = subprocess.run([str(apksigner), "verify", "--verbose", "--print-certs", str(apk)],
-                            capture_output=True, text=True, timeout=180)
-    if result.returncode != 0:
-        raise PullError(f"apksigner verify 失败：{result.stderr.strip()[:300]}")
-    certs = set(parse_cert_digests(result.stdout))
+def require_cert_digest(output: str, expected_cert: str) -> str:
+    """Require exactly one certificate identity across all signer/scheme lines."""
+    certs = set(parse_cert_digests(output))
     if not certs:
         raise PullError("apksigner 输出缺少签名证书 SHA-256")
     if len(certs) > 1:
@@ -226,6 +221,16 @@ def verify_signature(apk: Path, apksigner: Path | None, expected_cert: str) -> s
     if cert != expected_cert:
         raise PullError(f"签名证书不匹配：{cert} != {expected_cert}")
     return cert
+
+
+def verify_signature(apk: Path, apksigner: Path | None, expected_cert: str) -> str:
+    if apksigner is None:
+        raise PullError("未找到 apksigner；请设置 OREKI_APKSIGNER 或 ANDROID_SDK_ROOT")
+    result = subprocess.run([str(apksigner), "verify", "--verbose", "--print-certs", str(apk)],
+                            capture_output=True, text=True, timeout=180)
+    if result.returncode != 0:
+        raise PullError(f"apksigner verify 失败：{result.stderr.strip()[:300]}")
+    return require_cert_digest(result.stdout, expected_cert)
 
 
 def verify_badging(apk: Path, aapt2: Path | None) -> tuple[str, str, str]:

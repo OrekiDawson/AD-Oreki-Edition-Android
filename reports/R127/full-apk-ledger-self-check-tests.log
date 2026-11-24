@@ -1,0 +1,14 @@
+test_blocked_parser_uses_descriptor_not_entry (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_blocked_parser_uses_descriptor_not_entry) ... ok
+test_committed_index_is_the_unique_full_baseline (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_committed_index_is_the_unique_full_baseline) ... ok
+test_committed_ledger_checks_without_external_inputs (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_committed_ledger_checks_without_external_inputs) ... ok
+test_descriptor_from_class_entry (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_descriptor_from_class_entry) ... ok
+test_duplicate_jadx_descriptor_fails (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_duplicate_jadx_descriptor_fails) ... ok
+test_jadx_defpackage_maps_to_original_default_package (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_jadx_defpackage_maps_to_original_default_package) ... ok
+test_local_sources_accept_relative_and_external_roots (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_local_sources_accept_relative_and_external_roots) ... ok
+test_missing_input_can_only_be_opted_in (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_missing_input_can_only_be_opted_in) ... ok
+test_missing_input_fails_closed_by_default (scripts.tests.test_full_apk_source_ledger.FullApkSourceLedgerTest.test_missing_input_fails_closed_by_default) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.409s
+
+OK
