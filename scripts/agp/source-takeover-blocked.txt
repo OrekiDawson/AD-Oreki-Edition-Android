@@ -413,6 +413,22 @@ sh3.class | Lsh3; | javac compile failure: constructor vw3 cannot be applied to 
 mm2.class | Lmm2; | javac compile failure: cannot find symbol constructor fv4()
 di.class | Ldi; | javac compile failure: missing w29(di) constructor and ne1.l(String)
 t76.class | Lt76; | javac compile failure: s9 requires u9; s0.Q(zzazv) and s0.T0(long) are absent
+w47.class | Lw47; | javac compile failure: missing fr5.z1(int) and v47.b
+yy0.class | Lyy0; | javac compile failure: missing xy0(byte) and wy0(String,byte) constructors
+cv8.class | Lcv8; | javac compile failure: missing xu8() and cv8(int,String) constructors
+mn4.class | Lmn4; | javac compile failure: EmptyList.a unavailable
+ql6.class | Lql6; | javac compile failure: Object cannot convert to na7; no suitable k96(Object,byte) constructor
+g93.class | Lg93; | javac compile failure: cannot find symbol constructor e42(long)
+eh3.class | Leh3; | javac compile failure: superclass d requires the obfuscated 12-argument constructor
+a24.class | La24; | javac compile failure: cannot find symbol constructor gw3(byte)
+cy6.class | Lcy6; | javac compile failure: missing gc5 byte constructor, pf5(byte), and qf5(Object,Object,boolean,byte)
+b86.class | Lb86; | javac compile failure: s9 requires u9; v0.E(zzifx) and v0.F(zzifx) are absent
+a.class | La; | javac compile failure: cannot find symbol constructor kw()
+jk0.class | Ljk0; | javac compile failure: class o requires dk0 and fg0(byte) is absent
+l58.class | Ll58; | javac compile failure: missing fi8(int,ArrayList,String,gi8) constructor
+be2.class | Lbe2; | javac compile failure: cannot find symbol constructor de2()
+dj6.class | Ldj6; | source takeover ABI failure: compiled class is missing a(Z)Z
+xq7.class | Lxq7; | source takeover ABI failure: compiled class is missing a()Lxq7; and clone()Ljava/lang/Object;
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
