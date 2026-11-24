@@ -17,6 +17,7 @@ val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-p
 val fullGameStage = File(
     "${repoRoot}/build/agp-fullgame",
 )
+val releaseKeystore = File(repoRoot, "keys/oreki.jks")
 
 android {
     namespace = "kajfosz.antimatterdimensions"
@@ -71,23 +72,26 @@ android {
         jniLibs.directories.add(File(repoRoot, "scripts/payload/lib").absolutePath)
     }
     signingConfigs {
-        create("release") {
-            storeFile = File(repoRoot, "keys/oreki.jks")
-            storePassword = System.getenv("OREKI_KS_PASS") ?: ""
-            keyAlias = "oreki"
-            keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
-            enableV2Signing = true
-            enableV3Signing = true
+        if (releaseKeystore.isFile) {
+            create("release") {
+                storeFile = releaseKeystore
+                storePassword = System.getenv("OREKI_KS_PASS") ?: ""
+                keyAlias = "oreki"
+                keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
+                enableV2Signing = true
+                enableV3Signing = true
+            }
         }
     }
     buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+        if (releaseKeystore.isFile) {
+            getByName("release") {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         create("r8") {
             initWith(getByName("release"))
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
         }
     }
     lint {

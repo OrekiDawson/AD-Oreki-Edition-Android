@@ -23,12 +23,14 @@
 ```bash
 ./gradlew :app:compileDebugJavaWithJavac --offline --console=plain
 ./gradlew assembleDebug --offline --console=plain
+./gradlew :app:assembleR8 --offline --console=plain
 ```
 
 结果：
 
 - Java/Kotlin 编译：PASS，36 秒。
 - 完整 Debug APK：PASS，56 秒。
+- R8 实验 APK：PASS，1 分 27 秒；公共 CI 未提供生产密钥时保持未签名，正式 Candidate 仍由受保护任务注入密钥后验签。
 - 完整游戏资源：14973 条。
 - Source takeover ABI：1650 classes PASS。
 - Source takeover DEX：1650 classes PASS。
