@@ -700,3 +700,14 @@ k58.class | Lk58; | javac compile failure: missing k25(byte), ne1.n() and zza() 
 g52.class | Lg52; | javac compile failure: missing k25(byte), ne1.n() and zza() override
 kt6.class | Lkt6; | javac compile failure: missing k25(byte), ne1.n() and zza() override
 x57.class | Lx57; | source takeover ABI failure: compiled class is missing m0(Ldq7;)V
+ca7.class | Lca7; | javac compile failure: implicit constructor cannot satisfy wb6(String)
+gd0.class | Lgd0; | javac compile failure: superclass hd0 has no matching constructor
+su7.class | Lsu7; | javac compile failure: frozen v61(byte) constructor is unavailable to javac
+o42.class | Lo42; | javac compile failure: abstract jh5 Binder method and constructor visibility differ from JADX output
+z48.class | Lz48; | javac compile failure: superclass a58 has no matching constructor
+iw3.class | Liw3; | javac compile failure: superclass constructor and pi1.f signature differ from JADX output
+ye.class | Lye; | javac compile failure: private AppCompatTextView.g method is not Java-accessible
+hw3.class | Lhw3; | javac compile failure: superclass constructor and pi1.f signature differ from JADX output
+da6.class | Lda6; | javac compile failure: j1 constructor is not visible through JADX output
+pu3.class | Lpu3; | javac compile failure: c61 constructor signature differs from JADX output
+jn2.class | Ljn2; | javac compile failure: implicit constructor cannot satisfy InsetDrawable
