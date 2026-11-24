@@ -461,6 +461,20 @@ wf3.class | Lwf3; | javac compile failure: cannot access ws5 default method in v
 zq4.class | Lzq4; | javac compile failure: EmptyList.a and di0.b(int,int,int) absent
 ba3.class | Lba3; | javac compile failure: missing ua3(int,int) and ba3(int,int,int) constructors
 gz1.class | Lgz1; | javac compile failure: superclass fs1 requires Context,Looper,int,o66,ks1,ls1
+wn3.class | Lwn3; | javac compile failure: cannot find symbol constructor vn3()
+x13.class | Lx13; | javac compile failure: missing q13(byte) constructor
+kw3.class | Lkw3; | javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent
+fl5.class | Lfl5; | javac compile failure: cannot find symbol constructor kl5()
+pw3.class | Lpw3; | javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent
+ar3.class | Lar3; | javac compile failure: superclass lk1 requires fv4
+mc1.class | Lmc1; | javac compile failure: cannot find symbol constructor lc1()
+j84.class | Lj84; | javac compile failure: no suitable f(String) constructor
+k91.class | Lk91; | javac compile failure: missing lx3(byte) and kt0(Object,byte) constructors
+hp8.class | Lhp8; | javac compile failure: superclass e requires f; o0.G/H/J are absent
+yj.class | Lyj; | javac compile failure: final field a is not initialized by the available constructor
+os2.class | Los2; | javac compile failure: final field a is not initialized by the available constructor
+ln3.class | Lln3; | javac compile failure: final field a is not initialized by the available constructor
+hv2.class | Lhv2; | javac compile failure: final field a is not initialized by the available constructor
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
