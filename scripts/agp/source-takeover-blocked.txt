@@ -716,3 +716,17 @@ hg1.class | Lhg1; | javac compile failure: relocated oreki.shadow Kotlin Ref typ
 cv4.class | Lcv4; | javac compile failure: superclass fv4 has no matching constructor
 rp6.class | Lrp6; | javac compile failure: wb6/qp6 Binder constructor and local-interface ABI differ from JADX output
 dh1.class | Ldh1; | javac compile failure: implicit constructor cannot satisfy FloatProperty
+jw3.class | Ljw3; | javac compile failure: Constants import, superclass constructor and JADX type inference differ from frozen ABI
+wb2.class | Lwb2; | javac compile failure: JADX resolved the wrong androidx.lifecycle Lifecycle type
+v98.class | Lv98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+pr0.class | Lpr0; | javac compile failure: missing qr0(pr0) constructor
+jb8.class | Ljb8; | javac compile failure: abstract l1 ABI and hb8 constructor differ from JADX output
+ud8.class | Lud8; | javac compile failure: zd8 constructor and do2 override differ from JADX output
+vv6.class | Lvv6; | javac compile failure: missing aw6.F and aw6.g0 methods
+zm7.class | Lzm7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+nd8.class | Lnd8; | javac compile failure: zd8 constructor and do2 override differ from JADX output
+p98.class | Lp98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+wo8.class | Lwo8; | javac compile failure: abstract l1 ABI and to8 constructor differ from JADX output
+s98.class | Ls98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+aq7.class | Laq7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+ut7.class | Lut7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
