@@ -429,6 +429,22 @@ l58.class | Ll58; | javac compile failure: missing fi8(int,ArrayList,String,gi8)
 be2.class | Lbe2; | javac compile failure: cannot find symbol constructor de2()
 dj6.class | Ldj6; | source takeover ABI failure: compiled class is missing a(Z)Z
 xq7.class | Lxq7; | source takeover ABI failure: compiled class is missing a()Lxq7; and clone()Ljava/lang/Object;
+y92.class | Ly92; | javac compile failure: cannot access androidx.compose.ui.node.f version 49 classfile; bi0(long) absent
+yg4.class | Lyg4; | javac compile failure: missing rh(byte) constructor
+uu.class | Luu; | javac compile failure: superclass w6 requires the obfuscated 10-argument constructor
+ey7.class | Ley7; | javac compile failure: jm7 requires qu7; ey7,byte is not available
+j85.class | Lj85; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+tb6.class | Ltb6; | javac compile failure: missing wa6(byte) constructor
+w98.class | Lw98; | javac compile failure: missing dy7.c and u9.zza remains private
+a94.class | La94; | javac compile failure: CoroutineSingletons.a unavailable
+ad1.class | Lad1; | javac compile failure: eo2.b unavailable
+ah8.class | Lah8; | javac compile failure: missing do2.z(Object,float) and ni8() constructor
+mp2.class | Lmp2; | javac compile failure: lp2 requires Context,jf2; gp2.x is absent
+rr4.class | Lrr4; | javac compile failure: xb0.i unavailable
+ba8.class | Lba8; | javac compile failure: missing hx7.d and u9.zza remains private
+gr7.class | Lgr7; | source takeover ABI failure: compiled class is missing a()Lgr7; and clone()Ljava/lang/Object;
+nl6.class | Lnl6; | source takeover ABI failure: compiled class is missing <clinit>()V
+wk4.class | Lwk4; | source takeover ABI failure: compiled class is missing 24 original static-linkage methods
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
