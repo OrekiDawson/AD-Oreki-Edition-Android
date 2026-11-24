@@ -1,7 +1,7 @@
 {
-  "blocked_entries": 671,
-  "blocked_in_baseline": 671,
-  "blocked_sha256": "58ed7b7e6794e916154df7a9042124579ce5d24f84ff64fa9045256fbf038e71",
+  "blocked_entries": 700,
+  "blocked_in_baseline": 700,
+  "blocked_sha256": "3fc0109cc9133866f2d78616c55b06378a67c54689407850b6af569cfc27e6d9",
   "degraded_inputs": [],
   "dex_class_defs": {
     "classes.dex": 10708,
@@ -18,21 +18,21 @@
   },
   "jadx_unique_descriptors": 13782,
   "jar_unique_descriptors": 15344,
-  "ledger_sha256": "81a233106c51864c69604278e620c1d3bcab0646b8f7566ea25aea84dc1ccae9",
-  "local_compiled_percent": 13.199,
-  "research_or_local_source_available_percent": 88.158,
+  "ledger_sha256": "a7b3830534a173747f9930f40f9f7ee785ee51a6b51977c6f575eb39ed443643",
+  "local_compiled_percent": 13.428,
+  "research_or_local_source_available_percent": 87.969,
   "schema_version": 1,
   "status_counts": {
     "BINARY_ONLY_REMAINDER": 1141,
-    "BLOCKED": 671,
-    "LOCAL_SOURCE_COMPILED": 2022,
-    "RESEARCH_ONLY": 10985,
+    "BLOCKED": 700,
+    "LOCAL_SOURCE_COMPILED": 2057,
+    "RESEARCH_ONLY": 10921,
     "RESEARCH_ONLY_NESTED": 498,
     "UNRESOLVED": 2
   },
-  "takeover_entries": 2046,
-  "takeover_in_baseline": 2022,
+  "takeover_entries": 2081,
+  "takeover_in_baseline": 2057,
   "takeover_outside_baseline": 24,
-  "takeover_sha256": "de87c9e5fb3e9515a01dd87974bd414962354521cba7eb1dfb6c490ec7a905dc",
+  "takeover_sha256": "81f6d85ffcb769068fe63f25a95fa8a6cca2e573e00ec751d573016a15158fac",
   "total_descriptors": 15319
 }

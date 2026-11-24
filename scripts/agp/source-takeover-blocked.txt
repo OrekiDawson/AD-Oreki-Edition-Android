@@ -671,3 +671,32 @@ p93.class | Lp93; | javac compile failure: ua3 and uq2 constructor signatures di
 e02.class | Le02; | javac compile failure: superclass a constructor signature differs from JADX output
 ec3.class | Lec3; | javac compile failure: missing fc3() constructor
 c2.class | Lc2; | source takeover ABI failure: compiled class is missing (Lrx8;Ljava/lang/Object;J)V constructor
+zv7.class | Lzv7; | javac compile failure: missing Firebase internal package
+ml1.class | Lml1; | javac compile failure: kotlin.collections.b is unavailable
+vd3.class | Lvd3; | javac compile failure: missing w39() constructor and V() override
+do7.class | Ldo7; | javac compile failure: missing ym7(do7,byte) constructor
+aa0.class | Laa0; | javac compile failure: missing sj5(byte) constructor
+c02.class | Lc02; | javac compile failure: superclass a constructor signature differs from JADX output
+ba0.class | Lba0; | javac compile failure: missing sj5(byte) constructor
+ex8.class | Lex8; | javac compile failure: missing zs8(int) constructor
+va7.class | Lva7; | javac compile failure: missing k25(byte) and ne1.n() plus zza() override
+lo1.class | Llo1; | javac compile failure: missing no1(byte) constructor
+n64.class | Ln64; | javac compile failure: missing mf3(byte) constructor
+cd6.class | Lcd6; | javac compile failure: missing ag5() constructor
+x90.class | Lx90; | javac compile failure: missing sj5(byte) constructor
+q93.class | Lq93; | javac compile failure: ua3 constructor signature differs from JADX output
+p70.class | Lp70; | javac compile failure: missing cg4(int) constructor
+c85.class | Lc85; | javac compile failure: rg0 constructor mismatch and missing j73.w/lx3.q methods
+dp2.class | Ldp2; | javac compile failure: missing cp2(Context,ComponentName,o66) constructor
+lg.class | Llg; | javac compile failure: ws5 version-49 default method
+x69.class | Lx69; | javac compile failure: missing iy8.i0() override
+cf6.class | Lcf6; | javac compile failure: v20 constructor signature differs from JADX output
+zj4.class | Lzj4; | javac compile failure: missing AtomicInt(int) constructor
+yu2.class | Lyu2; | javac compile failure: missing t() constructor
+tu5.class | Ltu5; | javac compile failure: missing ru5.b field, ss1(Context,byte) and j96 constructor dispatch
+jj5.class | Ljj5; | javac compile failure: missing x31.c() method
+ih0.class | Lih0; | javac compile failure: missing ne1.l(String) method
+k58.class | Lk58; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+g52.class | Lg52; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+kt6.class | Lkt6; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+x57.class | Lx57; | source takeover ABI failure: compiled class is missing m0(Ldq7;)V

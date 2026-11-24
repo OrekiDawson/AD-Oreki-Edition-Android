@@ -1,5 +1,6 @@
 # 从冻结游戏 JAR 移除、改由 app/src/main Java/Kotlin 标准源码编译的 class 条目。
 # 每行必须精确对应 JAR entry；空行和 # 注释会被忽略。
+a11.class
 a12.class
 a13.class
 a23.class
@@ -43,6 +44,8 @@ ah6.class
 ah7.class
 ai1.class
 ai2.class
+aj1.class
+ak.class
 ak0.class
 ak4.class
 al3.class
@@ -214,6 +217,7 @@ ct4.class
 cu3.class
 cu5.class
 cu7.class
+cw0.class
 cw5.class
 cx0.class
 cx2.class
@@ -247,6 +251,7 @@ d75.class
 d79.class
 d8.class
 d81.class
+d86.class
 d9.class
 d93.class
 d94.class
@@ -290,6 +295,7 @@ ds3.class
 ds5.class
 dt0.class
 dt1.class
+dt5.class
 du5.class
 du7.class
 dv5.class
@@ -335,6 +341,7 @@ ec6.class
 ec8.class
 ed7.class
 ed8.class
+ee5.class
 ef0.class
 ef2.class
 eg6.class
@@ -527,6 +534,7 @@ h37.class
 h42.class
 h47.class
 h49.class
+h51.class
 h56.class
 h68.class
 h70.class
@@ -546,6 +554,7 @@ hc8.class
 hd2.class
 hd8.class
 he0.class
+he1.class
 he2.class
 he5.class
 he7.class
@@ -555,6 +564,7 @@ hf6.class
 hg4.class
 hg8.class
 hh0.class
+hi2.class
 hj7.class
 hk0.class
 hl1.class
@@ -617,6 +627,7 @@ id6.class
 id8.class
 ie2.class
 if0.class
+if1.class
 if4.class
 if7.class
 ig6.class
@@ -679,12 +690,15 @@ j88.class
 j93.class
 j99.class
 ja0.class
+ja4.class
 jb1.class
 jb2.class
+jb4.class
 jb6.class
 jc1.class
 jc4.class
 jd4.class
+je2.class
 je4.class
 jf7.class
 jh1.class
@@ -779,6 +793,7 @@ kc8.class
 kd.class
 kd1.class
 kd2.class
+ke4.class
 kf.class
 kf0.class
 kf1.class
@@ -790,6 +805,7 @@ ki0.class
 ki6.class
 kj.class
 kj0.class
+kk1.class
 kk4.class
 kk5.class
 km1.class
@@ -1035,11 +1051,13 @@ nd1.class
 nd3.class
 ne3.class
 ne4.class
+ne6.class
 ng0.class
 ng4.class
 nh4.class
 nh8.class
 ni0.class
+ni4.class
 ni7.class
 nj4.class
 nj6.class
@@ -1113,6 +1131,7 @@ oa1.class
 oa9.class
 ob4.class
 oc0.class
+od7.class
 of7.class
 og1.class
 oh4.class
@@ -1140,6 +1159,7 @@ os4.class
 os6.class
 os7.class
 ot3.class
+ot4.class
 ot5.class
 ot6.class
 ov1.class
@@ -1289,6 +1309,7 @@ qf7.class
 qg1.class
 qg2.class
 qg6.class
+qh4.class
 qh6.class
 qi.class
 qi6.class
@@ -1361,6 +1382,7 @@ r77.class
 r78.class
 r84.class
 r85.class
+r88.class
 r90.class
 r92.class
 r94.class
@@ -1379,6 +1401,7 @@ rf2.class
 rf6.class
 rj0.class
 rj6.class
+rk.class
 rk3.class
 rk4.class
 rl1.class
@@ -1417,6 +1440,7 @@ rx3.class
 rx5.class
 ry5.class
 ry8.class
+rz0.class
 rz5.class
 rz6.class
 rz8.class
@@ -1463,6 +1487,7 @@ sc1.class
 sc6.class
 sd4.class
 se5.class
+sf1.class
 sf6.class
 sg1.class
 sg6.class
@@ -1519,6 +1544,7 @@ t4.class
 t46.class
 t49.class
 t55.class
+t57.class
 t67.class
 t68.class
 t7.class
@@ -1539,6 +1565,7 @@ td3.class
 te0.class
 te1.class
 te3.class
+tf3.class
 tf5.class
 tf8.class
 tg0.class
@@ -1587,6 +1614,7 @@ tu2.class
 tu4.class
 tv4.class
 tw6.class
+tx2.class
 tx5.class
 tx8.class
 ty0.class
@@ -1623,6 +1651,7 @@ uf7.class
 ug6.class
 ug7.class
 uh4.class
+ui1.class
 uj.class
 uk6.class
 uk8.class
@@ -1633,6 +1662,7 @@ um3.class
 um5.class
 un0.class
 un2.class
+un3.class
 un5.class
 uq0.class
 ur0.class
@@ -1800,6 +1830,7 @@ ws6.class
 wt0.class
 wt3.class
 wt5.class
+wv.class
 wv3.class
 ww4.class
 ww5.class
@@ -1846,6 +1877,7 @@ xi0.class
 xi4.class
 xj.class
 xj0.class
+xj3.class
 xj4.class
 xk1.class
 xk3.class
@@ -1865,6 +1897,7 @@ xq2.class
 xq5.class
 xr0.class
 xr2.class
+xs.class
 xs4.class
 xt3.class
 xu5.class
@@ -1947,6 +1980,7 @@ ys1.class
 ys6.class
 yt0.class
 yt3.class
+yt4.class
 yu8.class
 yv5.class
 yx.class
@@ -1990,6 +2024,7 @@ zb3.class
 zb5.class
 zb6.class
 zb7.class
+zc.class
 zc0.class
 zc7.class
 zc8.class
