@@ -38,6 +38,7 @@
 
 ## 4. GitHub、CI/CD 与交付
 
+- **P0 正式 APK 仅 V3 签名**：minSdk 固定 32，AGP Release 仅启用 APK Signature Scheme v3.0；显式禁用 V1/V2/V4，不启用 V3.1 密钥轮换。原正式包名、签名密钥、证书 SHA-256、存档不变，禁止二次签名、修改最终 APK 或降低验签门禁。按 APK 实际 minSdk 执行 apksigner，独立检查实际签名块含 V3 而无 V2/V3.1，拒绝 V1 签名文件、V4 sidecar、错误/多证书；候选、独立验签与正式交付共用规则。必须以同包名同证书上一正式版覆盖安装、冷启动/Tick/存档通过后收口；冻结历史资产及回滚证据不改写。四渠道同一 APK/SHA-256、Kody、CI 和预算门禁不变。
 - Android 公开仓 OrekiDawson/AD-Oreki-Edition-Android 负责源码检查、受保护环境内的敏感构建/签名、独立验签、AVD 验收与门禁；GitHub Actions 只发布 GitHub Releases / OneDrive / Google Drive 三个远端，Kubuntu 开发机再主动拉取并原子更新本地发布目录作为第四渠道（不再由 Actions 主动 SFTP 推送，旧私有构建仓已删除）。Web 独立 CI/CD，不受 Android 的故障拖累。每轮根据实际改动核对相应 Actions 日志及可复现结果。
 - 私钥/密码/Token 存 Secrets 或合规密钥管理系统，不进入任何 Git 仓库或日志；保持正式 APK 签名身份。候选 run、验证 run、源 SHA、APK SHA256、包名、版本和证书必须一对一关联；私有 Runner 不运行来自不可信公开 PR 的任意代码。
 - 已有授权轮次内可正常中文 Commit/Push，不再为每次无风险提交反复索取授权；每轮成功或失败都推送已完成、可追溯成果及证据。普通已验证修改可以推 main；高风险、密钥、CI/CD、构建迁移及未过门禁改动使用分支/PR，CI 合格后合并。禁止强推、丢弃他人改动。Push 不代表稳定发行。
