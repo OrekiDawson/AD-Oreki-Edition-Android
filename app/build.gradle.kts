@@ -72,6 +72,7 @@ val fullGameStage = providers.gradleProperty("orekiFullGameStage")
 android {
     namespace = "kajfosz.antimatterdimensions"
     compileSdk = 37
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId = if (fullGame) {
