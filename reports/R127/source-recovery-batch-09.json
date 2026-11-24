@@ -6,9 +6,11 @@
   "candidate_count": 40,
   "accepted_count": 24,
   "blocked_count": 16,
-  "previous_source_coverage": 1778,
-  "source_coverage": 1802,
-  "coverage_percent": 11.7632,
+  "previous_source_coverage": 1754,
+  "source_coverage": 1778,
+  "coverage_percent": 11.607,
+  "takeover_entries": 1802,
+  "takeover_outside_baseline": 24,
   "accepted": [
     {
       "entry": "mh7.class",
