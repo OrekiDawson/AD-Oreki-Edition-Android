@@ -44,6 +44,7 @@
 /build/gradle-verify-apk/
 
 # ---------- 5. 签名密钥与口令（绝不入库）----------
+local.properties
 /keys/
 *.jks
 *.keystore

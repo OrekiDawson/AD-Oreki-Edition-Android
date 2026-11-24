@@ -1,6 +1,9 @@
 package kajfosz.antimatterdimensions.buildlogic
 
 import java.io.File
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
+import java.util.Properties
 import org.gradle.api.Project
 
 internal data class OrekiBuildConfig(
@@ -23,18 +26,21 @@ internal data class OrekiBuildConfig(
 
 internal fun Project.orekiBuildConfig(): OrekiBuildConfig {
     val root = rootProject.layout.projectDirectory.asFile
-    fun path(property: String, fallback: String): File {
-        val raw = providers.gradleProperty(property).orNull ?: fallback
+    val localProperties = Properties().also { properties ->
+        File(root, "local.properties").takeIf(File::isFile)?.inputStream()?.use { stream ->
+            InputStreamReader(stream, StandardCharsets.UTF_8).use(properties::load)
+        }
+    }
+    fun inputPath(localKey: String, fallback: String): File {
+        val raw = localProperties.getProperty(localKey)?.takeIf(String::isNotBlank)
+            ?: fallback
         return File(raw).let { if (it.isAbsolute) it else File(root, raw) }
     }
 
-    val fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false
-    val debugSuffix = (
-        providers.gradleProperty("orekiDebugApplicationIdSuffix").orNull
-            ?: ".debug".takeIf { fullGame }
-        )
-        ?.takeIf { it.isNotBlank() }
-        ?.also { require(it.startsWith(".")) { "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug" } }
+    // :app is deliberately always the complete game. Input locations are
+    // either project-relative build/inputs or one-time local.properties only.
+    val fullGame = true
+    val debugSuffix = ".debug"
     val sourceTakeoverManifest = File(root, "build-logic/source-takeover.txt")
     val sourceTakeoverEntries = sourceTakeoverManifest.takeIf(File::isFile)
         ?.readLines(Charsets.UTF_8)
@@ -60,13 +66,25 @@ internal fun Project.orekiBuildConfig(): OrekiBuildConfig {
         rootDir = root,
         fullGame = fullGame,
         debugApplicationIdSuffix = debugSuffix,
-        officialTree = path("orekiOfficialTree", "work/base_decoded_321"),
-        splitTree = path("orekiSplitTree", "work/mdpi_decoded_321"),
-        fullGameStage = path("orekiFullGameStage", "build/agp-fullgame"),
+        officialTree = inputPath(
+            "oreki.officialTree",
+            "build/inputs/base_decoded_321",
+        ),
+        splitTree = inputPath(
+            "oreki.splitTree",
+            "build/inputs/mdpi_decoded_321",
+        ),
+        fullGameStage = inputPath(
+            "oreki.fullGameStage",
+            "build/agp-fullgame",
+        ),
         generatedRes = File(root, "build/agp-generated-res"),
         stagedAssets = File(root, "build/agp-fullgame-assets"),
         generatedBindings = File(root, "build/kt/generated/OrekiBaselineBindings.kt"),
-        gameJar = providers.gradleProperty("orekiGameJar").map(::File).orNull,
+        gameJar = inputPath(
+            "oreki.gameJar",
+            "build/inputs/game-final.jar",
+        ).takeIf(File::isFile),
         sourceTakeoverManifest = sourceTakeoverManifest,
         sourceTakeoverEntries = sourceTakeoverEntries,
         storePolicyJar = File(root, "build/agp-store-policy/game-hybrid-sig-store-policy.jar"),
