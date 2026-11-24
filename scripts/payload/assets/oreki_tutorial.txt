@@ -1,5 +1,5 @@
 # AD: Oreki Edition - 游戏内教程正文（构建期生成，请勿手改）
-# 唯一内容源: AD-Oreki-Edition/工作树/web/r127-tutorial-accuracy/src/core/oreki-tutorial-data.json
+# 唯一内容源: web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json
 # schemaVersion: 1    updatedAt: 2026-11-24
 # 章节数: 25（正文 18 章 + 附录 7 篇）
 # 阶段提示: 8 条（PH 记录，写在正文之前，顺序 = TutorialProgress.stage() 0~7）
