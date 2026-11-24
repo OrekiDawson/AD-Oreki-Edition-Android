@@ -17,7 +17,25 @@
     "sourceTakeoverClasses": "PASS: 1680",
     "sourceTakeoverAbi": "PASS",
     "sourceTakeoverDex": "PASS",
-    "androidAbi": "PASS: arm64-v8a,x86_64"
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "handoffEvidenceNote": "编译与门禁结果来自 Desktop 停工前证据；Twinny 接管后重新完成 JADX/JAR/Smali 三方静态语义复核"
+  },
+  "semantic_audit": {
+    "authority": ["JADX output_code_321_r88", "game-final.jar javap", "base_decoded_321 smali"],
+    "game_jar_sha256": "a757cd6384e190f0fca40989fa760c21d736385490885bd55d435bb8ae708567",
+    "result": "PASS",
+    "notes": {
+      "gk3": "构造器、字段与 q() 调用链一致",
+      "he7": "构造器非空检查和 c(re2) 委托一致",
+      "jr1": "默认构造器由 javac 生成；v() 返回 0.0、w(double) 为空与 Smali/JAR 一致",
+      "jr8": "Logger 与 AtomicBoolean 静态初始化及 a() 读取一致",
+      "nm5": "原调 kj7.P；因冻结依赖 classfile 不可由 javac 直接链接，使用反射调用其实际目标 x38.o，并保留空数组路径与对象初始化顺序",
+      "np4": "两个状态写入方法和 toString 常量一致",
+      "ql7": "字段赋值顺序、对象非空检查和 elapsedRealtime 加法一致",
+      "ra3": "补齐 Kotlin 默认参数 bitmask 构造器；静态实例超级参数为 (1,0)，a() 循环一致",
+      "y93": "补齐 Kotlin 默认参数 bitmask 构造器；静态实例超级参数为 (0,1)，a() 转换/写入调用一致",
+      "zb3": "字段初始化、Paint(1) 与 Float.NaN 三字段与 Smali 一致"
+    }
   },
   "emitted": [
     {

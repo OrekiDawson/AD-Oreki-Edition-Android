@@ -1,5 +1,6 @@
 # 从冻结游戏 JAR 移除、改由 app/src/main Java/Kotlin 标准源码编译的 class 条目。
 # 每行必须精确对应 JAR entry；空行和 # 注释会被忽略。
+a12.class
 a13.class
 a23.class
 a25.class
@@ -279,6 +280,7 @@ ef2.class
 eg6.class
 eh6.class
 ei.class
+ej.class
 ek0.class
 ek7.class
 el6.class
@@ -321,6 +323,7 @@ f9.class
 f95.class
 f96.class
 f97.class
+fa3.class
 fa6.class
 fb4.class
 fc4.class
@@ -367,6 +370,7 @@ fx6.class
 fy.class
 fy5.class
 fy8.class
+g11.class
 g13.class
 g20.class
 g21.class
@@ -449,6 +453,7 @@ hb1.class
 hb4.class
 hb7.class
 hc.class
+hc4.class
 hc7.class
 hc8.class
 hd2.class
@@ -481,6 +486,7 @@ hv.class
 hv0.class
 hw6.class
 hx2.class
+hx6.class
 hz3.class
 hz4.class
 hz7.class
@@ -530,6 +536,7 @@ io2.class
 io3.class
 io5.class
 ip5.class
+ir.class
 ir2.class
 is0.class
 is2.class
@@ -564,6 +571,7 @@ j72.class
 j78.class
 j80.class
 j88.class
+j93.class
 j99.class
 jb1.class
 jb2.class
@@ -790,6 +798,7 @@ m59.class
 m64.class
 m67.class
 m72.class
+m8.class
 m80.class
 m84.class
 m87.class
@@ -1029,6 +1038,7 @@ pt0.class
 pt6.class
 pu5.class
 pv2.class
+px0.class
 px3.class
 px4.class
 py4.class
@@ -1055,6 +1065,7 @@ q7.class
 q72.class
 q77.class
 q78.class
+q8.class
 q81.class
 q85.class
 q92.class
@@ -1161,6 +1172,7 @@ ro3.class
 ro8.class
 rp4.class
 rp8.class
+rq4.class
 rq7.class
 rr0.class
 rr5.class
@@ -1349,6 +1361,7 @@ ue1.class
 uf2.class
 uf3.class
 ug6.class
+ug7.class
 uh4.class
 uj.class
 uk6.class
@@ -1360,6 +1373,8 @@ um3.class
 un0.class
 un2.class
 uq0.class
+uq1.class
+ur0.class
 ur2.class
 ur7.class
 us0.class
@@ -1367,11 +1382,13 @@ us1.class
 us2.class
 ut.class
 ut1.class
+uu5.class
 uu7.class
 uv2.class
 uv4.class
 uw2.class
 uw4.class
+uw6.class
 ux3.class
 ux5.class
 uy3.class
@@ -1516,6 +1533,7 @@ xc.class
 xc4.class
 xc8.class
 xd2.class
+xd5.class
 xe0.class
 xe6.class
 xf.class
@@ -1566,6 +1584,7 @@ y61.class
 y64.class
 y65.class
 y66.class
+y67.class
 y71.class
 y73.class
 y74.class
@@ -1649,6 +1668,7 @@ zg4.class
 zg7.class
 zh1.class
 zh6.class
+zh7.class
 zi4.class
 zj0.class
 zk.class
