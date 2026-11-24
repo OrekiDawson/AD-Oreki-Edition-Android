@@ -3,7 +3,7 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
+import android.app.Fragment
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
@@ -15,9 +15,11 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.Window
@@ -25,6 +27,8 @@ import android.view.WindowManager
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import android.widget.ImageButton
 import android.widget.FrameLayout
 import android.widget.Button
@@ -49,7 +53,7 @@ class TutorialActivity : Activity() {
         super.onCreate(state)
         title = "Oreki 教程"
         window.setDecorFitsSystemWindows(false)
-        reader = TutorialReader(this, this, window)
+        reader = TutorialReader(this, this, window) { finish() }
         setContentView(reader.createView(state))
     }
 
@@ -69,31 +73,30 @@ class TutorialActivity : Activity() {
         if (::reader.isInitialized) reader.onApplyWindowInsets(view, insets) else insets
 }
 
-/** 同一游戏 Activity 所属的阅读窗口，系统返回只关闭窗口，不切换游戏 Activity。 */
+/** 同一游戏 Activity Window 内的阅读层，避免独立 Dialog Window 夺焦并暂停游戏 tick。 */
 @Suppress("DEPRECATION")
-class TutorialReaderFragment : DialogFragment() {
+class TutorialReaderFragment : Fragment() {
     private var reader: TutorialReader? = null
+    private var originalWindowCallback: Window.Callback? = null
+    private var backInterceptor: Window.Callback? = null
+    private var backInvokedCallback: OnBackInvokedCallback? = null
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateView(
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val host = requireNotNull(activity)
-        val readerDialog = Dialog(host, android.R.style.Theme_Material_NoActionBar)
-        readerDialog.setOwnerActivity(host)
-        readerDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        val readerWindow = requireNotNull(readerDialog.window)
-        readerWindow.setDecorFitsSystemWindows(false)
-        readerWindow.setBackgroundDrawable(ColorDrawable(Color.rgb(15, 19, 24)))
-        readerWindow.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        reader = TutorialReader(host, readerDialog.context, readerWindow)
-        readerDialog.setContentView(requireNotNull(reader).createView(savedInstanceState))
-        return readerDialog
+        reader = TutorialReader(host, host, host.window) {
+            closeReader()
+        }
+        return requireNotNull(reader).createView(savedInstanceState)
     }
 
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.apply {
-            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
-            decorView.requestApplyInsets()
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        installBackHandler(requireNotNull(activity))
+        view.requestApplyInsets()
         reader?.applySystemBarAppearance()
     }
 
@@ -105,7 +108,50 @@ class TutorialReaderFragment : DialogFragment() {
     override fun onDestroyView() {
         reader?.dispose()
         reader = null
+        activity?.let { host ->
+            backInvokedCallback?.let { callback ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    host.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(callback)
+                }
+            }
+            if (host.window.callback === backInterceptor) {
+                host.window.callback = originalWindowCallback
+            }
+        }
+        backInvokedCallback = null
+        backInterceptor = null
+        originalWindowCallback = null
         super.onDestroyView()
+    }
+
+    private fun closeReader() {
+        view?.post {
+            if (isAdded) fragmentManager.beginTransaction().remove(this).commitNow()
+        }
+    }
+
+    private fun installBackHandler(host: Activity) {
+        val original = host.window.callback
+        val interceptor = object : Window.Callback by original {
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (event.action == KeyEvent.ACTION_UP) closeReader()
+                    return true
+                }
+                return original.dispatchKeyEvent(event)
+            }
+        }
+        originalWindowCallback = original
+        backInterceptor = interceptor
+        host.window.callback = interceptor
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val callback = OnBackInvokedCallback { closeReader() }
+            backInvokedCallback = callback
+            host.onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                callback,
+            )
+        }
     }
 
     companion object {
@@ -116,7 +162,9 @@ class TutorialReaderFragment : DialogFragment() {
             val manager = host.fragmentManager
             if (manager.isStateSaved || manager.findFragmentByTag(TAG) != null) return
             // 使用同步事务确保连续点击不会堆叠两个阅读窗口。
-            manager.beginTransaction().add(TutorialReaderFragment(), TAG).commitNow()
+            manager.beginTransaction()
+                .add(android.R.id.content, TutorialReaderFragment(), TAG)
+                .commitNow()
         }
     }
 }
@@ -125,7 +173,8 @@ class TutorialReaderFragment : DialogFragment() {
 private class TutorialReader(
     private val owner: Activity,
     private val context: Context,
-    private val window: Window
+    private val window: Window,
+    private val closeReader: () -> Unit,
 ) {
     private data class Record(val tag: String, val flag: String, val text: String)
     private data class Chapter(val id: String, val title: String, val start: Int, val stage: String?)
@@ -182,8 +231,10 @@ private class TutorialReader(
         }
         contentScroll.addView(contentHost, FrameLayout.LayoutParams(-1, -2))
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
-        val reader = SwipeFrame(opening = true) { openChapterDrawer() }
+        val reader = SwipeFrame(opening = true, swipe = { openChapterDrawer() }, onBack = closeReader)
         reader.addView(root, FrameLayout.LayoutParams(-1, -1))
+        reader.isFocusable = true
+        reader.isFocusableInTouchMode = true
         root.requestApplyInsets()
         if (chapters.isNotEmpty()) {
             showChapter(state?.getInt("chapter", initialChapter()) ?: initialChapter())
@@ -193,6 +244,7 @@ private class TutorialReader(
             }
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
         root.post {
+            reader.requestFocus()
             root.requestApplyInsets()
             applySystemBarAppearance()
             fadeIn(root)
@@ -349,7 +401,8 @@ private class TutorialReader(
     /** 横向手势只在方向明确后拦截，保留正文及目录的正常竖向滚动。 */
     private inner class SwipeFrame(
         private val opening: Boolean,
-        private val swipe: () -> Unit
+        private val swipe: () -> Unit,
+        private val onBack: () -> Unit,
     ) : FrameLayout(this@TutorialReader.context) {
         private val slop = ViewConfiguration.get(context).scaledTouchSlop
         private var startX = 0f
@@ -390,6 +443,14 @@ private class TutorialReader(
             }
             return true
         }
+
+        override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+            if (event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                if (event.action == android.view.KeyEvent.ACTION_UP) onBack()
+                return true
+            }
+            return super.dispatchKeyEvent(event)
+        }
     }
 
     /** 既有入口 ABI：左侧模态章节抽屉，不改变教程 Activity 的返回栈。 */
@@ -428,7 +489,7 @@ private class TutorialReader(
                 .withEndAction { if (dialog.isShowing) dialog.dismiss() }.start()
         }
 
-        val overlay = SwipeFrame(opening = false) { closeDrawer() }
+        val overlay = SwipeFrame(opening = false, swipe = { closeDrawer() }, onBack = { closeDrawer() })
         overlay.addView(scrim, FrameLayout.LayoutParams(-1, -1))
         scrim.setOnClickListener { closeDrawer() }
         overlay.addView(panel, FrameLayout.LayoutParams(drawerWidth, -1, Gravity.LEFT))

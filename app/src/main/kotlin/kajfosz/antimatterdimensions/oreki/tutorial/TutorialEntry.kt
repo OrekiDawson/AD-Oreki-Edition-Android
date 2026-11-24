@@ -3,6 +3,7 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -30,7 +31,7 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
                 gravity = android.view.Gravity.CENTER
                 val vertical = dpToPx(activity, 12)
                 setPadding(0, vertical, 0, vertical)
-                setOnClickListener { TutorialReaderFragment.open(activity) }
+                setOnClickListener { openReader(activity) }
                 tag = "oreki_tutorial_entry"
             }
             val margin = dpToPx(activity, 8)
@@ -52,6 +53,47 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
             val added = addEntry(activity, host)
             Log.i("OrekiTutorial", host.childCount.toString())
             return added
+        }
+
+        @JvmStatic
+        private fun openReader(activity: Activity) {
+            activateMainGameTab(activity)
+            activity.window.decorView.postDelayed(
+                { TutorialReaderFragment.open(activity) },
+                120L,
+            )
+        }
+
+        /**
+         * 帮助/关于页自身不推进主界面数值；打开阅读层前切回最左侧主维度页，
+         * 让同一 Activity 的游戏节拍继续运行，同时不改动存档或时间戳。
+         */
+        @JvmStatic
+        private fun activateMainGameTab(activity: Activity) {
+            val root = activity.window.decorView
+            val rootRect = Rect()
+            if (!root.getGlobalVisibleRect(rootRect) || rootRect.height() <= 0) return
+            val minimumTop = rootRect.top + (rootRect.height() * 0.86f).toInt()
+            var firstBottomTab: View? = null
+            var firstLeft = Int.MAX_VALUE
+            fun visit(view: View) {
+                val visible = Rect()
+                if (view.getGlobalVisibleRect(visible) &&
+                    view.isClickable &&
+                    !view.contentDescription.isNullOrEmpty() &&
+                    visible.top >= minimumTop &&
+                    visible.height() < rootRect.height() / 6 &&
+                    visible.left < firstLeft
+                ) {
+                    firstBottomTab = view
+                    firstLeft = visible.left
+                }
+                if (view is ViewGroup) {
+                    for (index in 0 until view.childCount) visit(view.getChildAt(index))
+                }
+            }
+            visit(root)
+            firstBottomTab?.performClick()
         }
 
         @JvmStatic
