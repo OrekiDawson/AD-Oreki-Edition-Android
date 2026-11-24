@@ -180,7 +180,7 @@ private class TutorialReader(
             orientation = LinearLayout.VERTICAL
             setPadding(0, dp(20), 0, dp(24))
         }
-        contentScroll.addView(contentHost, ScrollView.LayoutParams(-1, -2))
+        contentScroll.addView(contentHost, FrameLayout.LayoutParams(-1, -2))
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
         val reader = SwipeFrame(opening = true) { openChapterDrawer() }
         reader.addView(root, FrameLayout.LayoutParams(-1, -1))
@@ -474,7 +474,7 @@ private class TutorialReader(
             list.addView(item, LinearLayout.LayoutParams(-1, -2))
             if (selected) selectedRow = item
         }
-        scroll.addView(list, ScrollView.LayoutParams(-1, -2))
+        scroll.addView(list, FrameLayout.LayoutParams(-1, -2))
         panel.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
 
         overlay.setOnApplyWindowInsetsListener { _, insets ->
