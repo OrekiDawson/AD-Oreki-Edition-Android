@@ -494,6 +494,27 @@ su.class | Lsu; | javac compile failure: final field a is not initialized by the
 q39.class | Lq39; | javac compile failure: final field a is not initialized by the available constructor
 fb3.class | Lfb3; | source takeover ABI failure: compiled class is missing 28 original static-linkage methods
 rw7.class | Lrw7; | source takeover ABI failure: compiled class is missing uncaughtException(Thread,Throwable)
+sd3.class | Lsd3; | javac compile failure: missing t63(byte) constructor
+p02.class | Lp02; | javac compile failure: superclass o02 requires int
+kp0.class | Lkp0; | javac compile failure: missing r10(byte) constructor
+pa6.class | Lpa6; | javac compile failure: missing ne4.a(View,ViewGroup) override
+gi3.class | Lgi3; | javac compile failure: missing bi3(int,BigDouble,BigDouble,fm1,fm1,gm1,int) constructor
+gq0.class | Lgq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+qb5.class | Lqb5; | javac compile failure: WebView requires a Context constructor
+q98.class | Lq98; | javac compile failure: missing mx7.e/j98.c and u9.zza remains private
+aj7.class | Laj7; | javac compile failure: m47.v unavailable
+dq0.class | Ldq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+en6.class | Len6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+da8.class | Lda8; | javac compile failure: missing mx7.f/j98.g and u9.zza remains private
+zp0.class | Lzp0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+de5.class | Lde5; | javac compile failure: i03 requires int
+ry3.class | Lry3; | javac compile failure: overridden methods declare unsupported IOException
+sx7.class | Lsx7; | javac compile failure: empty y6 constructor absent
+oz8.class | Loz8; | javac compile failure: missing n47(byte) constructor
+rj4.class | Lrj4; | javac compile failure: inner a requires Object,pz4,Object
+d82.class | Ld82; | javac compile failure: final field a is not initialized by the available constructor
+zh8.class | Lzh8; | javac compile failure: final field a is not initialized by the available constructor
+o9.class | Lo9; | javac compile failure: final field a is not initialized by the available constructor
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
