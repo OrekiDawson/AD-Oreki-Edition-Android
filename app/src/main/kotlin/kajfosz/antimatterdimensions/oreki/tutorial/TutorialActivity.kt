@@ -140,13 +140,12 @@ class TutorialActivity : Activity() {
             setPadding(dp(4), dp(8), dp(4), dp(8))
             setBackgroundColor(surface)
         }
-        appBar.addView(iconButton("返回", "back") { finish() }, LinearLayout.LayoutParams(dp(48), dp(48)))
+        appBar.addView(iconButton("章节目录", "list") { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(48)))
         val title = TextView(this).apply {
             text = "Oreki 教程"; setTextColor(onSurface); textSize = 22f; gravity = Gravity.CENTER_VERTICAL
             maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
         }
         appBar.addView(title, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(8), 0, dp(4), 0) })
-        appBar.addView(iconButton("章节目录", "list") { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(48)))
         appBar.addView(iconButton("阅读设置", "settings") { openReadingSettings() }, LinearLayout.LayoutParams(dp(48), dp(48)))
         root.addView(appBar, LinearLayout.LayoutParams(-1, -2))
     }
@@ -181,11 +180,6 @@ class TutorialActivity : Activity() {
             canvas.translate(bounds.left.toFloat(), bounds.top.toFloat())
             canvas.scale(bounds.width() / 24f, bounds.height() / 24f)
             when (kind) {
-                "back" -> {
-                    canvas.drawLine(20f, 12f, 4f, 12f, paint)
-                    canvas.drawLine(4f, 12f, 11f, 5f, paint)
-                    canvas.drawLine(4f, 12f, 11f, 19f, paint)
-                }
                 "list" -> {
                     for (y in listOf(6f, 12f, 18f)) {
                         canvas.drawCircle(4f, y, .8f, paint)
@@ -241,16 +235,17 @@ class TutorialActivity : Activity() {
         } else if (action >= 100 && chapters.isNotEmpty()) showChapter((action - 100).coerceIn(0, chapters.lastIndex))
     }
 
-    /** 既有入口 ABI：完整章节标题、单选状态和系统滚动列表。 */
+    /** 既有入口 ABI：系统返回先取消目录对话框，阅读页仍保留原章节和滚动位置。 */
     fun openChapterDrawer() {
         if (chapters.isEmpty()) return
         AlertDialog.Builder(this)
-            .setTitle("章节目录")
+            .setTitle("选择章节")
             .setSingleChoiceItems(chapters.map { it.title }.toTypedArray(), currentChapter) { dialog, index ->
                 showChapter(index)
                 dialog.dismiss()
             }
-            .setNegativeButton("关闭", null)
+            // 目录是独立模态窗口：系统返回只取消窗口，不结束教程 Activity。
+            .setCancelable(true)
             .show()
     }
 
