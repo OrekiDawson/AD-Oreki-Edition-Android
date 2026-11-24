@@ -26,6 +26,7 @@ import android.view.WindowInsetsController
 import android.widget.ImageButton
 import android.widget.FrameLayout
 import android.widget.Button
+import android.text.Layout
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BulletSpan
@@ -73,10 +74,28 @@ class TutorialActivity : Activity() {
             }
         }
         addTopBar(root)
-        contentScroll = ScrollView(this).apply { isFillViewport = true }
+        contentScroll = ScrollView(this).apply {
+            isFillViewport = true
+            setPadding(dp(24), 0, dp(24), 0)
+            // 以实际可用宽度而非屏幕像素计算阅读栏；横屏、分屏及刘海安全区同样生效。
+            addOnLayoutChangeListener { _, left, _, right, _, _, _, _, _ ->
+                val available = right - left
+                if (available > 0) {
+                    val margin = when {
+                        available < dp(360) -> dp(20)
+                        available < dp(600) -> dp(28)
+                        else -> dp(32)
+                    }
+                    val gutter = maxOf(margin, (available - dp(560)) / 2)
+                    if (paddingLeft != gutter || paddingRight != gutter) {
+                        setPadding(gutter, 0, gutter, 0)
+                    }
+                }
+            }
+        }
         contentHost = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(24), dp(20), dp(24), dp(24))
+            setPadding(0, dp(20), 0, dp(24))
         }
         contentScroll.addView(contentHost, ScrollView.LayoutParams(-1, -2))
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
@@ -489,7 +508,7 @@ class TutorialActivity : Activity() {
 
     private fun addParagraph(text: String, bullet: Boolean = false) {
         val paragraph = if (bullet) SpannableString(text).apply {
-            setSpan(BulletSpan(dp(12), onVariant, dp(2)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(BulletSpan(dp(8), onVariant, dp(2)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         } else text
         addText(paragraph, 16f, onSurface, dp(12), false)
     }
@@ -500,7 +519,13 @@ class TutorialActivity : Activity() {
             this.text = text
             setTextColor(color)
             textSize = size * when (fontScale) { 0 -> .875f; 2 -> 1.125f; else -> 1f }
-            setLineSpacing(0f, if (heading) 1.15f else 1.4f)
+            // 中文长段落自然换行，禁止两端强制拉伸字距；保留系统字号缩放。
+            gravity = Gravity.START or Gravity.TOP
+            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+            justificationMode = Layout.JUSTIFICATION_MODE_NONE
+            breakStrategy = Layout.BREAK_STRATEGY_SIMPLE
+            hyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE
+            setLineSpacing(0f, if (heading) 1.12f else 1.25f)
             isAccessibilityHeading = heading
             if (bold) typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
         }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = bottom })
