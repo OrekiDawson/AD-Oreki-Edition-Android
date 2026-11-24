@@ -149,8 +149,10 @@ android {
                 storePassword = System.getenv("OREKI_KS_PASS") ?: ""
                 keyAlias = "oreki"
                 keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
-                enableV2Signing = true
+                enableV1Signing = false
+                enableV2Signing = false
                 enableV3Signing = true
+                enableV4Signing = false
             }
         }
         buildTypes {
