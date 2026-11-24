@@ -18,8 +18,11 @@ HEX = re.compile(r"[0-9a-f]{64}")
 
 
 def run(args):
-    completed = subprocess.run([str(x) for x in args], check=True, text=True,
+    completed = subprocess.run([str(x) for x in args], check=False, text=True,
                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if completed.returncode:
+        # 命令行只含密码环境变量名；不回显命令、密码或私钥。
+        raise ValueError(f"官方工具 {Path(str(args[0])).name} 失败 (exit={completed.returncode}):\n{completed.stdout}")
     return completed.stdout
 
 
