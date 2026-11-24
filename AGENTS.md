@@ -93,6 +93,14 @@
 - **新增或实质修改必须 Kotlin**：新的游戏业务/功能、修改旧 Java 业务行为、修复旧 Java 的功能缺陷，必须先将该类或最小自洽逻辑闭包迁到 Kotlin，再实现改动；不得直接在过渡 Java 或原始 Smali 上新增业务逻辑、补丁和功能分支。允许保留原样且确有消费者的遗留 Java，不要求无关类提前重写。
 - **规范路径与唯一实现**：标准 `app/src/main/java/` 可暂存已验证可编译的旧 Java，`app/src/main/kotlin/` 存放 Kotlin 业务；同一 descriptor 不得 Java/Kotlin/Smali 双重生产定义。每批登记对应基线证据、Kotlin 接管范围、剩余 Java、实际 DEX/ABI/资源/存档/关键运行证据，随迁移移除无消费者的旧工具和旧调用；过渡 Java 不得演变成永久的新业务开发区。
 
+### 2.3.1 整个原版 APK 全类 Java/Kotlin 源码化（2026-11-24 新长期目标）
+
+- **全量目标**：原版 3.21.0 `classes.dex=10,708`、`classes2.dex=4,611`，合计 **15,319 个 DEX class_def**。以原始 descriptor 全量建立可复算主账，不能再用 `source-takeover.txt` 1665 类和 blocked 356 类合计 2021 类作为整个 APK 分母。PR #300 HEAD 的已接管类比例暂为 **1665/15319≈10.9%**，且仅代表当前 AGP 源码接管，不能自动代表所有类通过语义或源码许可验证。不同 DEX 间重名、反编译遗漏和 SDK 平台类需独立核对，不擅改分母。
+- **逐类可追溯且能重建**：每个原版 APK 内 DEX 类应映射到本仓可编译 Java/Kotlin 源文件，或经核验的第三方/开源项目准确版本及其可获取源码、合法许可证、构建方式和产物映射；第三方优先采用合法标准 Gradle 源码依赖，不为形式批量复制成熟库。**仅在 APK 内保留原版冻结 JAR/DEX，或只有 JADX 输出，或仅声明闭源二进制 Maven 依赖，均不计源码化成功**。由系统 SDK 提供而不在原版 DEX 内的类不纳入此 15,319 分母。
+- **唯一全量类账**：逐 descriptor 维护 DEX 来源、Java/Kotlin/上游源码与版本、编译和 R8 所有者、ABI/语义验收、许可状态及真伪，分类 `LOCAL_SOURCE_COMPILED / UPSTREAM_SOURCE_REPRODUCIBLE / RESEARCH_ONLY / BLOCKED / BINARY_ONLY`，按原始全集校验 `covered+remaining=15319`，不得因包移动、R8 合并、删除依赖、重复类或缩水改写结果。必要时区分嵌入式 Kotlin stdlib、Google/AndroidX 等上游代码及需要保留的 Java 字节码 ABI。
+- **完成门槛**：原版全部类有可合法取得的准确源码且能按 Google 官方 AGP/依赖源码构建与核验，最终安装包无不透明冻结原版 DEX/JAR 生产依赖、无 Smali 文本补丁/手工 DEX 注入/二次 APK 打包，ABI/R8/反射、存档及受影响游戏逻辑经过必要验证。不可因 source coverage 达标就宣称新档 180 分钟游戏五项 PASS，亦不得为补数量写空实现、假映射或非法分发第三方源码。剩余 356 blocked 是部分已登记候选的具体问题，**不代表全部未迁类只有 356 个**。
+- **执行顺序**：先保留现有 1665 接管进展与安全证据；核对 PR #300 `aq.b()`、`wg6` 真实语义，待余额恢复再开展新付费迁移。通过自动化一次生成完整 descriptor 分类索引，再按平台/依赖/游戏源码分组，优先可复用官方上游源码/可复现源码构建，最后攻克不合法的 JADX/classfile/构造器边界。正式发布仍依既有 Pre-release/Stable 独立门禁，不能用完整源码迁移阻止已具备最低安全门禁的生日 Pre-release。
+
 ### 2.4 P0 64 位 ABI 与测试设备
 
 - **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
