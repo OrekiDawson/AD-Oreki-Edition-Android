@@ -104,6 +104,36 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("--verify-abi", ci)
         self.assertIn("agp-kotlin-dex", ci)
 
+    def test_root_app_is_complete_game_without_project_specific_gradle_switches(self):
+        app = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        build_config = (
+            ROOT
+            / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/OrekiBuildConfig.kt"
+        ).read_text(encoding="utf-8")
+        candidate = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
+        r8 = (ROOT / ".github/workflows/r8-experiment.yml").read_text(encoding="utf-8")
+
+        self.assertIn('applicationId = "net.oreki.antimatterdimensions"', app)
+        self.assertIn('applicationIdSuffix = ".debug"', app)
+        self.assertIn('create("r8")', app)
+        self.assertIn("build/inputs/game-final.jar", build_config)
+        self.assertIn("build/inputs/base_decoded_321", build_config)
+        self.assertIn("build/inputs/mdpi_decoded_321", build_config)
+
+        for forbidden in (
+            'gradleProperty("orekiFullGame")',
+            'gradleProperty("oreki.r8")',
+            'gradleProperty("orekiGameJar")',
+            'gradleProperty("orekiOfficialTree")',
+            'gradleProperty("orekiSplitTree")',
+            'gradleProperty("orekiFullGameStage")',
+        ):
+            self.assertNotIn(forbidden, app + build_config)
+
+        for workflow in (candidate, r8):
+            self.assertNotIn("-Poreki", workflow)
+        self.assertIn(":app:assembleR8", r8)
+
 
     def test_r8_experiment_cancels_stale_pr_head_and_skips_draft(self):
         workflow = (ROOT / ".github/workflows/r8-experiment.yml").read_text(encoding="utf-8")
@@ -127,7 +157,8 @@ class UnifiedMigrationTests(unittest.TestCase):
         on_command = next(line for line in workflow.splitlines()
                           if "tee r8-evidence/logs/r8on-build.log" in line)
         self.assertNotIn("--rerun-tasks", off_command)
-        self.assertIn("-Poreki.r8=true --rerun-tasks", on_command)
+        self.assertIn(":app:assembleR8", on_command)
+        self.assertIn("--rerun-tasks", on_command)
         self.assertIn("if: always()", workflow)
         self.assertIn("name: android-r8-experiment-${{ github.sha }}", workflow)
 

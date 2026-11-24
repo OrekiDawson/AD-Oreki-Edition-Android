@@ -1,6 +1,5 @@
 import groovy.json.JsonSlurper
 import java.io.File
-import org.gradle.api.tasks.Sync
 
 plugins {
     id("com.android.application")
@@ -13,61 +12,11 @@ plugins {
 
 val repoRoot = rootProject.layout.projectDirectory.asFile
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
-val fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false
-val sourceTakeoverClasses = File(repoRoot, "build-logic/source-takeover.txt")
-    .takeIf(File::isFile)
-    ?.readLines()
-    ?.map(String::trim)
-    ?.filter { it.isNotEmpty() && !it.startsWith("#") }
-    ?.map { it.removeSuffix(".class") }
-    .orEmpty()
-val sourceTakeoverKotlinExcludes = sourceTakeoverClasses.mapNotNull { classPath ->
-    val kotlinPath = classPath.removeSuffix(".class") + ".kt"
-    kotlinPath.takeIf { File(repoRoot, "app/src/main/kotlin/$it").isFile }
-}
-val fullGameOnlyKotlinExcludes = (
-    sourceTakeoverKotlinExcludes + "R126SyntheticAccess.kt"
-    ).distinct()
-val fullGameOnlyKotlinNames = fullGameOnlyKotlinExcludes.map { File(it).nameWithoutExtension }
-val testKotlinRoot = File(repoRoot, "app/src/test/kotlin")
-val sourceTakeoverTestKotlinExcludes = (
-    testKotlinRoot.walkTopDown()
-        .filter(File::isFile)
-        .filter { it.extension == "kt" }
-        .filter { testFile ->
-            val imports = testFile.readLines()
-                .map(String::trim)
-                .filter { it.startsWith("import ") }
-                .map { it.substringAfterLast('.') }
-            imports.any(fullGameOnlyKotlinNames::contains)
-        }
-        .map { it.relativeTo(testKotlinRoot).invariantSeparatorsPath }
-        .toList() + "R126SyntheticAccessTest.kt"
-    ).distinct()
-val bridgeKotlinRoot = layout.buildDirectory.dir("bridge-kotlin")
-val bridgeTestKotlinRoot = layout.buildDirectory.dir("bridge-test-kotlin")
-val prepareBridgeKotlinSources = tasks.register<Sync>("prepareBridgeKotlinSources") {
-    from(File(repoRoot, "app/src/main/kotlin")) {
-        exclude(fullGameOnlyKotlinExcludes)
-    }
-    into(bridgeKotlinRoot)
-}
-val prepareBridgeTestKotlinSources = tasks.register<Sync>("prepareBridgeTestKotlinSources") {
-    from(testKotlinRoot) {
-        exclude(sourceTakeoverTestKotlinExcludes)
-    }
-    into(bridgeTestKotlinRoot)
-}
-val debugApplicationIdSuffix = (
-    providers.gradleProperty("orekiDebugApplicationIdSuffix").orNull
-        ?: ".debug".takeIf { fullGame }
-    )
-    ?.takeIf { it.isNotBlank() }
-    ?.also { require(it.startsWith(".")) { "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug" } }
-val fullGameStage = providers.gradleProperty("orekiFullGameStage")
-    .map { File(it) }
-    .orNull
-    ?: File(repoRoot, "build/agp-fullgame")
+// The root :app is always the complete game. Machine-specific frozen inputs
+// are resolved by build-logic from local.properties/build/inputs.
+val fullGameStage = File(
+    "${repoRoot}/build/agp-fullgame",
+)
 
 android {
     namespace = "kajfosz.antimatterdimensions"
@@ -75,11 +24,7 @@ android {
     buildToolsVersion = "37.0.0"
 
     defaultConfig {
-        applicationId = if (fullGame) {
-            "net.oreki.antimatterdimensions"
-        } else {
-            "kajfosz.antimatterdimensions.agpbridge"
-        }
+        applicationId = "net.oreki.antimatterdimensions"
         minSdk = 32
         targetSdk = 37
         versionCode = releaseIdentity["versionCode"].toString().toInt()
@@ -100,12 +45,10 @@ android {
 
     buildTypes {
         getByName("debug") {
-            debugApplicationIdSuffix?.let { applicationIdSuffix = it }
+            applicationIdSuffix = ".debug"
         }
         getByName("release") {
-            isMinifyEnabled = providers.gradleProperty("oreki.r8")
-                .map { it.equals("true", ignoreCase = true) }
-                .getOrElse(false)
+            isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -116,78 +59,55 @@ android {
 
     // 生成绑定是唯一的非手写 Kotlin 输入；生产业务源码仍只来自标准 src/main/kotlin。
     sourceSets["main"].kotlin.directories.add(File(repoRoot, "build/kt/generated").absolutePath)
-    if (!fullGame && sourceTakeoverClasses.isNotEmpty()) {
-        // 无专有游戏 JAR 的桥接构建不能编译依赖原版 APK 的接管源码。
-        // FullGame 仍直接从标准 src/main/java 与 src/main/kotlin 编译全部生产类。
-        sourceSets["main"].java.directories.clear()
-        sourceSets["main"].kotlin.directories.clear()
-        sourceSets["main"].kotlin.directories.addAll(
+    sourceSets["main"].apply {
+        manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
+        res.directories.addAll(
             listOf(
-                bridgeKotlinRoot.get().asFile.absolutePath,
-                File(repoRoot, "build/kt/generated").absolutePath,
+                File(fullGameStage, "res").absolutePath,
+                File(repoRoot, "build/agp-generated-res").absolutePath,
             ),
         )
-        sourceSets["test"].kotlin.directories.clear()
-        sourceSets["test"].kotlin.directories.add(bridgeTestKotlinRoot.get().asFile.absolutePath)
+        assets.directories.add(File(repoRoot, "build/agp-fullgame-assets").absolutePath)
+        jniLibs.directories.add(File(repoRoot, "scripts/payload/lib").absolutePath)
     }
-
-    if (fullGame) {
-        sourceSets["main"].apply {
-            manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
-            res.directories.addAll(
-                listOf(
-                    File(fullGameStage, "res").absolutePath,
-                    File(repoRoot, "build/agp-generated-res").absolutePath,
-                ),
-            )
-            assets.directories.add(File(repoRoot, "build/agp-fullgame-assets").absolutePath)
-            jniLibs.directories.add(File(repoRoot, "scripts/payload/lib").absolutePath)
-        }
-        signingConfigs {
-            create("release") {
-                storeFile = File(repoRoot, "keys/oreki.jks")
-                storePassword = System.getenv("OREKI_KS_PASS") ?: ""
-                keyAlias = "oreki"
-                keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
-                enableV2Signing = true
-                enableV3Signing = true
-            }
-        }
-        buildTypes {
-            getByName("release") {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
-        lint {
-            checkReleaseBuilds = false
-            abortOnError = false
-        }
-        packaging {
-            jniLibs {
-                useLegacyPackaging = true
-            }
+    signingConfigs {
+        create("release") {
+            storeFile = File(repoRoot, "keys/oreki.jks")
+            storePassword = System.getenv("OREKI_KS_PASS") ?: ""
+            keyAlias = "oreki"
+            keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
+            enableV2Signing = true
+            enableV3Signing = true
         }
     }
-}
-
-if (!fullGame) {
-    tasks.named("preBuild") {
-        dependsOn(prepareBridgeKotlinSources, prepareBridgeTestKotlinSources)
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+        }
+        create("r8") {
+            initWith(getByName("release"))
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 }
 
 dependencies {
+    implementation(
+        files(
+            tasks.named("applyStorePolicy").map {
+                File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
+            },
+        ),
+    )
     testImplementation("junit:junit:4.13.2")
-}
-
-if (fullGame) {
-    dependencies {
-        implementation(
-            files(
-                tasks.named("applyStorePolicy").map {
-                    File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
-                },
-            ),
-        )
-    }
 }
