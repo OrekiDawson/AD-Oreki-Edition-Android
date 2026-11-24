@@ -641,3 +641,33 @@ yj1.class | Lyj1; | javac compile failure: missing kn6.Y(CharSequence) override
 zj1.class | Lzj1; | javac compile failure: missing kn6.Y(CharSequence) override
 la1.class | Lla1; | javac compile failure: Os.dup and Os.lseek throw unreported ErrnoException
 bz5.class | Lbz5; | source takeover ABI failure: compiled class is missing a(Ljava/lang/String;)V
+l28.class | Ll28; | javac compile failure: missing Firebase internal package and xx6/hx7 byte constructors
+jb9.class | Ljb9; | javac compile failure: missing h99(j1) constructor
+xz5.class | Lxz5; | javac compile failure: missing oj5(byte) constructor
+fi0.class | Lfi0; | javac compile failure: missing gi0() constructor
+r5.class | Lr5; | javac compile failure: missing g36(byte) constructor
+v37.class | Lv37; | javac compile failure: missing ag5() constructor
+t23.class | Lt23; | javac compile failure: missing no1(byte) constructor
+h79.class | Lh79; | javac compile failure: missing iy8.i0() override
+v83.class | Lv83; | javac compile failure: missing b33(), ze1(x83,byte) and sx() constructors
+h82.class | Lh82; | javac compile failure: y70 lacks compareTo(y70)
+or8.class | Lor8; | javac compile failure: missing kn6.Y(CharSequence) override
+qe4.class | Lqe4; | javac compile failure: missing mf3(byte) constructor
+r9.class | Lr9; | javac compile failure: missing ou2() constructor
+al1.class | Lal1; | javac compile failure: missing sj5(byte) constructor
+xg1.class | Lxg1; | javac compile failure: missing ou2() constructor
+e87.class | Le87; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+cr0.class | Lcr0; | javac compile failure: missing dr0.b field
+wg5.class | Lwg5; | javac compile failure: missing jg5(String) constructor
+h02.class | Lh02; | javac compile failure: superclass a constructor signature differs from JADX output
+z21.class | Lz21; | javac compile failure: Property constructor signature differs from JADX output
+u31.class | Lu31; | javac compile failure: incompatible ir2 collection field and missing yo0(mi0,jr2,byte) constructor
+ps6.class | Lps6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+rj.class | Lrj; | javac compile failure: missing ComplianceData.ProductIdOrigin.EVENT_OVERRIDE
+bg4.class | Lbg4; | javac compile failure: ki version-49 default method
+vg5.class | Lvg5; | javac compile failure: missing jg5(String) constructor
+g02.class | Lg02; | javac compile failure: superclass a constructor signature differs from JADX output
+p93.class | Lp93; | javac compile failure: ua3 and uq2 constructor signatures differ from JADX output
+e02.class | Le02; | javac compile failure: superclass a constructor signature differs from JADX output
+ec3.class | Lec3; | javac compile failure: missing fc3() constructor
+c2.class | Lc2; | source takeover ABI failure: compiled class is missing (Lrx8;Ljava/lang/Object;J)V constructor
