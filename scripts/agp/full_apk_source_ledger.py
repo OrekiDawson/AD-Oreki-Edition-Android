@@ -12,6 +12,7 @@ import argparse
 import collections
 import csv
 import hashlib
+import io
 import json
 import zipfile
 from pathlib import Path
@@ -99,9 +100,11 @@ def jadx_descriptor(path: Path, root: Path) -> str:
     return f"L{relative};"
 
 
-def load_jadx(root: Path) -> dict[str, str]:
+def load_jadx(root: Path, *, required: bool = True) -> dict[str, str]:
     sources: dict[str, str] = {}
     if not root.is_dir():
+        if required:
+            raise FileNotFoundError(f"missing JADX source root: {root}")
         return sources
     for path in sorted(root.rglob("*.java")):
         if path.name in {"package-info.java", "module-info.java"}:
@@ -109,7 +112,7 @@ def load_jadx(root: Path) -> dict[str, str]:
         descriptor = jadx_descriptor(path, root)
         if descriptor in sources:
             raise ValueError(f"duplicate JADX descriptor: {descriptor}")
-        sources[descriptor] = path.as_posix()
+        sources[descriptor] = path.relative_to(root).as_posix()
     return sources
 
 
@@ -125,12 +128,14 @@ def load_local_sources(roots: tuple[Path, ...]) -> dict[str, str]:
             descriptor = f"L{relative};"
             if descriptor in sources:
                 raise ValueError(f"duplicate local source descriptor: {descriptor}")
-            sources[descriptor] = path.as_posix()
+            sources[descriptor] = path.relative_to(ROOT).as_posix()
     return sources
 
 
-def load_jar_descriptors(path: Path) -> set[str]:
+def load_jar_descriptors(path: Path, *, required: bool = True) -> set[str]:
     if not path.is_file():
+        if required:
+            raise FileNotFoundError(f"missing frozen game JAR: {path}")
         return set()
     with zipfile.ZipFile(path) as archive:
         return {
@@ -286,7 +291,6 @@ def build_ledger(
             100.0 * statuses["LOCAL_SOURCE_COMPILED"] / EXPECTED_TOTAL,
             3,
         ),
-        "accounting_ok": sum(statuses.values()) == EXPECTED_TOTAL,
         "takeover_entries": len(takeover),
         "takeover_in_baseline": sum(row["descriptor"] in takeover for row in rows),
         "takeover_outside_baseline": len(takeover - {row["descriptor"] for row in rows}),
@@ -314,38 +318,75 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-csv", type=Path, required=True)
     parser.add_argument("--out-json", type=Path, required=True)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--allow-missing-inputs", action="store_true")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     source_roots = tuple(args.source_roots or DEFAULT_SOURCE_ROOTS)
+    inputs_available = {
+        "jadx": args.jadx_root.is_dir(),
+        "game_jar": args.game_jar.is_file(),
+    }
+    if args.check and not all(inputs_available.values()):
+        raise SystemExit(
+            "FAIL: check requires every input; missing "
+            + ", ".join(name for name, ok in inputs_available.items() if not ok)
+        )
     rows, summary = build_ledger(
         load_index(args.index),
         takeover=load_takeover(args.takeover),
         blocked=load_blocked(args.blocked),
-        jadx=load_jadx(args.jadx_root),
+        jadx=load_jadx(
+            args.jadx_root,
+            required=not args.allow_missing_inputs,
+        ),
         local_sources=load_local_sources(source_roots),
-        jar_descriptors=load_jar_descriptors(args.game_jar),
+        jar_descriptors=load_jar_descriptors(
+            args.game_jar,
+            required=not args.allow_missing_inputs,
+        ),
     )
-    args.out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with args.out_csv.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=LEDGER_COLUMNS, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
+    csv_buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(csv_buffer, fieldnames=LEDGER_COLUMNS, lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    csv_bytes = csv_buffer.getvalue().encode("utf-8")
     summary.update(
         {
+            "inputs_available": inputs_available,
+            "degraded_inputs": [
+                name for name, available in inputs_available.items() if not available
+            ],
             "index_sha256": sha256(args.index),
             "takeover_sha256": sha256(args.takeover),
             "blocked_sha256": sha256(args.blocked),
-            "ledger_sha256": sha256(args.out_csv),
+            "ledger_sha256": hashlib.sha256(csv_bytes).hexdigest(),
         }
     )
+    json_bytes = (
+        json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8")
+
+    if args.check:
+        if not args.out_csv.is_file() or not args.out_json.is_file():
+            raise SystemExit("FAIL: committed ledger or summary is missing")
+        csv_ok = args.out_csv.read_bytes() == csv_bytes
+        json_ok = args.out_json.read_bytes() == json_bytes
+        if not csv_ok or not json_ok:
+            print(
+                f"FAIL: ledger check mismatch csv={csv_ok} summary={json_ok}",
+            )
+            return 1
+        print("PASS: full APK source ledger matches committed artifacts")
+        return 0
+
+    args.out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with args.out_csv.open("wb") as handle:
+        handle.write(csv_bytes)
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
-    args.out_json.write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    args.out_json.write_bytes(json_bytes)
     print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
     return 0
 

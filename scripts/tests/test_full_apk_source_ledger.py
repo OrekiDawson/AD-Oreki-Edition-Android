@@ -45,6 +45,26 @@ class FullApkSourceLedgerTest(unittest.TestCase):
         self.assertEqual(15319, len(rows))
         self.assertEqual(15319, len({row["descriptor"] for row in rows}))
 
+    def test_missing_input_fails_closed_by_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing"
+            with self.assertRaises(FileNotFoundError):
+                ledger.load_jadx(missing)
+            with self.assertRaises(FileNotFoundError):
+                ledger.load_jar_descriptors(missing)
+
+    def test_missing_input_can_only_be_opted_in(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing"
+            self.assertEqual(
+                {},
+                ledger.load_jadx(missing, required=False),
+            )
+            self.assertEqual(
+                set(),
+                ledger.load_jar_descriptors(missing, required=False),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

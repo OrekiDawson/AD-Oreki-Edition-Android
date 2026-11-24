@@ -1,8 +1,8 @@
 {
-  "accounting_ok": true,
   "blocked_entries": 347,
   "blocked_in_baseline": 347,
   "blocked_sha256": "798bb1e4e9f04d9319ecd4b6cdd54ad899253dcf21a0ac3b11260f7e5e8dd3ce",
+  "degraded_inputs": [],
   "dex_class_defs": {
     "classes.dex": 10708,
     "classes2.dex": 4611
@@ -12,9 +12,13 @@
     "yes": 10954
   },
   "index_sha256": "65876a18cdfff90cd2d6fdd2d2a8aaec71f3e2e757d9e82c33241a140de5f5d8",
+  "inputs_available": {
+    "game_jar": true,
+    "jadx": true
+  },
   "jadx_unique_descriptors": 13782,
   "jar_unique_descriptors": 15344,
-  "ledger_sha256": "3d6cd2259356b32730ee9de950de69de7a729aac354cef9bf172c31f1d3578d8",
+  "ledger_sha256": "02fce90cc68009189aa38ca25576e95a3eb381012c32afbe0a1665483298f2a0",
   "local_compiled_percent": 10.614,
   "research_or_local_source_available_percent": 90.274,
   "schema_version": 1,
