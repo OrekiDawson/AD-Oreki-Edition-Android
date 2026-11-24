@@ -133,7 +133,10 @@ class UnifiedMigrationTests(unittest.TestCase):
 
     def test_candidate_contract_fast_fails_before_gradle_without_duplicate_test(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        test_command = "python3 -m unittest scripts.tests.test_agp_candidate_wiring -v"
+        test_command = (
+            "python3 -m unittest scripts.tests.test_agp_candidate_wiring "
+            "scripts.tests.test_verify_apk_v3 -v"
+        )
         self.assertIn(test_command, ci)
         # 按模块名而非完整命令计数，阻止不同参数、合写命令或省略 -v 的重复调用。
         self.assertEqual(ci.count("test_agp_candidate_wiring"), 1)
