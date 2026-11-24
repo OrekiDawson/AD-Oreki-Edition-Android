@@ -162,6 +162,12 @@ xu7.class | Lxu7; | R126 batch7 javac/classfile or inherited dependency failure;
 y.class | Ly; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 y48.class | Ly48; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 z37.class | Lz37; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+g06.class | Lg06; | dependency oj5(byte) is ACC_SYNTHETIC and javac cannot reference it
+gq5.class | Lgq5; | depends on blocked fq5.class and synthetic lx3.o(Throwable) classfile member
+j58.class | Lj58; | original DEX omits required JVM zza() implementation inherited from k25
+mb1.class | Lmb1; | dependency x38 implements malformed ws5.class default-method classfile
+mo3.class | Lmo3; | dependencies xy0(byte) and wy0(String,byte) are ACC_SYNTHETIC
+ol3.class | Lol3; | depends on blocked nl3.class and synthetic media3 dependency constructors
 iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
 h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior
 a48.class | La48; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR

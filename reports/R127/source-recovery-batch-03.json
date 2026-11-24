@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "counts": {
+    "java_files": 2615,
+    "warning_free_class": 822,
+    "jar_present": 822,
+    "smali_verified": 811,
+    "already_in_manifest": 801,
+    "existing_source": 0,
+    "reused_existing": 0,
+    "emitted": 10
+  },
+  "verification": {
+    "compileDebugJavaWithJavac": "PASS",
+    "assembleDebug": "PASS",
+    "sourceTakeoverClasses": "PASS: 1680",
+    "sourceTakeoverAbi": "PASS",
+    "sourceTakeoverDex": "PASS",
+    "androidAbi": "PASS: arm64-v8a,x86_64"
+  },
+  "emitted": [
+    {
+      "descriptor": "Lra3;",
+      "entry": "ra3.class",
+      "source": "ra3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ly93;",
+      "entry": "y93.class",
+      "source": "y93.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lnm5;",
+      "entry": "nm5.class",
+      "source": "nm5.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lgk3;",
+      "entry": "gk3.class",
+      "source": "gk3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljr8;",
+      "entry": "jr8.class",
+      "source": "jr8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lnp4;",
+      "entry": "np4.class",
+      "source": "np4.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljr1;",
+      "entry": "jr1.class",
+      "source": "jr1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lql7;",
+      "entry": "ql7.class",
+      "source": "ql7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lzb3;",
+      "entry": "zb3.class",
+      "source": "zb3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lhe7;",
+      "entry": "he7.class",
+      "source": "he7.java",
+      "reused_existing": false
+    }
+  ]
+}
