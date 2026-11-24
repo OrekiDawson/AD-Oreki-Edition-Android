@@ -1,9 +1,14 @@
 package kajfosz.antimatterdimensions.oreki.tutorial
 
 import android.app.Activity
-import android.app.Dialog
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
@@ -12,7 +17,11 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.Button
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.BulletSpan
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -27,12 +36,9 @@ class TutorialActivity : Activity() {
 
     private val surface = Color.rgb(15, 19, 24)
     private val container = Color.rgb(26, 32, 39)
-    private val highContainer = Color.rgb(35, 43, 51)
-    private val outline = Color.rgb(51, 64, 76)
     private val onSurface = Color.rgb(227, 232, 238)
     private val onVariant = Color.rgb(175, 186, 198)
-    private val primary = Color.rgb(0, 120, 215)
-    private val primaryContainer = Color.rgb(0, 73, 110)
+    private val primary = Color.rgb(173, 210, 247)
     private val onPrimaryContainer = Color.rgb(201, 230, 255)
     private val records = ArrayList<Record>()
     private val chapters = ArrayList<Chapter>()
@@ -40,8 +46,6 @@ class TutorialActivity : Activity() {
     private var fontScale = 1
     private lateinit var contentHost: LinearLayout
     private lateinit var contentScroll: ScrollView
-    private lateinit var chapterHost: LinearLayout
-    private lateinit var chapterScroll: HorizontalScrollView
     private lateinit var appBar: LinearLayout
 
     override fun onCreate(state: Bundle?) {
@@ -61,20 +65,21 @@ class TutorialActivity : Activity() {
             }
         }
         addTopBar(root)
-        addFontPicker(root)
-        addChapterPicker(root)
         contentScroll = ScrollView(this).apply { isFillViewport = true }
         contentHost = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(12), dp(16), dp(24))
+            setPadding(dp(24), dp(20), dp(24), dp(24))
         }
-        contentScroll.addView(contentHost, LinearLayout.LayoutParams(-1, -1))
+        contentScroll.addView(contentHost, ScrollView.LayoutParams(-1, -2))
         root.addView(contentScroll, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(root)
         root.requestApplyInsets()
         if (chapters.isNotEmpty()) {
-            buildChapterPicker()
-            showChapter(initialChapter())
+            showChapter(state?.getInt("chapter", initialChapter()) ?: initialChapter())
+            if (state != null) {
+                val scrollY = state.getInt("reader_scroll", 0)
+                contentScroll.post { contentScroll.scrollTo(0, scrollY) }
+            }
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
         root.post {
             applySystemBarAppearance()
@@ -92,11 +97,11 @@ class TutorialActivity : Activity() {
 
     /** 保留教程 Activity 的既有监听 ABI，同时集中处理系统栏安全区。 */
     fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets {
-        val bars = insets.getInsets(WindowInsets.Type.systemBars())
+        val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
         // 顶部交给 Top App Bar，根容器只消费左右与底部安全区。
         view.setPadding(bars.left, 0, bars.right, bars.bottom)
         if (::appBar.isInitialized) {
-            appBar.setPadding(dp(16), dp(10) + bars.top, dp(12), dp(10))
+            appBar.setPadding(dp(4), dp(8) + bars.top, dp(4), dp(8))
         }
         return insets
     }
@@ -123,25 +128,95 @@ class TutorialActivity : Activity() {
         } catch (_: Exception) { records.clear(); chapters.clear() }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("chapter", currentChapter)
+        outState.putInt("reader_scroll", contentScroll.scrollY)
+    }
+
     private fun addTopBar(root: LinearLayout) {
         appBar = LinearLayout(this).apply {
-            gravity = Gravity.CENTER_VERTICAL; setPadding(dp(16), dp(10), dp(12), dp(10)); setBackgroundColor(surface)
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(4), dp(8), dp(4), dp(8))
+            setBackgroundColor(surface)
         }
-        appBar.addView(actionButton("返回", primary) { finish() }, LinearLayout.LayoutParams(dp(48), dp(40)))
+        appBar.addView(iconButton("返回", "back") { finish() }, LinearLayout.LayoutParams(dp(48), dp(48)))
         val title = TextView(this).apply {
             text = "Oreki 教程"; setTextColor(onSurface); textSize = 22f; gravity = Gravity.CENTER_VERTICAL
-            typeface = android.graphics.Typeface.DEFAULT_BOLD; maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
+            maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
         }
-        appBar.addView(title, LinearLayout.LayoutParams(0, dp(40), 1f).apply { setMargins(dp(6), 0, dp(4), 0) })
-        appBar.addView(actionButton("章节", primaryContainer) { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(40)).apply { setMargins(dp(2), 0, dp(2), 0) })
-        appBar.addView(actionButton("设置", highContainer) { openSettings() }, LinearLayout.LayoutParams(dp(48), dp(40)).apply { setMargins(dp(2), 0, 0, 0) })
+        appBar.addView(title, LinearLayout.LayoutParams(0, -2, 1f).apply { setMargins(dp(8), 0, dp(4), 0) })
+        appBar.addView(iconButton("章节目录", "list") { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(48)))
+        appBar.addView(iconButton("阅读设置", "settings") { openReadingSettings() }, LinearLayout.LayoutParams(dp(48), dp(48)))
         root.addView(appBar, LinearLayout.LayoutParams(-1, -2))
     }
 
-    private fun actionButton(label: String, backgroundColor: Int, action: () -> Unit) = TextView(this).apply {
-        text = label; textSize = 12f; gravity = Gravity.CENTER; setTextColor(onSurface)
-        background = ripple(shape(backgroundColor, 18f), primary); setOnClickListener { action() }
-        isFocusable = true; contentDescription = label
+    private fun iconButton(label: String, kind: String, action: () -> Unit) = ImageButton(this).apply {
+        setImageDrawable(ReaderIcon(kind))
+        scaleType = android.widget.ImageView.ScaleType.CENTER
+        background = RippleDrawable(
+            android.content.res.ColorStateList.valueOf(Color.argb(36, 173, 210, 247)),
+            null, shape(Color.WHITE, 24f)
+        )
+        contentDescription = label
+        tooltipText = label
+        isFocusable = true
+        setOnClickListener { action() }
+    }
+
+    // 24dp 单色导航图标；48dp ImageButton 提供真实按钮语义及触摸区域。
+    private inner class ReaderIcon(private val kind: String) : Drawable() {
+        private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = onSurface
+            strokeWidth = 2f
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+            style = Paint.Style.STROKE
+        }
+
+        override fun getIntrinsicWidth() = dp(24)
+        override fun getIntrinsicHeight() = dp(24)
+        override fun draw(canvas: Canvas) {
+            val save = canvas.save()
+            canvas.translate(bounds.left.toFloat(), bounds.top.toFloat())
+            canvas.scale(bounds.width() / 24f, bounds.height() / 24f)
+            when (kind) {
+                "back" -> {
+                    canvas.drawLine(20f, 12f, 4f, 12f, paint)
+                    canvas.drawLine(4f, 12f, 11f, 5f, paint)
+                    canvas.drawLine(4f, 12f, 11f, 19f, paint)
+                }
+                "list" -> {
+                    for (y in listOf(6f, 12f, 18f)) {
+                        canvas.drawCircle(4f, y, .8f, paint)
+                        canvas.drawLine(9f, y, 20f, y, paint)
+                    }
+                }
+                else -> {
+                    canvas.drawLine(4f, 7f, 20f, 7f, paint)
+                    canvas.drawLine(4f, 17f, 20f, 17f, paint)
+                    canvas.drawCircle(9f, 7f, 2.5f, paint)
+                    canvas.drawCircle(15f, 17f, 2.5f, paint)
+                }
+            }
+            canvas.restoreToCount(save)
+        }
+        override fun setAlpha(alpha: Int) { paint.alpha = alpha; invalidateSelf() }
+        override fun setColorFilter(colorFilter: ColorFilter?) { paint.colorFilter = colorFilter; invalidateSelf() }
+        @Suppress("DEPRECATION")
+        override fun getOpacity() = PixelFormat.TRANSLUCENT
+    }
+
+    private fun openReadingSettings() {
+        AlertDialog.Builder(this)
+            .setTitle("阅读设置")
+            .setSingleChoiceItems(arrayOf("小字号", "中字号", "大字号"), fontScale) { dialog, index ->
+                onTabClick(index)
+                dialog.dismiss()
+            }
+            .setNeutralButton("游戏设置") { _, _ -> openSettings() }
+            .setNegativeButton("关闭", null)
+            .show()
     }
 
     private fun openSettings() {
@@ -153,71 +228,30 @@ class TutorialActivity : Activity() {
         }
     }
 
-    private fun addChapterPicker(root: LinearLayout) {
-        val row = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(12), 0, dp(12), dp(8)) }
-        row.addView(TextView(this).apply { text = "章节"; setTextColor(onVariant); textSize = 12f; setPadding(dp(4), 0, 0, dp(4)) }, LinearLayout.LayoutParams(-1, -2))
-        chapterScroll = HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; clipToPadding = false }
-        chapterHost = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        chapterScroll.addView(chapterHost, LinearLayout.LayoutParams(-2, dp(44)))
-        row.addView(chapterScroll, LinearLayout.LayoutParams(-1, dp(44)))
-        root.addView(row, LinearLayout.LayoutParams(-1, -2))
-    }
-
-    private fun addFontPicker(root: LinearLayout) {
-        val row = LinearLayout(this).apply {
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), 0, dp(16), dp(6))
-        }
-        row.addView(TextView(this).apply {
-            text = "字号"; textSize = 12f; setTextColor(onVariant)
-        }, LinearLayout.LayoutParams(0, dp(34), 1f))
-        listOf("小", "中", "大").forEachIndexed { index, label ->
-            row.addView(TextView(this).apply {
-                text = label; textSize = 13f; gravity = Gravity.CENTER; setTextColor(onSurface)
-                background = ripple(shape(if (fontScale == index) primaryContainer else highContainer, 18f), primary)
-                setOnClickListener { onTabClick(index) }
-            }, LinearLayout.LayoutParams(dp(44), dp(34)).apply { setMargins(dp(3), 0, dp(3), 0) })
-        }
-        root.addView(row, LinearLayout.LayoutParams(-1, -2))
-    }
-
-    private fun buildChapterPicker() {
-        chapterHost.removeAllViews()
-        chapters.forEachIndexed { index, chapter ->
-            val button = TextView(this).apply {
-                text = chapter.title.substringBefore('　').ifBlank { chapter.title }.take(8)
-                textSize = 13f; gravity = Gravity.CENTER; maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
-                setPadding(dp(12), 0, dp(12), 0); isFocusable = true
-                background = ripple(shape(if (index == currentChapter) primaryContainer else highContainer, 22f), primary)
-                setOnClickListener { onTabClick(100 + index) }
-            }
-            chapterHost.addView(button, LinearLayout.LayoutParams(dp(92), dp(40)).apply { setMargins(dp(4), dp(2), dp(4), dp(2)) })
-        }
-    }
-
     /** 既有 ABI：0/1/2 是字号，100+N 是章节。 */
     fun onTabClick(action: Int) {
-        if (action < 3) {
+        if (action in 0..2) {
+            val scrollY = contentScroll.scrollY
             fontScale = action
             getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE).edit().putInt("font_scale", fontScale).apply()
-            showChapter(currentChapter)
-        } else if (chapters.isNotEmpty()) showChapter((action - 100).coerceIn(0, chapters.lastIndex))
+            if (chapters.isNotEmpty()) {
+                showChapter(currentChapter)
+                contentScroll.post { contentScroll.scrollTo(0, scrollY) }
+            }
+        } else if (action >= 100 && chapters.isNotEmpty()) showChapter((action - 100).coerceIn(0, chapters.lastIndex))
     }
 
-    /** 既有入口 ABI：章节抽屉改为紧凑选择器，避免小屏横向按钮拥挤。 */
+    /** 既有入口 ABI：完整章节标题、单选状态和系统滚动列表。 */
     fun openChapterDrawer() {
         if (chapters.isEmpty()) return
-        val dialog = Dialog(this)
-        val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(20), dp(20), dp(20), dp(16)); setBackgroundColor(container) }
-        list.addView(TextView(this).apply { text = "选择章节"; textSize = 20f; setTextColor(onSurface); typeface = android.graphics.Typeface.DEFAULT_BOLD }, LinearLayout.LayoutParams(-1, dp(48)))
-        chapters.forEachIndexed { index, chapter ->
-            list.addView(TextView(this).apply {
-                text = "${index + 1}. ${chapter.title}"; textSize = 15f; setTextColor(onSurface); gravity = Gravity.CENTER_VERTICAL; setPadding(dp(12), 0, dp(8), 0)
-                background = ripple(shape(if (index == currentChapter) primaryContainer else highContainer, 14f), primary)
-                setOnClickListener { showChapter(index); dialog.dismiss() }
-            }, LinearLayout.LayoutParams(-1, dp(48)).apply { setMargins(0, dp(3), 0, dp(3)) })
-        }
-        dialog.setContentView(ScrollView(this).apply { addView(list) }); dialog.window?.setBackgroundDrawableResource(android.R.color.transparent); dialog.show()
+        AlertDialog.Builder(this)
+            .setTitle("章节目录")
+            .setSingleChoiceItems(chapters.map { it.title }.toTypedArray(), currentChapter) { dialog, index ->
+                showChapter(index)
+                dialog.dismiss()
+            }
+            .setNegativeButton("关闭", null)
+            .show()
     }
 
     private fun showChapter(index: Int) {
@@ -225,55 +259,93 @@ class TutorialActivity : Activity() {
         currentChapter = index.coerceIn(0, chapters.lastIndex); contentHost.removeAllViews()
         val end = chapters.getOrNull(currentChapter + 1)?.start ?: records.size
         records.subList(chapters[currentChapter].start + 1, end).forEach { render(it) }
-        addText("${currentChapter + 1} / ${chapters.size}", 12f, onVariant, dp(18), false)
-        contentScroll.scrollTo(0, 0); buildChapterPicker()
-        chapterHost.getChildAt(currentChapter)?.let { selected -> selected.post { chapterScroll.smoothScrollTo(selected.left - dp(16), 0) } }; fadeIn(contentHost)
+        addChapterNavigation()
+        contentScroll.scrollTo(0, 0)
+        fadeIn(contentHost)
+    }
+
+    private fun addChapterNavigation() {
+        val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        fun navigationButton(label: String, target: Int) = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
+            text = label
+            setTextColor(if (target in chapters.indices) primary else onVariant)
+            isEnabled = target in chapters.indices
+            isAllCaps = false
+            minHeight = dp(48)
+            setOnClickListener { showChapter(target) }
+        }
+        row.addView(navigationButton("上一章", currentChapter - 1), LinearLayout.LayoutParams(0, -2, 1f))
+        row.addView(TextView(this).apply {
+            text = "${currentChapter + 1} / ${chapters.size}"
+            textSize = 12f; setTextColor(onVariant); gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(-2, -2))
+        row.addView(navigationButton("下一章", currentChapter + 1), LinearLayout.LayoutParams(0, -2, 1f))
+        contentHost.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(16) })
     }
 
     private fun render(record: Record) {
         when (record.tag) {
-            "TITLE" -> addText(record.text, 25f, onSurface, dp(10), true)
-            "SUB" -> addText(record.text, 16f, onPrimaryContainer, dp(14), true)
+            "TITLE" -> addText(record.text, 28f, onSurface, dp(8), false, heading = true)
+            "SUB" -> addText(record.text, 16f, onVariant, dp(24), false)
             // STAGE 是生成链用于阶段定位的内部键（如 early），不向玩家展示。
             "STAGE" -> Unit
             "GOAL", "ENTRY", "DONE", "NEXT", "NUM", "TRAP", "NOTE" -> addBlock(record.text, record.tag)
-            "STEP", "BUY", "AUTO", "CHAL" -> addParagraph("• ${record.text}")
+            "STEP", "BUY", "AUTO", "CHAL" -> addParagraph(record.text, bullet = true)
             "TBL" -> addTableRow(record.text)
         }
     }
 
-    /** 保留生成器写入的「首列：其余」关系，不把列压成无语义的连续正文。 */
+    /** 窄屏按原顺序呈现键值，避免多列挤压导致数字、中文与长条件难读。 */
     private fun addTableRow(text: String) {
         val tableRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL; setPadding(dp(12), dp(10), dp(12), dp(10)); background = shape(container, 12f)
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(12), dp(16), dp(8))
+            background = shape(container, 12f)
         }
-        val columns = text.split("｜")
-        columns.forEachIndexed { index, column ->
+        text.split("｜").forEach { column ->
             val separator = column.indexOf('：')
-            val key = if (separator > 0) column.substring(0, separator) else if (index == 0) column else ""
-            val value = if (separator > 0) column.substring(separator + 1) else if (index > 0) column else ""
-            if (index > 0) tableRow.addView(TextView(this).apply { this.text = "\n" }, LinearLayout.LayoutParams(dp(8), -1))
-            tableRow.addView(TextView(this).apply {
-                this.text = key; textSize = 14f; setTextColor(onPrimaryContainer); typeface = android.graphics.Typeface.DEFAULT_BOLD
-            }, LinearLayout.LayoutParams(0, -2, .38f))
-            tableRow.addView(TextView(this).apply {
-                this.text = value; textSize = 14f; setTextColor(onSurface); setLineSpacing(0f, 1.2f)
-            }, LinearLayout.LayoutParams(0, -2, .62f))
+            if (separator > 0) {
+                addText(column.substring(0, separator), 14f, onPrimaryContainer, dp(4), true, tableRow)
+                addText(column.substring(separator + 1), 16f, onSurface, dp(10), false, tableRow)
+            } else {
+                addText(column, 16f, onSurface, dp(10), false, tableRow)
+            }
         }
-        contentHost.addView(tableRow, LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, dp(8)) })
+        contentHost.addView(tableRow, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(8) })
     }
 
     private fun addBlock(text: String, label: String) {
-        val block = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(14), dp(12), dp(14), dp(12)); background = shape(if (label == "TRAP") Color.rgb(55, 38, 38) else container, 16f) }
-        addText(labelName(label), 12f, if (label == "TRAP") Color.rgb(255, 180, 170) else onPrimaryContainer, 0, true, block)
-        addText(text, 16f, onSurface, dp(8), false, block); contentHost.addView(block, LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, dp(12)) })
+        val warning = label == "TRAP"
+        val block = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            if (warning) {
+                setPadding(dp(16), dp(12), dp(16), dp(12))
+                background = shape(Color.rgb(55, 38, 38), 12f)
+            }
+        }
+        addText(labelName(label), 14f, if (warning) Color.rgb(255, 180, 170) else primary,
+            dp(4), true, block, heading = true)
+        addText(text, 16f, onSurface, 0, false, block)
+        contentHost.addView(block, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(16) })
     }
-    private fun addParagraph(text: String) = addText(text, 16f, onSurface, dp(12), false)
-    private fun addText(text: String, size: Float, color: Int, bottom: Int, bold: Boolean, parent: LinearLayout = contentHost) {
+
+    private fun addParagraph(text: String, bullet: Boolean = false) {
+        val paragraph = if (bullet) SpannableString(text).apply {
+            setSpan(BulletSpan(dp(12), onVariant, dp(2)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        } else text
+        addText(paragraph, 16f, onSurface, dp(12), false)
+    }
+
+    private fun addText(text: CharSequence, size: Float, color: Int, bottom: Int, bold: Boolean,
+                        parent: LinearLayout = contentHost, heading: Boolean = false) {
         parent.addView(TextView(this).apply {
-            this.text = text; setTextColor(color); textSize = size * (if (size >= 15f) 1f + fontScale * .08f else 1f); setLineSpacing(0f, if (size >= 15f) 1.28f else 1.1f)
-            if (bold) typeface = android.graphics.Typeface.DEFAULT_BOLD
-        }, LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, bottom) })
+            this.text = text
+            setTextColor(color)
+            textSize = size * when (fontScale) { 0 -> .875f; 2 -> 1.125f; else -> 1f }
+            setLineSpacing(0f, if (heading) 1.15f else 1.4f)
+            isAccessibilityHeading = heading
+            if (bold) typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+        }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = bottom })
     }
     private fun labelName(tag: String) = when (tag) { "GOAL" -> "目标"; "ENTRY" -> "前置条件"; "DONE" -> "完成标志"; "NEXT" -> "下一步"; "TRAP" -> "注意"; "NUM" -> "关键数值"; "NOTE" -> "说明"; "STAGE" -> ""; else -> "说明" }
 
@@ -287,8 +359,7 @@ class TutorialActivity : Activity() {
         val enabled = try { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
         view.alpha = if (enabled) 0f else 1f; if (enabled) view.animate().alpha(1f).setDuration(180L).start()
     }
-    private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat(); setStroke(dp(1), outline) }
-    private fun ripple(content: GradientDrawable, maskColor: Int) = RippleDrawable(android.content.res.ColorStateList.valueOf(maskColor), content, null)
+    private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat() }
     private fun dp(value: Int) = (value * resources.displayMetrics.density + .5f).toInt()
     private fun dp(value: Float) = (value * resources.displayMetrics.density + .5f).toInt()
 }
