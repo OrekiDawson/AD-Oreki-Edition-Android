@@ -445,6 +445,22 @@ ba8.class | Lba8; | javac compile failure: missing hx7.d and u9.zza remains priv
 gr7.class | Lgr7; | source takeover ABI failure: compiled class is missing a()Lgr7; and clone()Ljava/lang/Object;
 nl6.class | Lnl6; | source takeover ABI failure: compiled class is missing <clinit>()V
 wk4.class | Lwk4; | source takeover ABI failure: compiled class is missing 24 original static-linkage methods
+a10.class | La10; | javac compile failure: kotlin.b unavailable; gm1.a(Throwable) absent
+lz2.class | Llz2; | javac compile failure: kotlin.a unavailable; iz2(int) and al2.m(String) absent
+dk1.class | Ldk1; | javac compile failure: missing z42.v(int,View) override and required constructor
+g2.class | Lg2; | javac compile failure: superclass f2 requires yg0
+k86.class | Lk86; | javac compile failure: cannot find symbol constructor oj5(byte)
+kw.class | Lkw; | javac compile failure: abstract a cannot be instantiated; fields b/c and a.g are absent
+t53.class | Lt53; | javac compile failure: EmptyCoroutineContext.a absent and return type is not ek0
+r93.class | Lr93; | javac compile failure: missing ua3(int,int), r93(int,int,int), and kt0.d()
+ih1.class | Lih1; | javac compile failure: rg0(byte) does not accept NavigationView fixture
+o46.class | Lo46; | javac compile failure: cannot find symbol constructor a46(o46,Application)
+wb9.class | Lwb9; | javac compile failure: missing kl5() and gl5(byte) constructors
+ln7.class | Lln7; | javac compile failure: cannot find symbol constructor ik7(byte,boolean)
+wf3.class | Lwf3; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+zq4.class | Lzq4; | javac compile failure: EmptyList.a and di0.b(int,int,int) absent
+ba3.class | Lba3; | javac compile failure: missing ua3(int,int) and ba3(int,int,int) constructors
+gz1.class | Lgz1; | javac compile failure: superclass fs1 requires Context,Looper,int,o66,ks1,ls1
 a7.class | La7; | javac compile failure: cannot find symbol
 aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
 b7.class | Lb7; | javac compile failure: cannot find symbol
