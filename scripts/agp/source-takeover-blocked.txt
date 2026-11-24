@@ -596,3 +596,27 @@ jl7.class | Ljl7; | source takeover ABI failure: compiled class is missing a()Lc
 r1.class | Lr1; | source takeover ABI failure: compiled class is missing 28 original static-linkage platform methods
 ui6.class | Lui6; | source takeover ABI failure: compiled class omits original static initializer
 yr.class | Lyr; | source takeover ABI failure: compiled class omits MutablePropertyReference1 constructor and field d
+ae7.class | Lae7; | javac compile failure: missing je7(byte) constructor
+ak1.class | Lak1; | javac compile failure: missing kn6.Y(CharSequence) override
+ao7.class | Lao7; | javac compile failure: missing Firebase internal package and n47/xx6 constructors
+bk1.class | Lbk1; | javac compile failure: missing kn6.Y(CharSequence) override
+c99.class | Lc99; | javac compile failure: missing r69(int) constructor
+ee4.class | Lee4; | javac compile failure: missing he4() constructor
+ez7.class | Lez7; | javac compile failure: missing Firebase internal package and dy7/xx6 constructors
+ik0.class | Lik0; | javac compile failure: missing tg(Iterator,byte) constructor
+l40.class | Ll40; | javac compile failure: missing im4() constructor
+pc3.class | Lpc3; | javac compile failure: missing qc3() constructor
+q.class | Lq; | javac compile failure: xd2.k(xd2) and g(b,boolean) unavailable
+qy1.class | Lqy1; | javac compile failure: ws5 version-49 default method and j86 constructor/override unavailable
+ry1.class | Lry1; | javac compile failure: ws5 version-49 default method and j86 constructor/override unavailable
+sj1.class | Lsj1; | javac compile failure: missing kn6.Y(CharSequence) override
+t60.class | Lt60; | javac compile failure: missing c(ag1,ek0,int,BufferOverflow) constructor
+uj1.class | Luj1; | javac compile failure: missing kn6.Y(CharSequence) override
+ur6.class | Lur6; | javac compile failure: missing kh5(ur6,byte) constructor
+y08.class | Ly08; | javac compile failure: missing Firebase internal package and dy7/xx6 constructors
+zj8.class | Lzj8; | javac compile failure: missing xj8() constructor
+ou.class | Lou; | javac compile failure: final field a is not initialized by the default constructor
+fi1.class | Lfi1; | javac compile failure: final field a is not initialized by the default constructor
+f32.class | Lf32; | javac compile failure: final field a is not initialized by the default constructor
+r8.class | Lr8; | source takeover ABI failure: compiled class is missing 27 original API bridge methods
+u51.class | Lu51; | source takeover ABI failure: compiled class is missing 14 original API bridge methods

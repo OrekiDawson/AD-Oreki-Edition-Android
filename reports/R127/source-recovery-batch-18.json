@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-18",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 16,
+  "blocked_count": 24,
+  "newly_blocked_candidates": 24,
+  "previous_source_coverage": 1953,
+  "source_coverage": 1969,
+  "coverage_percent": 12.853,
+  "takeover_entries": 1993,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    "k47.class",
+    "mt.class",
+    "ng0.class",
+    "x70.class",
+    "ov4.class",
+    "e72.class",
+    "oq4.class",
+    "t68.class",
+    "y9.class",
+    "zf.class",
+    "m70.class",
+    "j23.class",
+    "uy6.class",
+    "mf.class",
+    "vi.class",
+    "j0.class"
+  ],
+  "blocked": [
+    "ao7.class",
+    "ry1.class",
+    "y08.class",
+    "ez7.class",
+    "ur6.class",
+    "l40.class",
+    "c99.class",
+    "ik0.class",
+    "zj8.class",
+    "ak1.class",
+    "ae7.class",
+    "bk1.class",
+    "qy1.class",
+    "ee4.class",
+    "t60.class",
+    "pc3.class",
+    "sj1.class",
+    "q.class",
+    "uj1.class",
+    "ou.class",
+    "fi1.class",
+    "f32.class",
+    "r8.class",
+    "u51.class"
+  ],
+  "verification": {
+    "static_tests": "PASS: 25",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidates blocked",
+    "sourceTakeoverAbi": "PASS: 1993",
+    "sourceTakeoverDex": "PASS: 1993",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1969 local compiled, 620 blocked",
+    "debugApk": {
+      "bytes": 83857000,
+      "sha256": "de3177daba3cc700aec54fb7050ff00874c04d0092b608c412a0b7182511cd8b",
+      "applicationId": "net.oreki.antimatterdimensions.debug",
+      "versionCode": 30210002,
+      "versionName": "3.21.0",
+      "minSdkVersionForDexing": 32
+    },
+    "ledger": {
+      "sha256": "add7087792c298715bb9faf51a387e68d354b05e617c58c2f256a5615521e4fc",
+      "blockedSha256": "1022a399f10c07f3f369d5881df59ff9373c85feddb2f052c76d68f0559f112b",
+      "takeoverSha256": "57d43f2039fd3147c3e291d069f7d51fbf94492fa9b0bdc395b17d651547d0ee"
+    }
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-18",
+    "blocked_source_references": "blocked-source-references",
+    "preview_snapshot": "source-recovery-batch-18-preview.json",
+    "blocked_manifest": "source-takeover-blocked.txt",
+    "digests": [
+      "blocked-source-references/SHA256SUMS",
+      "SHA256SUMS"
+    ]
+  },
+  "notes": [
+    "失败候选的 JADX 参考源码已保留，未删除唯一研究与恢复输入。",
+    "本批次仅增加通过编译、ABI 与 DEX 校验的未修改原版类，不新增或修改游戏业务。",
+    "发布冻结继续有效；Debug APK 仅作为本地构建证据，不是 Release、Pre-release 或稳定版候选。"
+  ]
+}
