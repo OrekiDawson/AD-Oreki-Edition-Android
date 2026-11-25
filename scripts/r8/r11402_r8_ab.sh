@@ -61,8 +61,7 @@ abspath() {
   python3 -c 'import os, sys; print(os.path.abspath(sys.argv[1]))' "$1"
 }
 
-# Gradle 的 -P 文件参数按 agp/app 工程目录解析；脚本必须先统一成绝对路径，
-# 否则 --outdir 使用相对路径时，过滤后的 game JAR 会在 Gradle 侧指向不存在的文件。
+# 工程输入通过标准的 build/inputs 相对路径提供；脚本参数只负责准备隔离实验输入。
 JAR="$( [ -n "$JAR" ] && abspath "$JAR" || true )"
 RAW_JAR="$( [ -n "$RAW_JAR" ] && abspath "$RAW_JAR" || true )"
 ANDROID_JAR="$( [ -n "$ANDROID_JAR" ] && abspath "$ANDROID_JAR" || true )"
@@ -90,6 +89,8 @@ if [ -z "${OREKI_KS_PASS:-}" ] && [ -f "$ROOT/keys/密码.txt" ]; then
   OREKI_KS_PASS="$(cat "$ROOT/keys/密码.txt")"
 fi
 export OREKI_KS_PASS
+mkdir -p "$ROOT/build/inputs"
+install -m 0644 "$JAR" "$ROOT/build/inputs/game-final.jar"
 mkdir -p "$OUTDIR"
 DAEMON_LOG="$OUTDIR/daemon-cleanup.log"
 : > "$DAEMON_LOG"
@@ -253,8 +254,14 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
   echo "[r11402-r8] build $name (xmx=$XMX) extra=$*"
   # 清掉上一次 R8 构建残留的 mapping，避免变体之间误用旧产物。
   rm -f "$ROOT/app/build/outputs/mapping/release/mapping.txt"
-  ( cd "$ROOT" && GRADLE_OPTS="${EXTRA_GRADLE_OPTS:-}" bash ./gradlew :app:assembleRelease \
-      -PorekiFullGame=true -PorekiGameJar="$JAR" "$@" --console=plain --no-daemon \
+  local gradle_task=":app:assembleRelease"
+  local output_variant="release"
+  if [ "$name" != "r8off" ]; then
+    gradle_task=":app:assembleR8"
+    output_variant="r8"
+  fi
+  ( cd "$ROOT" && GRADLE_OPTS="${EXTRA_GRADLE_OPTS:-}" bash ./gradlew "$gradle_task" \
+      "$@" --console=plain --no-daemon \
       -Dorg.gradle.jvmargs="$jvmargs" > "$log" 2>&1 )
   rc=$?
   finished="$(date -Iseconds)"
@@ -265,11 +272,11 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
     write_run_json "$name" "$dir" "failed" "$rc" "$started" "$finished"
     return $rc
   fi
-  local apk_out="$ROOT/app/build/outputs/apk/release/app-release.apk"
-  [ -f "$apk_out" ] || apk_out="$ROOT/app/build/outputs/apk/release/app-release-unsigned.apk"
+  local apk_out="$ROOT/app/build/outputs/apk/$output_variant/app-$output_variant.apk"
+  [ -f "$apk_out" ] || apk_out="$ROOT/app/build/outputs/apk/$output_variant/app-$output_variant-unsigned.apk"
   cp "$apk_out" "$dir/app-release.apk" || { write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"; return 1; }
-  if [ -f "$ROOT/app/build/outputs/mapping/release/mapping.txt" ]; then
-    cp "$ROOT/app/build/outputs/mapping/release/mapping.txt" "$dir/mapping.txt"
+  if [ -f "$ROOT/app/build/outputs/mapping/$output_variant/mapping.txt" ]; then
+    cp "$ROOT/app/build/outputs/mapping/$output_variant/mapping.txt" "$dir/mapping.txt"
   fi
   python3 "$ROOT/scripts/agp/r109_apk_metrics.py" "$dir/app-release.apk" --label "$name" \
     --mapping "$dir/mapping.txt" \
@@ -303,14 +310,14 @@ if [ "$VARIANT" = "off" ] || [ "$VARIANT" = "all" ]; then
   EXTRA_GRADLE_OPTS="" run_variant r8off 0 || RC=1
 fi
 if [ "$VARIANT" = "on" ] || [ "$VARIANT" = "all" ]; then
-  EXTRA_GRADLE_OPTS="" run_variant r8on 1 -Poreki.r8=true || RC=1
+  EXTRA_GRADLE_OPTS="" run_variant r8on 1 || RC=1
 fi
 if [ "$VARIANT" = "on-nomerge" ] || [ "$VARIANT" = "all" ]; then
   # R8 9.5.29 system property：关闭水平类合并（含合成 lambda 类合并 / $r8$classId）。
   # 证据：R8 9.5.29 内 com.android.tools.r8.disableHorizontalClassMerging 与
   # HorizontalClassMerger / "Expected horizontally merged lambda class" 诊断字符串。
   EXTRA_GRADLE_OPTS="-Dcom.android.tools.r8.disableHorizontalClassMerging=true" \
-    run_variant r8on-nomerge 1 -Poreki.r8=true || RC=1
+    run_variant r8on-nomerge 1 || RC=1
 fi
 
 # P1：只清理本实验 marker 的 daemon；不清理快照后出现的其它 worktree 进程。

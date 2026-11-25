@@ -30,7 +30,7 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
                 gravity = android.view.Gravity.CENTER
                 val vertical = dpToPx(activity, 12)
                 setPadding(0, vertical, 0, vertical)
-                setOnClickListener(TutorialEntryListener(activity, 0))
+                setOnClickListener { openReader(activity) }
                 tag = "oreki_tutorial_entry"
             }
             val margin = dpToPx(activity, 8)
@@ -52,6 +52,34 @@ class TutorialEntry : Application.ActivityLifecycleCallbacks, Runnable {
             val added = addEntry(activity, host)
             Log.i("OrekiTutorial", host.childCount.toString())
             return added
+        }
+
+        @JvmStatic
+        private fun openReader(activity: Activity) {
+            activateMainGameTab(activity)
+            activity.window.decorView.postDelayed(
+                { TutorialReaderFragment.open(activity) },
+                120L,
+            )
+        }
+
+        /**
+         * 帮助/关于页自身不推进主界面数值；打开阅读层前切回最左侧主维度页，
+         * 让同一 Activity 的游戏节拍继续运行，同时不改动存档或时间戳。
+         */
+        @JvmStatic
+        private fun activateMainGameTab(activity: Activity) {
+            val identifier = activity.resources.getIdentifier(
+                "mainTabLayout",
+                "id",
+                activity.packageName,
+            )
+            if (identifier == 0) return
+            val tabs = activity.findViewById<ViewGroup>(identifier) ?: return
+            // 只访问已知主标签容器；首项已选中时原版会禁用它，因此不会重复触发。
+            val row = tabs.getChildAt(0) as? ViewGroup ?: tabs
+            val firstTab = row.getChildAt(0) ?: return
+            if (firstTab.isEnabled) firstTab.performClick()
         }
 
         @JvmStatic

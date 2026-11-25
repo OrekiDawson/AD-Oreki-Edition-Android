@@ -42,9 +42,13 @@
 | [facts/build.md](facts/build.md) | 457 | 3.21.0 基线冻结、Gradle/JDK/SDK、构建守卫、APK 指纹、AGP 迁移 |
 | [facts/release.md](facts/release.md) | 212 | 签名、四渠道交付、发布源、回滚与版本记录 |
 | [facts/android-internals.md](facts/android-internals.md) | 384 | REA/smali 逆向、混淆名映射、ABI 语义、GUI 门控 |
-| [facts/kotlin-migration.md](facts/kotlin-migration.md) | 355 | Kotlin 业务类转译、ABI 适配层与迁移里程碑 |
+| [facts/kotlin-migration.md](facts/kotlin-migration.md) | 364 | Kotlin 业务类转译、ABI 适配层与迁移里程碑 |
 | [facts/testing-tools.md](facts/testing-tools.md) | 433 | frame-observer、uiautomator、AVD 隔离与取证方法 |
 | [facts/methodology.md](facts/methodology.md) | 676 | 取证纪律、误判案例、极性/断言陷阱、已修复根因 |
+
+### 可复用的工程方法
+
+- **Smali/DEX 源码恢复与生产退役**：[Smali与DEX源码恢复方法论.md](Smali与DEX源码恢复方法论.md)。涵盖冻结输入、JADX/REA 分工、依赖闭包、JAR class 接管、AGP 构建、ABI/运行验收和旧链清理；本页不重复操作步骤。首个源码接管案例事实见 [facts/kotlin-migration.md#f-r126-smali-source-takeover-a5](facts/kotlin-migration.md#f-r126-smali-source-takeover-a5)，当前状态以 Android #52/#25 的最新证据为准。
 
 ### 游戏机制
 

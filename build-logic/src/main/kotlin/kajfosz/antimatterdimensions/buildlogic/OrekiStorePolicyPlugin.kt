@@ -237,7 +237,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             outputs.file(preparedGameJar)
             doLast {
                 val input = config.gameJar
-                    ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                    ?: throw GradleException(
+                        "完整游戏输入缺少 game JAR；请在 local.properties 设置 oreki.gameJar，" +
+                            "或放置到 build/inputs/game-final.jar。",
+                    )
                 val continuationEntries = setOf(
                     "kajfosz/antimatterdimensions/prestige/Eternity\$confirmEternity\$4.class",
                     "kajfosz/antimatterdimensions/prestige/" +
@@ -488,7 +491,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
 
         if (config.fullGame) {
             project.afterEvaluate {
-                for (variant in listOf("Debug", "Release")) {
+                for (variant in listOf("Debug", "Release", "R8")) {
                     val compileName = "compile${variant}JavaWithJavac"
                     val compileTask = project.tasks.findByName(compileName) as? JavaCompile
                         ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
@@ -978,7 +981,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         outputs.file(abiEvidence)
                         doFirstAction {
                             val input = config.gameJar
-                                ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                                ?: throw GradleException(
+                                    "完整游戏输入缺少 game JAR；请在 local.properties 设置 oreki.gameJar，" +
+                                        "或放置到 build/inputs/game-final.jar。",
+                                )
                             val kotlinRoots = kotlinCompileTask.get().outputs.files.files
                                 .filter(File::isDirectory)
                             if (kotlinRoots.isEmpty()) {

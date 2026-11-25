@@ -26,10 +26,13 @@ class AgpCandidateWiringTests(unittest.TestCase):
     def test_workflow_invokes_agp_fullgame_build(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("bash ./gradlew :app:assembleRelease", text)
-        self.assertIn("-PorekiFullGame=true", text)
-        self.assertIn("-PorekiGameJar=", text)
-        self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', text)
-        self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', text)
+        self.assertIn("build/inputs/game-final.jar", text)
+        self.assertIn("build/inputs/base_decoded_321", text)
+        self.assertIn("build/inputs/mdpi_decoded_321", text)
+        self.assertNotIn("-Poreki", text)
+        self.assertNotIn("env:\n          OREKI_GAME_JAR", text)
+        self.assertNotIn("env:\n          OREKI_OFFICIAL_TREE", text)
+        self.assertNotIn("env:\n          OREKI_SPLIT_TREE", text)
         self.assertIn("enableV3Signing", (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8"))
 
     def test_workflow_emits_agp_provenance_and_contract_evidence(self):

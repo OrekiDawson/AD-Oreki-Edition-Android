@@ -32,8 +32,9 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         text = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
         self.assertNotIn("modtree", text)
         self.assertNotIn("work/mod", text)
-        self.assertIn("-PorekiOfficialTree=", text)
-        self.assertIn("-PorekiSplitTree=", text)
+        self.assertIn("build/inputs/base_decoded_321", text)
+        self.assertIn("build/inputs/mdpi_decoded_321", text)
+        self.assertNotIn("-Poreki", text)
         self.assertIn("baseline/current/AndroidManifest.xml", text)
         self.assertIn("assets/work-splits/mdpi_decoded_321/res/values/public.xml", text)
 
@@ -60,7 +61,7 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn("variant.androidResources.aaptAdditionalParameters.addAll", text)
         self.assertIn('"stable-ids-debug.txt"', text)
         self.assertIn('"stable-ids.txt"', text)
-        self.assertIn('?: ".debug".takeIf { fullGame }', text)
+        self.assertIn('applicationIdSuffix = ".debug"', text)
         self.assertIn('outputEvidence["stableIdsDebug"] = "stable-ids-debug.txt"', text)
         self.assertIn("@string/oreki_shortcut_target_package", text)
         self.assertIn(

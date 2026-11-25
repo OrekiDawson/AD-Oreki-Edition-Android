@@ -15,6 +15,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  change-scope:
+    name: 判定纯 AGENTS.md 变更
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rules_only: ${{ steps.classify.outputs.rules_only }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: 使用可信 Git 差异识别纯规则文件
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          # 只有 PR/main push 的非空、完整差异可豁免；手动构建及未知范围均保留原构建门禁。
+          if [[ "$GITHUB_EVENT_NAME" != pull_request && "$GITHUB_EVENT_NAME" != push ]] ||
+             [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ || "$BASE_SHA" =~ ^0+$ ]] ||
+             [[ "$(git rev-parse HEAD)" != "$GITHUB_SHA" || "$BASE_SHA" == "$GITHUB_SHA" ]] ||
+             ! git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"; then
+            echo 'rules_only=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::无法证明是纯规则变更，保留完整 AGP 构建要求。'
+            exit 0
+          fi
+          python3 - <<'PY'
+          import os
+          import subprocess
+
+          # 禁用 rename 检测以同时检查旧、新路径；NUL 分隔避免特殊文件名误判。
+          raw = subprocess.check_output([
+              "git", "diff", "--raw", "-z", "--no-renames", "--no-ext-diff",
+              os.environ["BASE_SHA"], os.environ["GITHUB_SHA"], "--"
+          ])
+          entries = raw[:-1].split(b"\0") if raw.endswith(b"\0") else []
+          rules_only = bool(entries) and len(entries) % 2 == 0
+          for meta, path in zip(entries[::2], entries[1::2]):
+              fields = meta.split()
+              # 仅允许新增/修改普通文本文件；删除、重命名、符号链接、模式变更均不豁免。
+              if (len(fields) != 5 or fields[-1] not in (b"A", b"M")
+                      or fields[1] != b"100644"
+                      or fields[0] != (b":000000" if fields[-1] == b"A" else b":100644")
+                      or path.rsplit(b"/", 1)[-1] != b"AGENTS.md"):
+                  rules_only = False
+                  break
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              print("rules_only=" + str(rules_only).lower(), file=out)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              if rules_only:
+                  print("纯 AGENTS.md 变更：完整 APK/ABI/DEX 构建不适用（SKIPPED），源码规范检查仍须通过。", file=summary)
+              else:
+                  print("非纯规则或未知变更：保留原有完整 AGP 构建门禁。", file=summary)
+          PY
+
   source-policy:
     name: 源码规范与回归检查
     runs-on: ubuntu-latest
@@ -27,7 +79,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v6
       - name: Enforce active repository rule entrypoints
         run: |
@@ -215,27 +267,31 @@ jobs:
           echo "::notice::Real APK build, signature, DEX contract and AVD tests require the protected local baseline and dedicated runner."
 
   source-checks:
-    # Preserve the required check name, and fail closed if EITHER parallel job fails/skips.
+    # Preserve the required check name; proprietary AGP builds are a separate,
+    # explicitly NOT RUN check when their frozen inputs are unavailable.
     name: Source checks (no proprietary APK baseline)
-    needs: [agp-kotlin-dex, source-policy]
+    needs: source-policy
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require successful AGP compilation and source-policy validation
+      - name: 要求源码策略校验成功
         env:
-          AGP_RESULT: ${{ needs.agp-kotlin-dex.result }}
           POLICY_RESULT: ${{ needs.source-policy.result }}
         run: |
           set -euo pipefail
-          if [[ "$AGP_RESULT" != success || "$POLICY_RESULT" != success ]]; then
-            echo "::error::Required CI failed or was skipped: AGP=$AGP_RESULT policy=$POLICY_RESULT"
+          if [[ "$POLICY_RESULT" != success ]]; then
+            echo "::error::Required source-policy CI failed: policy=$POLICY_RESULT"
             exit 1
           fi
-          echo "PASS: both parallel CI checks completed successfully"
+          echo "PASS: public source policy completed successfully"
+          echo "NOT RUN: proprietary AGP full-game APK, ABI and DEX parity are not claimed by this check."
 
   agp-kotlin-dex:
-    name: AGP 9.5.2 Kotlin DEX parity
+    needs: change-scope
+    # 仅已证实的纯规则变更不适用；判定失败、混合改动和手动运行均不豁免。
+    if: ${{ !cancelled() && (needs.change-scope.result != 'success' || needs.change-scope.outputs.rules_only != 'true') }}
+    name: AGP 专有输入构建（缺输入时明确 NOT RUN）
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -243,25 +299,61 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
+      - name: 安装 API 37 与固定版本 Build Tools
+        run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
       - uses: gradle/actions/setup-gradle@v6
+      - name: 检测专有完整游戏输入
+        id: full_game_inputs
+        run: |
+          set -euo pipefail
+          if [[ -f build/inputs/game-final.jar &&
+                -d build/inputs/base_decoded_321 &&
+                -d build/inputs/mdpi_decoded_321 ]]; then
+            echo 'available=true' >> "$GITHUB_OUTPUT"
+            echo 'PASS: pinned full-game inputs are present'
+          else
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            {
+              echo '## AGP 专有输入构建：NOT RUN'
+              echo
+              echo '公共 runner 缺少冻结的 game-final.jar、官方解码树和 mdpi split。'
+              echo '本检查只执行为公开源码可用的自测，不把跳过的完整游戏构建记为 PASS。'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo '::warning::专有完整游戏输入缺失；APK、ABI 与 DEX parity 为 NOT RUN'
+          fi
       - name: Verify store-policy JAR gate self-test
         run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
       - name: Test constructor ASM invariants
         run: bash ./gradlew -p build-logic test --no-daemon --max-workers=1 --console=plain
       - name: Build AGP 9 Kotlin DEX
+        if: steps.full_game_inputs.outputs.available == 'true'
         # R111 CI-6：构建日志落盘，失败时随证据一起上传，避免只能翻折叠的 Actions 日志。
         run: |
           set -euo pipefail
           mkdir -p ci-evidence
           bash ./gradlew :app:assembleDebug :app:copyAgpKotlinClasses --no-daemon --console=plain 2>&1 | tee ci-evidence/agp-kotlin-dex-build.log
       - name: Enforce ABI guard on AGP-compiled classes
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: python3 scripts/build_kotlin.py --verify-abi --classes app/build/agp-kotlin-classes
       - name: Enforce AGP DEX parity with the legacy chain
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
+      - name: Record full-game build as NOT RUN without proprietary inputs
+        if: steps.full_game_inputs.outputs.available != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          printf '%s\n' \
+            'NOT RUN: full-game APK build, ABI guard and DEX parity require the pinned proprietary inputs.' \
+            'Public source-policy checks and build-logic self-tests did run.' \
+            'This public source check does not infer PASS from a skipped APK build.' \
+            | tee ci-evidence/full-game-build-not-run.txt
+          echo '::error::AGP专有输入构建为 NOT RUN；该 check 不得显示为成功'
+          exit 1
       - name: Upload AGP phase-1 evidence
         # R111 CI-6：无论成败都上传已产生的构建日志与 parity 结果；失败时至少保留可诊断线索，
         # 成功后仍要求 parity 证据存在（下一步单独校验，避免用 if-no-files-found: warn 掩盖缺失）。
@@ -275,4 +367,5 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Require AGP parity evidence
+        if: steps.full_game_inputs.outputs.available == 'true'
         run: test -s agp-parity.json || { echo '::error::缺少 agp-parity.json（AGP DEX parity 未产出）'; exit 1; }

@@ -59,6 +59,10 @@ object OrekiEternityRules {
     ): Int =
         if (dilationActive == true ||
             OrekiEcAutomation.shouldExemptEntryEternityGainGate(targetEcId, entryGoalMet)
+            || OrekiEcAutomation.shouldAllowEternityForCompletableEc(
+                inChallenge = GameApi.inAnyChallenge(),
+                canBeCompleted = GameApi.currentEternityChallengeCanBeCompleted(),
+            )
         ) {
             0
         } else {
@@ -70,7 +74,13 @@ object OrekiEternityRules {
     fun eternitySettlementMultiplier(): Int {
         // 入口目标读取失败时保持原 ×1，不在未知状态放宽结算节奏。
         val exemption = OrekiEcAutomation.entryEternityGainGateExempt()
-        return if (exemption || OrekiDilationAutomation.isActiveForEternitySettlement()) {
+        val completableEc = OrekiEcAutomation.shouldAllowEternityForCompletableEc(
+            inChallenge = GameApi.inAnyChallenge(),
+            canBeCompleted = GameApi.currentEternityChallengeCanBeCompleted(),
+        )
+        return if (exemption || completableEc ||
+            OrekiDilationAutomation.isActiveForEternitySettlement()
+        ) {
             0
         } else {
             ETERNITY_SETTLEMENT_MULTIPLIER

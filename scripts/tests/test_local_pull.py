@@ -67,6 +67,23 @@ class PullHelpersTests(unittest.TestCase):
         self.assertEqual(pull.parse_cert_digests(new), ["b" * 64])
         self.assertEqual(pull.parse_cert_digests("no cert here"), [])
 
+    def test_require_cert_digest_accepts_same_signer_across_schemes(self):
+        digest = "a" * 64
+        old = "Signer #1 certificate SHA-256 digest: " + digest.upper()
+        v2 = "V2 Signer: certificate SHA-256 digest: " + digest
+        v3 = "V3.0 Signer: certificate SHA-256 digest: " + digest
+        for output in (old, v3, "\n".join((v2, v3)), "\n".join((old, v3))):
+            self.assertEqual(pull.require_cert_digest(output, digest), digest)
+
+    def test_require_cert_digest_rejects_missing_wrong_or_multiple_signers(self):
+        digest = "a" * 64
+        other = "b" * 64
+        correct = "V3.0 Signer: certificate SHA-256 digest: " + digest
+        wrong = "V2 Signer: certificate SHA-256 digest: " + other
+        for output in ("", "public key SHA-256 digest: " + digest, wrong, correct + "\n" + wrong):
+            with self.assertRaises(pull.PullError):
+                pull.require_cert_digest(output, digest)
+
     def test_atomic_replace_and_checksums(self):
         with tempfile.TemporaryDirectory() as tmp:
             dest = pathlib.Path(tmp)

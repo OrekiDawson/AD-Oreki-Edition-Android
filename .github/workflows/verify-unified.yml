@@ -157,6 +157,11 @@ jobs:
               env.write(f"EXPECTED_VERSION_NAME={name}\nEXPECTED_VERSION_CODE={code}\n")
           print(f"PASS: Approved MOD APK version {name}/{code} on frozen Android 3.21.0 baseline")
           PY
+      - name: Set up verification JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
       - name: Set up Android build tools
         uses: android-actions/setup-android@v4
         with:
@@ -164,11 +169,11 @@ jobs:
       - name: Install tools for independent APK verification
         run: |
           set -euo pipefail
-          tools="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          tools="$ANDROID_SDK_ROOT/build-tools/37.0.0"
           if [[ -x "$tools/apksigner" && -x "$tools/aapt2" ]]; then
-            echo "::notice::Android build-tools 35.0.0 already installed; skipping sdkmanager"
+            echo "::notice::Android build-tools 37.0.0 already installed; skipping sdkmanager"
           else
-            sdkmanager --install 'build-tools;35.0.0' >/dev/null
+            sdkmanager --install 'build-tools;37.0.0' >/dev/null
           fi
           test -x "$tools/apksigner"
           test -x "$tools/aapt2"
@@ -179,11 +184,7 @@ jobs:
           set -euo pipefail
           apk=candidate/antimatter-dimensions.apk
           "$APKSIGNER" verify --verbose --print-certs "$apk" > candidate/signature-verified.txt
-          cert="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' candidate/signature-verified.txt | head -n 1)"
-          [[ "$cert" == "$EXPECTED_CERT_SHA256" ]] || {
-            echo "::error::APK signing certificate mismatch"
-            exit 1
-          }
+          python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' candidate/signature-verified.txt "$EXPECTED_CERT_SHA256"
           "$AAPT2" dump badging "$apk" > candidate/badging.txt
           python3 - <<'PY'
           import os, pathlib, re, sys

@@ -121,7 +121,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: android-actions/setup-android@v4
         with:
           # The runner image no longer provides the obsolete `tools` package;
@@ -130,7 +130,8 @@ jobs:
       - name: Install pinned Android build tools
         run: |
           set -euo pipefail
-          sdkmanager --install 'platform-tools' 'platforms;android-34' 'build-tools;34.0.0' 'build-tools;35.0.0' >/dev/null
+          sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0' >/dev/null
+          test -x "$ANDROID_SDK_ROOT/build-tools/37.0.0/apksigner"
       - uses: gradle/actions/setup-gradle@v6
       - name: Install ripgrep required by patch-contract verification
         run: |
@@ -345,7 +346,7 @@ jobs:
           chmod 600 source/keys/oreki.jks
       - name: Verify pinned AGP full-game inputs
         env:
-          OREKI_GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
+          GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
         run: |
           set -euo pipefail
           bundle="$GITHUB_WORKSPACE/.oreki-private"
@@ -358,45 +359,34 @@ jobs:
             echo '::error::Missing official 3.21 mdpi split public.xml'; exit 1;
           }
           actual="$(sha256sum "$jar" | cut -d' ' -f1)"
-          [[ "$actual" == "$OREKI_GAME_JAR_SHA256" ]] || {
-            echo "::error::game jar SHA mismatch actual=$actual pinned=$OREKI_GAME_JAR_SHA256"; exit 1;
+          [[ "$actual" == "$GAME_JAR_SHA256" ]] || {
+            echo "::error::game jar SHA mismatch actual=$actual pinned=$GAME_JAR_SHA256"; exit 1;
           }
+          mkdir -p "$GITHUB_WORKSPACE/source/build/inputs"
+          install -m 0644 "$jar" "$GITHUB_WORKSPACE/source/build/inputs/game-final.jar"
+          ln -sfn "$(realpath "$tree")" "$GITHUB_WORKSPACE/source/build/inputs/base_decoded_321"
+          ln -sfn "$GITHUB_WORKSPACE/source/work/mdpi_decoded_321" "$GITHUB_WORKSPACE/source/build/inputs/mdpi_decoded_321"
           echo "::notice::AGP native sources verified (jar=$actual; official baseline + mdpi split)"
 
       - name: Generate and verify AGP native full-game inputs
         working-directory: source
-        env:
-          OREKI_GAME_JAR: ${{ github.workspace }}/.oreki-private/gamejar/game-hybrid-sig.jar
-          OREKI_OFFICIAL_TREE: ${{ env.OREKI_BASELINE_DIR }}
-          OREKI_SPLIT_TREE: ${{ github.workspace }}/source/work/mdpi_decoded_321
         run: |
           set -euo pipefail
           # Issue #52/#61：生产输入由 Gradle 从官方 3.21 base、同版 mdpi split 和
           # 受控 overlay 生成，不依赖旧补丁树。
           bash ./gradlew \
             :app:prepareFullGameInputs :app:verifyFullGameInputs \
-            -PorekiFullGame=true \
-            -PorekiGameJar="$OREKI_GAME_JAR" \
-            -PorekiOfficialTree="$OREKI_OFFICIAL_TREE" \
-            -PorekiSplitTree="$OREKI_SPLIT_TREE" \
             --no-daemon --console=plain
 
       - name: Build AGP 9.5.2 full-game release APK
         working-directory: source
         env:
           OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
-          OREKI_GAME_JAR: ${{ github.workspace }}/.oreki-private/gamejar/game-hybrid-sig.jar
-          OREKI_OFFICIAL_TREE: ${{ env.OREKI_BASELINE_DIR }}
-          OREKI_SPLIT_TREE: ${{ github.workspace }}/source/work/mdpi_decoded_321
         run: |
           set -euo pipefail
-          test -s "$OREKI_GAME_JAR"
+          test -s build/inputs/game-final.jar
           # 正式路径：AGP 9.5.2 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
           bash ./gradlew :app:assembleRelease \
-            -PorekiFullGame=true \
-            -PorekiGameJar="$OREKI_GAME_JAR" \
-            -PorekiOfficialTree="$OREKI_OFFICIAL_TREE" \
-            -PorekiSplitTree="$OREKI_SPLIT_TREE" \
             --no-daemon --console=plain
           apk="app/build/outputs/apk/release/app-release.apk"
           test -s "$apk" || { echo '::error::AGP release APK missing'; exit 1; }
@@ -408,8 +398,8 @@ jobs:
         working-directory: source
         run: |
           set -euo pipefail
-          signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
-          test -n "$signer"
+          signer="$ANDROID_SDK_ROOT/build-tools/37.0.0/apksigner"
+          test -x "$signer"
           apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           test -s "$apk"
           "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$apk" > "$GITHUB_WORKSPACE/candidate/signature-probe.txt"
@@ -419,9 +409,7 @@ jobs:
           grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
             echo "::error::APK is missing v3 signature"; exit 1;
           }
-          grep -Fq "$EXPECTED_CERT_SHA256" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
-            echo "::error::AGP signing certificate does not match the existing stable APK"; exit 1;
-          }
+          python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' "$GITHUB_WORKSPACE/candidate/signature-probe.txt" "$EXPECTED_CERT_SHA256"
           echo "::notice::AGP-produced APK independently verified with v2+v3 and production certificate"
 
       - name: Prepare APK tool report for contract verifiers
@@ -457,7 +445,7 @@ jobs:
         env:
           SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
           WEB_REF: ${{ needs.validate.outputs.web_ref }}
-          OREKI_GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
+          GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
           OREKI_BUNDLE_SHA256: ${{ vars.OREKI_BUILD_BUNDLE_SHA256 }}
         run: |
           set -euo pipefail
@@ -474,7 +462,7 @@ jobs:
             --web-ref "$WEB_REF" \
             --candidate-run-id "$GITHUB_RUN_ID" \
             --game-jar "$GITHUB_WORKSPACE/.oreki-private/gamejar/game-hybrid-sig.jar" \
-            --game-jar-sha256 "$OREKI_GAME_JAR_SHA256" \
+            --game-jar-sha256 "$GAME_JAR_SHA256" \
             --bundle-sha256 "$OREKI_BUNDLE_SHA256" \
             --version-name "$version_name" \
             --version-code "$version_code" \
@@ -485,14 +473,11 @@ jobs:
       - name: Verify signed APK, v2+v3 schemes and record cert evidence
         run: |
           set -euo pipefail
-          signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
-          test -n "$signer"
+          signer="$ANDROID_SDK_ROOT/build-tools/37.0.0/apksigner"
+          test -x "$signer"
           cand="$GITHUB_WORKSPACE/candidate"
           "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
-          grep -Fq "$EXPECTED_CERT_SHA256" "$cand/signature.txt" || {
-            echo "::error::Signing certificate does not match the existing stable APK"
-            exit 1
-          }
+          PYTHONPATH="$GITHUB_WORKSPACE/source" python3 -c 'import sys; from pathlib import Path; from scripts.pull_stable_release import require_cert_digest; require_cert_digest(Path(sys.argv[1]).read_text(encoding="utf-8"), sys.argv[2])' "$cand/signature.txt" "$EXPECTED_CERT_SHA256"
           grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$cand/signature.txt" || {
             echo "::error::APK is missing v2 signature"; exit 1;
           }

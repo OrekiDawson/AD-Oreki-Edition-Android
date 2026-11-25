@@ -74,10 +74,11 @@ class ReleaseVersionContractTests(unittest.TestCase):
 
     def test_required_parallel_checks_preserve_branch_protection(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text("utf-8")
-        self.assertIn('needs: [agp-kotlin-dex, source-policy]', ci)
+        self.assertIn('needs: source-policy', ci)
         self.assertIn('name: Source checks (no proprietary APK baseline)', ci)
-        self.assertIn('needs.agp-kotlin-dex.result', ci)
         self.assertIn('needs.source-policy.result', ci)
+        self.assertIn('AGP 专有输入构建（缺输入时明确 NOT RUN）', ci)
+        self.assertIn('AGP专有输入构建为 NOT RUN；该 check 不得显示为成功', ci)
         self.assertIn('if: always()', ci)
 
 
