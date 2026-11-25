@@ -151,7 +151,7 @@ class SpeedSettingsActivity : Activity() {
         assistCard(panel, "解锁 Reality 之前 / 重置后（第 1–13 行）", 1)
         assistCard(panel, "首进 Reality 时（仅成就 147）", 2)
         assistCard(panel, "Doom 之前（第 1–17 行）", 3)
-        note(panel, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 Teresa 入口的开关（MainActivity 直接读 147），第 1–17 行是 Pelle 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。\n\n【这不是「走原版解锁流程」】三张卡片都不校验成就的达成条件：点「强制点亮」就是把这些成就位直接写成已解锁（原版 E(ZZ) 只判「是否已解锁」，随后直接置位，属强制解锁入口），并写入不可清除的永久标记 stage_assist_used —— 一旦写入，该存档不能再用于「真实通关」验收，且无法撤销。想要干净的存档，请不要点这三张卡片。\n\nPelle 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。")
+        note(panel, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 特蕾莎 入口的开关（MainActivity 直接读 147），第 1–17 行是 佩勒 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。\n\n【这不是「走原版解锁流程」】三张卡片都不校验成就的达成条件：点「强制点亮」就是把这些成就位直接写成已解锁（原版 E(ZZ) 只判「是否已解锁」，随后直接置位，属强制解锁入口），并写入不可清除的永久标记 stage_assist_used —— 一旦写入，该存档不能再用于「真实通关」验收，且无法撤销。想要干净的存档，请不要点这三张卡片。\n\n佩勒 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。")
     }
 
     private fun assistCard(parent: LinearLayout, title: String, stage: Int) {
@@ -160,9 +160,9 @@ class SpeedSettingsActivity : Activity() {
             setPadding(dp(12), dp(12), dp(12), dp(12))
         }
         card.addView(label(title, 16f, onSurface, true), lp(8))
-        val summary = label(StageAssist.cardSummary(stage), 14f, onVariant)
+        val summary = label(StageAssist.cardSummary(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒"), 14f, onVariant)
         card.addView(summary, lp(12))
-        val action = button(StageAssist.buttonLabel(stage), false,
+        val action = button(StageAssist.buttonLabel(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒"), false,
             SettingsClickListener(4, null, this, stage)).apply { isEnabled = StageAssist.canWrite() }
         card.addView(action, lp())
         assistCards += Triple(stage, summary, action)
@@ -186,7 +186,7 @@ class SpeedSettingsActivity : Activity() {
         }
         assistStatus.text = "状态：$status\n辅助使用标记：$used"
         assistCards.forEach { (stage, summary, action) ->
-            summary.text = StageAssist.cardSummary(stage)
+            summary.text = StageAssist.cardSummary(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒")
             action.isEnabled = allowed
         }
     }
