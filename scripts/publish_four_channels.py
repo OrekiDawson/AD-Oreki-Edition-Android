@@ -53,6 +53,10 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOCAL_DIR = Path.home() / "Releases" / "AD-Oreki-Edition"
 DEFAULT_APK_NAME = "反物质维度.apk"
+# 滚动替换固定文件名（docs/DELIVERY_RULES.md「滚动替换发布」）：稳定与预发布各一份，
+# 只覆盖同名文件，不创建按版本追加的目录或 APK。
+STABLE_APK_NAME = "AD-Oreki-Edition-Stable.apk"
+PRE_RELEASE_APK_NAME = "AD-Oreki-Edition-PreRelease.apk"
 # 固定交付目录（RELEASE.md R96）：可用 AD_* 环境变量覆盖，默认值即正式位置。
 DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
@@ -459,8 +463,12 @@ def prerelease_release_id(version: str, sha256: str) -> str:
 
 
 def prerelease_directory(base: str, release_id: str) -> str:
-    """把任意稳定交付目录映射到独立 Pre-release 子目录。"""
-    return f"{base.rstrip('/')}/Pre-release/{release_id}"
+    """把任意稳定交付目录映射到固定的预发布子目录（滚动替换，不按 release id 追加）。
+
+    `release_id` 只用于 GitHub Tag 与 `release-info.json` 记录，不进入交付路径；
+    固定路径与 `docs/DELIVERY_RULES.md` 的 `pre-release/AD-Oreki-Edition-PreRelease.apk` 一致。
+    """
+    return f"{base.rstrip('/')}/Pre-release"
 
 
 def validate_prerelease_target(no_promote: bool, github_target: str) -> None:
@@ -682,9 +690,9 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
     """
     if prerelease_id:
-        destination_root = root / "pre-release" / prerelease_id
-        destination = destination_root / DEFAULT_APK_NAME
-        say(f"本地：写入独立预发布目录 {destination}；稳定 latest 不变")
+        destination_root = root / "pre-release"
+        destination = destination_root / PRE_RELEASE_APK_NAME
+        say(f"本地：滚动替换固定预发布文件 {destination}；稳定 latest 不变")
     else:
         destination_root = root
         destination = root / "latest" / DEFAULT_APK_NAME
@@ -698,9 +706,9 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
         raise RuntimeError(f"本地交付后校验失败：{actual} != {apk_info['sha256']}")
     # 同步更新同名 .sha256；稳定路径才刷新根 SHA256SUMS。
     atomic_write(destination.with_name(destination.name + ".sha256"),
-                 f"{actual}  {DEFAULT_APK_NAME}\n")
+                 f"{actual}  {destination.name}\n")
     if prerelease_id:
-        atomic_write(destination_root / "SHA256SUMS", f"{actual}  {DEFAULT_APK_NAME}\n")
+        atomic_write(destination_root / "SHA256SUMS", f"{actual}  {destination.name}\n")
     else:
         write_checksums(root)
     set_channel(state, "local", "success", f"{destination}; sha256={actual}")
@@ -722,7 +730,7 @@ def rclone_onedrive_singlepart_supported() -> bool:
     return result.returncode == 0 and "onedrive-upload-cutoff" in result.stdout
 
 
-def rclone_publish(channel: str, remote: str | None, directory: str | None, apk: Path, apk_info: dict[str, object], dry_run: bool) -> None:
+def rclone_publish(channel: str, remote: str | None, directory: str | None, apk: Path, apk_info: dict[str, object], dry_run: bool, apk_name: str = DEFAULT_APK_NAME) -> None:
     """[R97] 云盘必须上传本次 **--apk 指向的同一份已验证 APK**。
 
     旧实现从本地 `latest/反物质维度.apk` 取源：一旦只跑 `--only onedrive` /
@@ -734,7 +742,7 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, apk:
     source = apk
     if sha256_file(source) != apk_info["sha256"]:
         raise RuntimeError(f"{channel}: 待上传 APK 与已验证摘要不一致，拒绝上传")
-    target = remote_spec(remote, directory, DEFAULT_APK_NAME)
+    target = remote_spec(remote, directory, apk_name)
     command = ["rclone", "copyto", str(source), target, "--retries", "3", "--low-level-retries", "10"]
     if channel == "OneDrive" and rclone_onedrive_singlepart_supported():
         # Work around the 2026-11-12 OneDrive chunked-upload 401 incident by
@@ -1069,7 +1077,8 @@ def graph_onedrive_delete(drive_id: str, remote_path: str, access: str) -> None:
 
 
 def onedrive_graph_fallback(remote: str, directory: str, apk: Path,
-                            apk_info: dict[str, object], probe: bool = False) -> str:
+                            apk_info: dict[str, object], probe: bool = False,
+                            apk_name: str = DEFAULT_APK_NAME) -> str:
     """rclone upload-session 401 fallback: rclone refreshes OAuth, Graph uploads.
 
     rclone owns refresh-token rotation and writes the refreshed token back to the
@@ -1098,7 +1107,7 @@ def onedrive_graph_fallback(remote: str, directory: str, apk: Path,
         return f"graph-simple-upload probe ok ({remote})"
     if sha256_file(apk) != apk_info["sha256"]:
         raise RuntimeError("OneDrive Graph fallback: APK digest differs from verified candidate")
-    remote_path = f"{directory.strip('/')}/{DEFAULT_APK_NAME}"
+    remote_path = f"{directory.strip('/')}/{apk_name}"
     data = graph_onedrive_put(drive_id, remote_path, apk, access)
     return f"graph-simple-upload {remote}:{remote_path} size={data.get('size')}"
 
@@ -1136,7 +1145,7 @@ def main() -> int:
         return archive_only(root, apk, apk_info, args.version, args.only or [])
 
     release_id = prerelease_release_id(args.version, str(apk_info["sha256"]))
-    state_root = root / "pre-release" / release_id if args.no_promote else root
+    state_root = root / "pre-release" if args.no_promote else root
     state = load_or_create_state(state_root, args.version, apk_info, manifest)
     if args.retry_failed:
         selected = [channel for channel in CHANNELS if (state.get("channels", {}).get(channel) or {}).get("status") == "failed"]
@@ -1158,6 +1167,8 @@ def main() -> int:
             say(f"github: 记录发布前 Latest={before}")
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
+    # 预发布使用固定滚动文件名，与 docs/DELIVERY_RULES.md 的路径一一对应。
+    channel_apk_name = PRE_RELEASE_APK_NAME if args.no_promote else DEFAULT_APK_NAME
 
     for channel in selected:
         try:
@@ -1174,13 +1185,13 @@ def main() -> int:
                 if remote_src == "auto":
                     say(f"OneDrive remote 未显式配置，按唯一 onedrive 类型 remote 解析为 {remote}")
                 try:
-                    rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run)
-                    detail = f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}"
+                    rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run, apk_name=channel_apk_name)
+                    detail = f"rclone copyto {remote}:{directory}/{channel_apk_name}"
                 except RuntimeError as exc:
                     if args.dry_run or "401" not in str(exc):
                         raise
                     say("OneDrive: rclone upload-session 401；改用 Graph simple upload 回退（元数据尺寸校验）")
-                    detail = onedrive_graph_fallback(remote, directory, apk, apk_info)
+                    detail = onedrive_graph_fallback(remote, directory, apk, apk_info, apk_name=channel_apk_name)
                 set_channel(state, channel, "success", detail)
             elif channel == "gdrive":
                 remote, remote_src = resolve_remote("AD_GDRIVE_REMOTE", "drive")
@@ -1189,8 +1200,8 @@ def main() -> int:
                     directory = prerelease_directory(directory, release_id)
                 if remote_src == "auto":
                     say(f"Google Drive remote 未显式配置，按唯一 drive 类型 remote 解析为 {remote}")
-                rclone_publish("Google Drive", remote, directory, apk, apk_info, args.dry_run)
-                set_channel(state, channel, "success", f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}")
+                rclone_publish("Google Drive", remote, directory, apk, apk_info, args.dry_run, apk_name=channel_apk_name)
+                set_channel(state, channel, "success", f"rclone copyto {remote}:{directory}/{channel_apk_name}")
             elif channel == "github":
                 notes_file = Path(args.release_notes_file).expanduser().resolve() if args.release_notes_file else None
                 if notes_file and not notes_file.is_file():

@@ -109,14 +109,14 @@ class DeliveryPreflightTests(unittest.TestCase):
             p.local_publish(root, apk, "3.21.0", stats, state, False,
                             prerelease_id=release_id)
 
-            isolated = root / "pre-release" / release_id / p.DEFAULT_APK_NAME
+            isolated = root / "pre-release" / p.PRE_RELEASE_APK_NAME
             self.assertEqual(p.sha256_file(isolated), digest)
             self.assertEqual(stable.read_bytes(), b"stable-must-stay")
             self.assertEqual(stable_sums.read_text(encoding="utf-8"), "stable-must-stay\n")
             self.assertFalse((root / "release-info.json").exists())
             self.assertEqual(
                 p.prerelease_directory("Apps/AD-Oreki-Edition", release_id),
-                f"Apps/AD-Oreki-Edition/Pre-release/{release_id}",
+                f"Apps/AD-Oreki-Edition/Pre-release",
             )
 
     def test_prerelease_requires_exact_build_commit(self):
@@ -154,7 +154,7 @@ class DeliveryPreflightTests(unittest.TestCase):
                   mock.patch.object(p, "rclone_publish", side_effect=rclone_publish)):
                 self.assertEqual(p.main(), 2)
 
-            isolated_state = root / "pre-release" / release_id / "release-info.json"
+            isolated_state = root / "pre-release" / "release-info.json"
             self.assertTrue(isolated_state.is_file())
             self.assertFalse((root / "release-info.json").exists())
             self.assertEqual(

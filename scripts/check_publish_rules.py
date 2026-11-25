@@ -41,7 +41,9 @@ def main() -> int:
     check("单次校验的同一 APK 交付四渠道", "apk_info" in src and "manifest" in src and "不重新构建" in src)
     check("Pre-release 可显式禁止晋升稳定 Latest", "--no-promote" in src and "remote_promotion_allowed" in src)
     check("GitHub Release Tag 可绑定真实源码 Commit", '"--github-target"' in src and '"--target", github_target' in src)
-    check("预发布本地目录不写稳定 latest", 'root / "pre-release" / prerelease_id' in src)
+    check("预发布本地目录不写稳定 latest", 'destination_root = root / "pre-release"' in src)
+    check("预发布使用固定滚动文件名",
+          "PRE_RELEASE_APK_NAME" in src and "/ PRE_RELEASE_APK_NAME" in src)
     check("预发布云盘目录不写稳定根目录", "prerelease_directory(directory, release_id)" in src)
 
     failed = [name for name, ok in checks if not ok]
