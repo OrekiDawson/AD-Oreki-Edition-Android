@@ -7,6 +7,7 @@
 ### 1.1 统一规则来源与继承
 
 - **单一权威来源**：[Workspace 最新 AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 是 ChatGPT/Agent 分工、任务编号与 `/goal`、费用/审查、游戏真实性与五阶段 180 分钟目标、Subagent 调度、GitHub/CI/CD、中文规范及交付的**全项目长期规则**。本仓继承其中适用条款；本仓 `AGENTS.md` 仅补充本平台技术和运行约束，**不得以内容未在本文件逐字重复为由忽略跨仓规则**。
+- **业务优先（长期强制）**：遵循 [Workspace AGENTS.md §1.1](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的 P0 游戏业务优先规则。全量反编译、全 APK 源码化、Smali 退役及非阻断 AGP/R8/旧构建链迁移为 P1；普通目录和工具链治理为 P2。仅直接阻断 P0 业务、构建、真实验收或安全交付的最小工程闭包临时升 P0。保留 Kotlin-only、源码化长期终局和全部安全、签名、存档、发布门禁，不以源码覆盖率冒充游戏进度。本条覆盖旧轮次相反优先级和一次性迁移时限，不授权接管其他仓库或本机任务。
 - **先读取再执行**：启动、恢复、跨仓交接和关键合并/部署前，按照 Workspace 生效规则核验最新 `origin/main:AGENTS.md`（云端用 GitHub API 可替代只读刷新）、本仓规则、事实、任务书、实际 PR/CI 与运行证据；遵守已有 60 分钟常规刷新和关键动作前的短间隔刷新。读取失败或未证实最新版本时记录 `STALE/BLOCKED`，不能声称已同步。本仓更细的合法技术约束继续有效；**用户最新授权与安全/预算硬限制优先，其他冲突以 Workspace 跨仓规则为准**，发现不可兼容之处只作最小修复并报告，不静默放宽门禁。
 - **运行方式**：当前已启动轮次仅续做，不重新发 `/goal` 或改编号；Agent 输出、人工注释/文档和有意义的 Commit 使用简体中文、LF；按风险做最小必要真实验证，结果如实为 `PASS / FAIL / BLOCKED / NOT RUN`；保护未提交文件、唯一构建/测试证据及 Git worktree，避免重复工具安装和无限临时工作树。不得把文档/CI/规则 PASS 冒充真实游戏、上线或正式发布 PASS。
 - **本机资源保护与生命周期（长期强制）**：遵守 [Workspace AGENTS.md §2.1、§5.1、§5.3](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 与 [Git 工作树生命周期规范](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/项目管理/Git工作树生命周期规范.md)。本机开发启动前核实实际 CPU/RAM/Swap/I/O/磁盘余量、cgroup 预算与唯一重型任务许可；重型构建、反编译、AVD、浏览器长跑、Timeshift 创建/清理不得重叠，保护桌面、网络与远程救援，压力异常先暂停新增负载，不自动重试失控任务。当前轮次若有资源硬门禁，须以真实验收及用户授权解除，不能以重启或文档合并代替。Subagent/Owner 任务完成、取消或替代后先保存独有成果、WIP 与证据，再实际回收安全的工作树与无引用临时生成物；Lead 交接/收尾核对主检出及全部 worktree、实际释放空间。禁止强制 remove/reset/clean、跨 Owner 删除、清空在用缓存或从 Windows 第三方 ext4 驱动批量清理；正式资产与有效回滚点只读保护。具体阈值由 Workspace 与当前任务书管理，不在本仓另设独立预算。本仓 Gradle/Kotlin JVM、D8/R8、JADX/REA、AVD 与全量转换必须纳入实际生效的全局资源预算；保留冻结原版、真实源码恢复缓存、签名与 APK/idsig 配对及正式渠道，临时产物按真实引用与 SHA-256 安全去重。全 APK 恢复由唯一 Lead 执行，不让 Subagent 重复反编译。
@@ -25,7 +26,7 @@
 - **实时授权优先**：用户明确授权的范围直接执行；未授权的付费调用、全量开发、自动发布和无人值守任务不得擅自启动。最新明确暂停优先于更早的恢复；当前 Goal/编号、PR、Kody 开关、测试状态以最新用户指令、实际平台配置及任务记录为准，不在本长期规则中永久冻结某一轮状态。历史 AGENTS 快照只供追溯。
 - **付费门禁**：累计预算达 80% 及时报告，达 100% 或下一批调用可能超额时停止新增收费任务；DeepSeek 实际可用余额低于 ¥10 时暂停全部任务并关闭 Subagent。余额、凭据或预算未知时不擅自付费，不创建密钥、不充值、不更换 Provider 绕限。本地 Codex 的峰谷执行窗口按下文用户最新授权执行；模型实际费率、节假日调休和收费权限仍须实时核验，不能把时段规则当作平台硬限流。
 - **事实与验收**：未运行为 `NOT RUN`，失败为 `FAIL`，受阻为 `BLOCKED`，只有真实证据才能写 `PASS`。单测、CI、构建、安装、真实运行、发布及线上验证分开标识，不伪造结果或把旧候选结果移植到新提交。
-- **风险分级**：P0 为崩溃、无法启动、非法阶段解锁、存档损坏、核心失效及伪造；P1 为五阶段 `PACING FAIL`、终局瓶颈、自动化失效、明显 GUI 延迟和重要跨端差异；P2 为非阻断体验和一般工具链整理（不含项目交付规则已明确提升为一级架构主线的 AGP、目录标准化、旧构建脚本退役等工作）。先用 AVD/Playwright 真实复现，再根因修复与最小必要验证。
+- **风险分级**：P0 为真实游戏核心失效（包括核心自动化失效、进度死锁、非法解锁、严重节奏/终局阻断、核心跨端行为不一致）、崩溃、无法启动、存档损坏、伪造及直接阻断这些目标的必要工程问题；P1 为其他显著玩法/GUI/节奏差异及非阻断源码化、AGP/R8/旧链迁移；P2 为非阻断体验优化与普通目录/工具链整理。以 Workspace §1.1 为权威，优先真实复现和最小必要修复。
 
 ### 1.4 任务编号与 Goal
 
@@ -70,7 +71,7 @@
 
 ### 2.2 标准工程与旧构建链退役
 
-- **明确等级**：用户将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P0 架构任务**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。P0 架构不表示已经发现游戏崩溃；用户暂停、预算/安全、真实玩家致命 P0/P1 仍优先。
+- **明确等级**：将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P1 工程迁移任务（普通目录整理 P2）**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。游戏 P0 优先；仅直接阻断闭包临时升 P0。
 - **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
 - **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
 - **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改的游戏业务只能 Kotlin；原版 Smali/DEX 允许经验证暂时恢复为未扩展业务的 Java 过渡实现，实质修改旧 Java 业务前须先迁 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
@@ -80,13 +81,13 @@
 
 > 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
 
-### 2.3 P0 全量 Smali/DEX 源码接管
+### 2.3 P1 全量 Smali/DEX 源码接管
 
-- **最新用户授权覆盖旧试点节奏**：R126 目标为本次夜间执行窗口**一次性完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin**、切断 Smali 生产补丁/手工 DEX 注入、彻底退役 `scripts/build_mod.py` 与旧 APK 二次拼装。不再把“先做一个小闭包、未来多轮慢慢推进”当作任务终点；内部最小闭包增量编译/提交仍用于安全集成。此目标未完成前不得写 PASS。
+- **长期源码化目标（P1）**：逐步完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin，切断 Smali 生产补丁/手工 DEX 注入、退役 `scripts/build_mod.py` 与旧 APK 二次拼装。优先复用已有分析成果，按业务需求及最小自洽依赖闭包增量集成；非阻断部分不挤占 P0 游戏业务，不再要求单个历史执行窗口一次性完成。终局未满足原有完成门禁前不得写 PASS。
 - **生产改动规则**：JADX 对受保护原版 XAPK/APK/DEX 一次全量反编译，仅输出研究性 Java 参考；REA/JADX/xref 辅助修复混淆、重载、反射、控制流与 ABI。原版**未实质修改**代码允许暂存 `app/src/main/java`；新增、修复或实质改动业务先迁 `app/src/main/kotlin`。同一 descriptor 仅一个生产实现，不允许把未修复的全量反编译目录直接塞进 Source Set，也不允许用空方法、伪逻辑或跳过功能冒充恢复。
-- **迁移即清理**：Lead 核查现有 R126 worktree/Owner/PR，Subagent 分离依赖闭包并行恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
+- **迁移即清理**：Lead 核查现有 worktree/Owner/PR，按现行单一 Lead 规则增量恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
 - **唯一完成门禁**：`PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0`、`MANUAL_DEX_INJECTION_PATHS=0`、`BUILDMOD_PRODUCTION_DEPENDENCIES=0`、`LEGACY_APK_REPACK_PATHS=0`，且 `AGP_FULL_GAME_BUILD`、`GAME_STARTUP_AND_TICK`、`SAVE_COMPATIBILITY`、`REQUIRED_RUNTIME_CHECKS` 真实 PASS。保留资源/ABI、API37、签名、正式包名、Kody/CI/规则集与合法挑战结算；正式 Release 本轮最多一次。失败保留真实 descriptor/调用方/日志，写 BLOCKED/FAIL，不以删除文件制造假零残留。
-- **优先级边界**：与根级 AGP、构建链退役并列最高架构 P0；真实玩家 P0、ANR、存档损坏、安全/预算可以即时抢占。完成 Smali 生产依赖清零后集中性能优化。沿用 R126，不新 `/goal`、编号或计时。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
+- **优先级边界**：全量源码恢复、根级 AGP、旧构建链退役默认 P1，以业务需求驱动，直接阻断 P0 时仅最小闭包临时升级；性能缺陷可直接按玩家影响定向修复，无需等待全量 Smali 清零。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
 
 #### 2.3.1 遗留 Java 与 Kotlin 业务边界
 
@@ -104,12 +105,12 @@
 
 - **全 APK 源码转换 Lead 独占、禁止并行 Subagent（2026-11-24 用户最新决定）**：原版 15,319 个 DEX 类的批量反编译/恢复 Java、Kotlin 迁移、descriptor 映射、依赖闭包恢复、ABI/构造器/字节码语义修复以及相关源码接管决策，均由**单一 Lead** 顺序执行和统一保存上下文、日志、清单及工作树。**不得将此类转换工作拆分给多个 Subagent、不得为同一 APK 多路并发调用付费模型、不得并行重复 JADX/REA 扫描、完整编译、R8 或 AVD 测试**。优先一次全量索引、脚本批处理、按根因分组、缓存复用、短程定向测试；先用确定性工具处理简单类，只把疑难闭包交给 Lead 的模型推理。Lead 每次提交按 `新增源码覆盖类数 / 受阻类数 / 当前 15,319 分母占比 / Token 与实际费用 / ABI 与运行验收` 汇报。此规则只限制**源码转换专项**，其他独立且已授权的 Web/Wiki/发布/文档任务按有效预算及 Owner 规则执行；余额 <¥10 或未知仍全员付费任务停工。已有 Subagent 转换任务必须先安全交接已产出证据、保留未提交内容并退出，不强杀、不丢进度。
 
-### 2.4 P0 64 位 ABI 与测试设备
+### 2.4 P1 64 位 ABI 与测试设备
 
 - **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
 - **测试设备默认**：日常开发和大多数定向回归使用用户 **x86_64 Linux 电脑上的唯一 Android AVD**（目前目标 API 37），由 AVD Owner 独占；不要求每个普通 PR 都占用用户手机。用户 **Android 真机**（历史设备 Xiaomi 23113RKC6C / Android 16，以实时 ADB 验证为准）仅在可用且用户授权时**偶尔**进行 ARM64 安装、冷启动、原生库/性能、存档与设备差异抽样测试；不默认当成长期 CI 或自动调用设备。
 - **退役任务特殊验收**：需核查原版/生产 `.so` ABI 及必要 64 位替代、`adb shell getprop ro.product.cpu.abilist`，生产 APK 只含两种允许 ABI 的 JNI、无 32 位原生库，x86_64 AVD 安装/启动/Tick/存档 PASS。ARM64 真机证据必须单列 PASS/FAIL/NOT RUN；没测试不得冒充已验证，真机暂不可用不能阻断其他独立工作。Release/签名/Kody/CI/合法结算/存档门禁仍有效。
-- **与全量 Smali 迁移并列 P0**：同属当前 R126 的架构目标，资源和 Owner 避让，不重复全仓审计、不创建新 `/goal` 或 R 号；用户数据、真实玩家 P0、安全/预算优先。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
+- **优先级与协作**：ABI 支持矩阵及验收要求保持不变；非阻断迁移为 P1，直接阻断玩家安全、核心业务或必要交付的最小范围按实际风险升级，避免与源码恢复争用资源。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
 
 ### 2.5 P0 应用包名与数据迁移
 
