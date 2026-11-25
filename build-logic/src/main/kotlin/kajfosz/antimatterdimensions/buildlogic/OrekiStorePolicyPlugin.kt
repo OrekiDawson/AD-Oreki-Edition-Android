@@ -56,6 +56,13 @@ private data class StorePolicyVerifyResult(
     val outputSha256: String,
 )
 
+private fun hasTakeoverSource(entry: String, sourceRoots: List<File>): Boolean {
+    val relative = entry.removeSuffix(".class")
+    return sourceRoots.any { root ->
+        File(root, "$relative.java").isFile || File(root, "$relative.kt").isFile
+    }
+}
+
 private fun ByteArray.hasBytes(needle: ByteArray): Boolean {
     if (needle.isEmpty()) return true
     if (needle.size > size) return false
@@ -74,6 +81,7 @@ private fun verifyArtifacts(
     reportFile: File,
     sourceTakeoverEntries: Set<String>,
     evidenceFile: File? = null,
+    sourceRoots: List<File> = emptyList(),
 ): StorePolicyVerifyResult {
     if (!inputJar.isFile) throw GradleException("[oreki] store-policy 输入 JAR 不存在: $inputJar")
     if (!outputJar.isFile) throw GradleException("[oreki] store-policy 输出 JAR 不存在: $outputJar")
@@ -124,6 +132,7 @@ private fun verifyArtifacts(
         }
     }
 
+    var sourceOnlyMissing: Set<String> = emptySet()
     ZipFile(inputJar).use { before ->
         ZipFile(outputJar).use { after ->
             val beforeEntries = before.entries().asSequence()
@@ -131,9 +140,17 @@ private fun verifyArtifacts(
             val afterEntries = after.entries().asSequence()
                 .filterNot { it.isDirectory }.map { it.name }.toSet()
             val missingTakeovers = sourceTakeoverEntries - beforeEntries
-            if (missingTakeovers.isNotEmpty()) {
-                throw GradleException("[oreki] 输入 JAR 缺少待源码接管条目: $missingTakeovers")
+            val invalidMissing = missingTakeovers.filterNot {
+                hasTakeoverSource(it, sourceRoots)
             }
+            if (invalidMissing.isNotEmpty()) {
+                throw GradleException(
+                    "[oreki] 输入 JAR 缺少待源码接管条目且无对应源码文件: $invalidMissing",
+                )
+            }
+            sourceOnlyMissing = missingTakeovers.filter {
+                hasTakeoverSource(it, sourceRoots)
+            }.toSet()
             val retainedTakeovers = sourceTakeoverEntries intersect afterEntries
             if (retainedTakeovers.isNotEmpty()) {
                 throw GradleException("[oreki] 输出 JAR 仍含源码接管条目: $retainedTakeovers")
@@ -190,6 +207,7 @@ private fun verifyArtifacts(
             "required_targets" to requiredTargets.sorted(),
             "target_entries" to targetEntries.sorted(),
             "source_takeover_entries" to sourceTakeoverEntries.sorted(),
+            "source_only_entries" to sourceOnlyMissing.sorted(),
             "non_target_entries_byte_identical" to true,
             "save_compatibility" to true,
         )
@@ -390,6 +408,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     config.storePolicyReport,
                     config.sourceTakeoverEntries.toSet(),
                     config.storePolicyVerifyReport,
+                    listOf(
+                        File(config.rootDir, "app/src/main/java"),
+                        File(config.rootDir, "app/src/main/kotlin"),
+                    ),
                 )
                 logger.lifecycle(
                     "[oreki] store-policy 独立校验通过: output=${result.outputSha256} " +
@@ -459,8 +481,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     setOf("takeover.class"),
                 )
                 val badReport = File(dir, "bad-report.json")
-                report["output_jar_sha256"] = "0".repeat(64)
-                badReport.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(report)), Charsets.UTF_8)
+                val badReportMap = linkedMapOf<String, Any>()
+                badReportMap.putAll(report)
+                badReportMap["output_jar_sha256"] = "0".repeat(64)
+                badReport.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(badReportMap)), Charsets.UTF_8)
                 val failed = try {
                     verifyArtifacts(
                         inputJar,
@@ -473,11 +497,55 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     true
                 }
                 if (!failed) throw GradleException("[oreki] store-policy 自测篡改未 fail-closed")
+                // 源码独占条目：不在输入 JAR 但存在对应源码文件时应当放行。
+                val sourceRoot = File(dir, "sources")
+                sourceRoot.mkdirs()
+                File(sourceRoot, "absent-owned.java").writeText(
+                    "class absent-owned {}",
+                    Charsets.UTF_8,
+                )
+                report["source_takeover_entries"] = listOf("absent-owned.class", "takeover.class")
+                val reportSourceOnly = File(dir, "report-source-only.json")
+                reportSourceOnly.writeText(
+                    JsonOutput.prettyPrint(JsonOutput.toJson(report)),
+                    Charsets.UTF_8,
+                )
+                verifyArtifacts(
+                    inputJar,
+                    outputJar,
+                    reportSourceOnly,
+                    setOf("absent-owned.class", "takeover.class"),
+                    sourceRoots = listOf(sourceRoot),
+                )
+                // 既不在输入 JAR、又没有源码文件的条目必须 fail-closed。
+                report["source_takeover_entries"] = listOf("ghost.class", "takeover.class")
+                val reportGhost = File(dir, "report-ghost.json")
+                reportGhost.writeText(
+                    JsonOutput.prettyPrint(JsonOutput.toJson(report)),
+                    Charsets.UTF_8,
+                )
+                val ghostFailed = try {
+                    verifyArtifacts(
+                        inputJar,
+                        outputJar,
+                        reportGhost,
+                        setOf("ghost.class", "takeover.class"),
+                        sourceRoots = listOf(sourceRoot),
+                    )
+                    false
+                } catch (_: GradleException) {
+                    true
+                }
+                if (!ghostFailed) {
+                    throw GradleException("[oreki] 无源码接管条目未 fail-closed")
+                }
                 File(dir, "result.json").writeText(
                     JsonOutput.prettyPrint(JsonOutput.toJson(linkedMapOf(
                         "schema" to 1,
                         "positivePass" to true,
                         "hashMismatchFailClosed" to true,
+                        "sourceOnlyAllowed" to true,
+                        "noSourceFailClosed" to true,
                     ))),
                     Charsets.UTF_8,
                 )

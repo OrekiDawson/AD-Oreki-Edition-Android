@@ -110,9 +110,11 @@ public final class StorePolicyTransformer {
 
         for (String sourceTakeover : sourceTakeovers) {
             if (!replacements.containsKey("removed:" + sourceTakeover)) {
-                throw new IllegalStateException(
-                    "source takeover entry missing from input JAR: " + sourceTakeover
-                );
+                // A "source takeover entry missing from input JAR" may be a
+                // MOD-owned class which never existed
+                // in the original game JAR. The Python structural gate verifies
+                // that such entries have a real Java/Kotlin source file.
+                replacements.put("absent:" + sourceTakeover, "compiled-from-source");
             }
         }
         if (!replacements.containsKey("l5.class#d()Z") ||

@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-15",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 24,
+  "blocked_count": 17,
+  "newly_blocked_candidates": 16,
+  "preexisting_removed": [
+    "vc7.class"
+  ],
+  "previous_source_coverage": 1892,
+  "source_coverage": 1915,
+  "coverage_percent": 12.501,
+  "takeover_entries": 1939,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "un5.class",
+      "descriptor": "Lun5;",
+      "source": "un5.java"
+    },
+    {
+      "entry": "v51.class",
+      "descriptor": "Lv51;",
+      "source": "v51.java"
+    },
+    {
+      "entry": "zo2.class",
+      "descriptor": "Lzo2;",
+      "source": "zo2.java"
+    },
+    {
+      "entry": "zx3.class",
+      "descriptor": "Lzx3;",
+      "source": "zx3.java"
+    },
+    {
+      "entry": "b08.class",
+      "descriptor": "Lb08;",
+      "source": "b08.java"
+    },
+    {
+      "entry": "da2.class",
+      "descriptor": "Lda2;",
+      "source": "da2.java"
+    },
+    {
+      "entry": "uf6.class",
+      "descriptor": "Luf6;",
+      "source": "uf6.java"
+    },
+    {
+      "entry": "ve2.class",
+      "descriptor": "Lve2;",
+      "source": "ve2.java"
+    },
+    {
+      "entry": "xv2.class",
+      "descriptor": "Lxv2;",
+      "source": "xv2.java"
+    },
+    {
+      "entry": "bq7.class",
+      "descriptor": "Lbq7;",
+      "source": "bq7.java"
+    },
+    {
+      "entry": "za3.class",
+      "descriptor": "Lza3;",
+      "source": "za3.java"
+    },
+    {
+      "entry": "w95.class",
+      "descriptor": "Lw95;",
+      "source": "w95.java"
+    },
+    {
+      "entry": "oy0.class",
+      "descriptor": "Loy0;",
+      "source": "oy0.java"
+    },
+    {
+      "entry": "cr7.class",
+      "descriptor": "Lcr7;",
+      "source": "cr7.java"
+    },
+    {
+      "entry": "ww6.class",
+      "descriptor": "Lww6;",
+      "source": "ww6.java"
+    },
+    {
+      "entry": "i63.class",
+      "descriptor": "Li63;",
+      "source": "i63.java"
+    },
+    {
+      "entry": "wf6.class",
+      "descriptor": "Lwf6;",
+      "source": "wf6.java"
+    },
+    {
+      "entry": "zw4.class",
+      "descriptor": "Lzw4;",
+      "source": "zw4.java"
+    },
+    {
+      "entry": "hb3.class",
+      "descriptor": "Lhb3;",
+      "source": "hb3.java"
+    },
+    {
+      "entry": "p68.class",
+      "descriptor": "Lp68;",
+      "source": "p68.java"
+    },
+    {
+      "entry": "p71.class",
+      "descriptor": "Lp71;",
+      "source": "p71.java"
+    },
+    {
+      "entry": "ro5.class",
+      "descriptor": "Lro5;",
+      "source": "ro5.java"
+    },
+    {
+      "entry": "oy7.class",
+      "descriptor": "Loy7;",
+      "source": "oy7.java"
+    },
+    {
+      "entry": "yg2.class",
+      "descriptor": "Lyg2;",
+      "source": "yg2.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "ol5.class",
+      "descriptor": "Lol5;",
+      "reason": "javac compile failure: missing Firebase internal package and w16/c0 ABI"
+    },
+    {
+      "entry": "ll7.class",
+      "descriptor": "Lll7;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "ra9.class",
+      "descriptor": "Lra9;",
+      "reason": "javac compile failure: unavailable superclass and constructor"
+    },
+    {
+      "entry": "vc7.class",
+      "descriptor": "Lvc7;",
+      "reason": "pre-existing takeover candidate removed: referenced dependency unavailable; dependent kc7 also blocked"
+    },
+    {
+      "entry": "vn7.class",
+      "descriptor": "Lvn7;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "cq0.class",
+      "descriptor": "Lcq0;",
+      "reason": "javac compile failure: missing iq0.B(BigDouble,Object) override"
+    },
+    {
+      "entry": "dl7.class",
+      "descriptor": "Ldl7;",
+      "reason": "javac compile failure: superclass cl7 requires unavailable constructor"
+    },
+    {
+      "entry": "k4.class",
+      "descriptor": "Lk4;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "ja2.class",
+      "descriptor": "Lja2;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "lx6.class",
+      "descriptor": "Llx6;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "dv8.class",
+      "descriptor": "Ldv8;",
+      "reason": "javac compile failure: hs1/vw7 constructors and referenced symbol unavailable"
+    },
+    {
+      "entry": "z86.class",
+      "descriptor": "Lz86;",
+      "reason": "javac compile failure: referenced symbol unavailable"
+    },
+    {
+      "entry": "w17.class",
+      "descriptor": "Lw17;",
+      "reason": "javac compile failure: PathClassLoader requires a non-default constructor"
+    },
+    {
+      "entry": "c47.class",
+      "descriptor": "Lc47;",
+      "reason": "javac compile failure: missing fr5.z1(int), n06/bl6 typed constructors, and vf5.U"
+    },
+    {
+      "entry": "uw.class",
+      "descriptor": "Luw;",
+      "reason": "javac compile failure: bt0() constructor absent"
+    },
+    {
+      "entry": "c01.class",
+      "descriptor": "Lc01;",
+      "reason": "javac compile failure: missing z40(int) and zz0(int) constructors"
+    },
+    {
+      "entry": "kc7.class",
+      "descriptor": "Lkc7;",
+      "reason": "javac compile failure: interface depends on blocked vc7 descriptor"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 56",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after dependency closure cleanup",
+    "sourceTakeoverAbi": "PASS: 1939",
+    "sourceTakeoverDex": "PASS: 1939",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1915 local compiled, 554 blocked",
+    "d8_stack_map_warnings": 5
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-15",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

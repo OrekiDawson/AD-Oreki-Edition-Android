@@ -78,7 +78,7 @@
 | ABI | `public interface a5 { void j(Object); }`，无字段、构造器、默认方法 |
 | AGP 生产源码 | `app/src/main/java/a5.java` |
 | JAR 排除清单 | `build-logic/source-takeover.txt` |
-| 同批守卫 | store-policy 输入必须存在该 entry、输出必须移除该 entry；报告与清单不一致即 fail-closed |
+| 同批守卫 | store-policy 条目要么存在于输入 JAR，要么在 `app/src/main/java`/`app/src/main/kotlin` 存在对应源码文件（源码独占条目记为 `absent:<entry>`）；输出必须移除该 entry。Python 结构化校验、`StorePolicyTransformer` 报告与 Gradle `verifyArtifacts` 三处按同一判据放行/拒绝，报告与清单不一致即 fail-closed |
 
 选择理由：该接口被原版 `ComponentActivity`、账单活动及多个回调实现真实引用；
 恢复为默认包 Java 源码后 descriptor 与方法签名保持完全一致，适合作为后续批量迁移

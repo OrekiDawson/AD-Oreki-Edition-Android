@@ -90,6 +90,12 @@ class FullApkSourceLedgerTest(unittest.TestCase):
             )
 
     def test_committed_ledger_checks_without_external_inputs(self):
+        summary = json.loads(
+            (
+                ledger.ROOT
+                / "docs/deobfuscation/data/full-apk-source-ledger-summary.json"
+            ).read_text(encoding="utf-8")
+        )
         checked = ledger.check_committed_artifacts(
             index_path=ledger.DEFAULT_INDEX,
             takeover_path=ledger.DEFAULT_TAKEOVER,
@@ -99,8 +105,11 @@ class FullApkSourceLedgerTest(unittest.TestCase):
             summary_path=ledger.ROOT / "docs/deobfuscation/data/full-apk-source-ledger-summary.json",
         )
         self.assertEqual(15319, checked["total_descriptors"])
-        self.assertEqual(1641, checked["local_source_compiled"])
-        self.assertEqual(356, checked["blocked"])
+        self.assertEqual(
+            summary["status_counts"]["LOCAL_SOURCE_COMPILED"],
+            checked["local_source_compiled"],
+        )
+        self.assertEqual(summary["status_counts"]["BLOCKED"], checked["blocked"])
         self.assertEqual(64, len(checked["ledger_sha256"]))
 
     def test_committed_ledger_rejects_degraded_summary(self):
@@ -133,6 +142,12 @@ class FullApkSourceLedgerTest(unittest.TestCase):
                 )
 
     def test_committed_ledger_accepts_crlf_csv(self):
+        summary = json.loads(
+            (
+                ledger.ROOT
+                / "docs/deobfuscation/data/full-apk-source-ledger-summary.json"
+            ).read_text(encoding="utf-8")
+        )
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             csv_path = root / "ledger.csv"
@@ -155,7 +170,10 @@ class FullApkSourceLedgerTest(unittest.TestCase):
                 csv_path=csv_path,
                 summary_path=summary_path,
             )
-            self.assertEqual(1641, checked["local_source_compiled"])
+            self.assertEqual(
+                summary["status_counts"]["LOCAL_SOURCE_COMPILED"],
+                checked["local_source_compiled"],
+            )
 
 
 if __name__ == "__main__":

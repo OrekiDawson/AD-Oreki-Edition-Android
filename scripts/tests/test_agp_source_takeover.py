@@ -277,7 +277,12 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             "(DLoreki/shadow/kotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
             java,
         )
-        self.assertIn("输入 JAR 缺少待源码接管条目", gradle)
+        # 同一不变量：接管条目要么在输入 JAR，要么有对应源码文件；两者皆无才 fail-closed。
+        self.assertIn("source_only_missing", python)
+        self.assertIn("invalid_missing", python)
+        self.assertIn("hasTakeoverSource", gradle)
+        self.assertIn("source_only_entries", gradle)
+        self.assertIn("输入 JAR 缺少待源码接管条目且无对应源码文件", gradle)
         self.assertIn('"filterGameJar"', gradle)
         self.assertIn("r109_filter_program_jar.py", gradle)
         self.assertIn("game-hybrid-sig-filtered.jar", gradle)
@@ -297,10 +302,15 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("inputs.files(kotlinCompileTask)", gradle)
         self.assertNotIn('"app-$variantName.apk"', gradle)
         app_gradle = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn('applicationId = "net.oreki.antimatterdimensions"', app_gradle)
+        self.assertIn('applicationIdSuffix = ".debug"', app_gradle)
+        self.assertIn('manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))', app_gradle)
+        self.assertIn('create("r8")', app_gradle)
         self.assertIn("sourceTakeoverEntries", gradle)
         self.assertNotIn("sourceTakeoverClasses", app_gradle)
         self.assertNotIn("prepareBridgeKotlinSources", app_gradle)
         self.assertNotIn("prepareBridgeTestKotlinSources", app_gradle)
+        self.assertNotIn("agpbridge", app_gradle)
 
     def test_constructor_shims_are_removed_with_fail_closed_evidence(self):
         gradle = (

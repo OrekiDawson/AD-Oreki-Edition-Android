@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-10",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 24,
+  "blocked_count": 16,
+  "previous_source_coverage": 1778,
+  "source_coverage": 1802,
+  "coverage_percent": 11.763,
+  "takeover_entries": 1826,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "em1.class",
+      "descriptor": "Lem1;",
+      "source": "em1.java"
+    },
+    {
+      "entry": "nt4.class",
+      "descriptor": "Lnt4;",
+      "source": "nt4.java"
+    },
+    {
+      "entry": "tj5.class",
+      "descriptor": "Ltj5;",
+      "source": "tj5.java"
+    },
+    {
+      "entry": "gf.class",
+      "descriptor": "Lgf;",
+      "source": "gf.java"
+    },
+    {
+      "entry": "o35.class",
+      "descriptor": "Lo35;",
+      "source": "o35.java"
+    },
+    {
+      "entry": "p91.class",
+      "descriptor": "Lp91;",
+      "source": "p91.java"
+    },
+    {
+      "entry": "uf7.class",
+      "descriptor": "Luf7;",
+      "source": "uf7.java"
+    },
+    {
+      "entry": "vj3.class",
+      "descriptor": "Lvj3;",
+      "source": "vj3.java"
+    },
+    {
+      "entry": "yz.class",
+      "descriptor": "Lyz;",
+      "source": "yz.java"
+    },
+    {
+      "entry": "cg2.class",
+      "descriptor": "Lcg2;",
+      "source": "cg2.java"
+    },
+    {
+      "entry": "f34.class",
+      "descriptor": "Lf34;",
+      "source": "f34.java"
+    },
+    {
+      "entry": "s38.class",
+      "descriptor": "Ls38;",
+      "source": "s38.java"
+    },
+    {
+      "entry": "h13.class",
+      "descriptor": "Lh13;",
+      "source": "h13.java"
+    },
+    {
+      "entry": "pz7.class",
+      "descriptor": "Lpz7;",
+      "source": "pz7.java"
+    },
+    {
+      "entry": "cu5.class",
+      "descriptor": "Lcu5;",
+      "source": "cu5.java"
+    },
+    {
+      "entry": "wf4.class",
+      "descriptor": "Lwf4;",
+      "source": "wf4.java"
+    },
+    {
+      "entry": "m50.class",
+      "descriptor": "Lm50;",
+      "source": "m50.java"
+    },
+    {
+      "entry": "i46.class",
+      "descriptor": "Li46;",
+      "source": "i46.java"
+    },
+    {
+      "entry": "kn1.class",
+      "descriptor": "Lkn1;",
+      "source": "kn1.java"
+    },
+    {
+      "entry": "b64.class",
+      "descriptor": "Lb64;",
+      "source": "b64.java"
+    },
+    {
+      "entry": "s54.class",
+      "descriptor": "Ls54;",
+      "source": "s54.java"
+    },
+    {
+      "entry": "sd4.class",
+      "descriptor": "Lsd4;",
+      "source": "sd4.java"
+    },
+    {
+      "entry": "vf4.class",
+      "descriptor": "Lvf4;",
+      "source": "vf4.java"
+    },
+    {
+      "entry": "xf4.class",
+      "descriptor": "Lxf4;",
+      "source": "xf4.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "y92.class",
+      "descriptor": "Ly92;",
+      "reason": "javac compile failure: cannot access androidx.compose.ui.node.f version 49 classfile; bi0(long) absent"
+    },
+    {
+      "entry": "yg4.class",
+      "descriptor": "Lyg4;",
+      "reason": "javac compile failure: missing rh(byte) constructor"
+    },
+    {
+      "entry": "uu.class",
+      "descriptor": "Luu;",
+      "reason": "javac compile failure: superclass w6 requires the obfuscated 10-argument constructor"
+    },
+    {
+      "entry": "ey7.class",
+      "descriptor": "Ley7;",
+      "reason": "javac compile failure: jm7 requires qu7; ey7,byte is not available"
+    },
+    {
+      "entry": "j85.class",
+      "descriptor": "Lj85;",
+      "reason": "javac compile failure: cannot access ws5 default method in version 49.0 classfile"
+    },
+    {
+      "entry": "tb6.class",
+      "descriptor": "Ltb6;",
+      "reason": "javac compile failure: missing wa6(byte) constructor"
+    },
+    {
+      "entry": "w98.class",
+      "descriptor": "Lw98;",
+      "reason": "javac compile failure: missing dy7.c and u9.zza remains private"
+    },
+    {
+      "entry": "a94.class",
+      "descriptor": "La94;",
+      "reason": "javac compile failure: CoroutineSingletons.a unavailable"
+    },
+    {
+      "entry": "ad1.class",
+      "descriptor": "Lad1;",
+      "reason": "javac compile failure: eo2.b unavailable"
+    },
+    {
+      "entry": "ah8.class",
+      "descriptor": "Lah8;",
+      "reason": "javac compile failure: missing do2.z(Object,float) and ni8() constructor"
+    },
+    {
+      "entry": "mp2.class",
+      "descriptor": "Lmp2;",
+      "reason": "javac compile failure: lp2 requires Context,jf2; gp2.x is absent"
+    },
+    {
+      "entry": "rr4.class",
+      "descriptor": "Lrr4;",
+      "reason": "javac compile failure: xb0.i unavailable"
+    },
+    {
+      "entry": "ba8.class",
+      "descriptor": "Lba8;",
+      "reason": "javac compile failure: missing hx7.d and u9.zza remains private"
+    },
+    {
+      "entry": "gr7.class",
+      "descriptor": "Lgr7;",
+      "reason": "source takeover ABI failure: compiled class is missing a()Lgr7; and clone()Ljava/lang/Object;"
+    },
+    {
+      "entry": "nl6.class",
+      "descriptor": "Lnl6;",
+      "reason": "source takeover ABI failure: compiled class is missing <clinit>()V"
+    },
+    {
+      "entry": "wk4.class",
+      "descriptor": "Lwk4;",
+      "reason": "source takeover ABI failure: compiled class is missing 24 original static-linkage methods"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 56",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidates blocked",
+    "sourceTakeoverAbi": "PASS: 1826",
+    "sourceTakeoverDex": "PASS: 1826",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1802 local compiled, 467 blocked",
+    "d8_stack_map_warnings": 4
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-10",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}
