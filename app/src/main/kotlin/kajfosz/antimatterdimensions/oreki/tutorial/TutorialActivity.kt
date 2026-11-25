@@ -1,6 +1,7 @@
 package kajfosz.antimatterdimensions.oreki.tutorial
 
 import android.app.Activity
+import kajfosz.antimatterdimensions.oreki.OrekiMaterialStyle
 import android.app.AlertDialog
 import android.app.Dialog
 import android.app.Fragment
@@ -13,7 +14,6 @@ import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.os.Bundle
@@ -208,12 +208,12 @@ private class TutorialReader(
     private data class Record(val tag: String, val flag: String, val text: String)
     private data class Chapter(val id: String, val title: String, val start: Int, val stage: String?)
 
-    private val surface = Color.rgb(15, 19, 24)
-    private val container = Color.rgb(26, 32, 39)
-    private val onSurface = Color.rgb(227, 232, 238)
-    private val onVariant = Color.rgb(175, 186, 198)
-    private val primary = Color.rgb(173, 210, 247)
-    private val onPrimaryContainer = Color.rgb(201, 230, 255)
+    private val surface get() = OrekiMaterialStyle.surface
+    private val container get() = OrekiMaterialStyle.container
+    private val onSurface get() = OrekiMaterialStyle.onSurface
+    private val onVariant get() = OrekiMaterialStyle.onVariant
+    private val primary get() = OrekiMaterialStyle.primary
+    private val onPrimaryContainer get() = OrekiMaterialStyle.onPrimaryContainer
     private val records = ArrayList<Record>()
     private val chapters = ArrayList<Chapter>()
     private var currentChapter = 0
@@ -550,7 +550,7 @@ private class TutorialReader(
                 isFocusable = true
                 background = RippleDrawable(
                     android.content.res.ColorStateList.valueOf(Color.argb(36, 173, 210, 247)),
-                    shape(if (selected) Color.rgb(0, 73, 110) else Color.TRANSPARENT, 24f),
+                    shape(if (selected) OrekiMaterialStyle.primaryContainer else Color.TRANSPARENT, 24f),
                     shape(Color.WHITE, 24f)
                 )
                 setOnClickListener {
@@ -684,7 +684,7 @@ private class TutorialReader(
     /** 同类型连续记录只渲染一次标题，正文不使用卡片或独立边框。 */
     private fun addSection(tag: String, items: List<Record>) {
         val section = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-        val headingColor = if (tag == "TRAP") Color.rgb(255, 180, 170) else primary
+        val headingColor = if (tag == "TRAP") OrekiMaterialStyle.warning else primary
         addText(labelName(tag), 18f, headingColor, dp(8), true, section, heading = true)
         items.forEachIndexed { index, record ->
             val text = if (tag == "NUM") emphasizeKey(record.text) else record.text
@@ -732,7 +732,7 @@ private class TutorialReader(
         val enabled = try { Settings.Global.getFloat(owner.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
         view.alpha = if (enabled) 0f else 1f; if (enabled) view.animate().alpha(1f).setDuration(180L).start()
     }
-    private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat() }
-    private fun dp(value: Int) = (value * context.resources.displayMetrics.density + .5f).toInt()
-    private fun dp(value: Float) = (value * context.resources.displayMetrics.density + .5f).toInt()
+    private fun shape(color: Int, radiusDp: Float) = OrekiMaterialStyle.shape(context, color, radiusDp)
+    private fun dp(value: Int) = dp(value.toFloat())
+    private fun dp(value: Float) = OrekiMaterialStyle.dp(context, value)
 }
