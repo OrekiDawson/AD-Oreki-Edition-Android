@@ -105,18 +105,32 @@ def node_bounds(xml, text):
     return None
 
 
-def parse_pkg(pm_list_out):
-    """从 `pm list packages` 输出里找 antimatterdimensions 的包名。"""
-    for line in (pm_list_out or "").splitlines():
-        name = line.strip().removeprefix("package:")
+def variant_suffix(apk_path):
+    """按 APK 文件名判定变体：debug 包 applicationId 以 `.debug` 结尾。
+    R129 修正：旧实现只认 `.antimatterdimensions` 结尾，debug APK 会被解析成 release 包，
+    导致 am start 落回桌面、步骤 3/4 假 FAIL。"""
+    name = Path(apk_path).name.lower()
+    return ".debug" if "debug" in name else ""
+
+
+def parse_pkg(pm_list_out, suffix=""):
+    """从 `pm list packages` 输出里找 antimatterdimensions 的包名。
+    suffix 非空时优先精确变体（如 `.debug`），找不到再退回基础包名。"""
+    names = [line.strip().removeprefix("package:")
+             for line in (pm_list_out or "").splitlines()]
+    target = ".antimatterdimensions" + suffix
+    for name in names:
+        if suffix and name.endswith(target):
+            return name
+    for name in names:
         if name.endswith(".antimatterdimensions"):
             return name
     return ""
 
 
-def resolve_pkg():
+def resolve_pkg(suffix=""):
     code, out, _ = adb("shell", "pm", "list", "packages")
-    return parse_pkg(out)
+    return parse_pkg(out, suffix)
 
 
 _ENTITIES = {"&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&apos;": "'"}
@@ -518,10 +532,11 @@ def main():
             say(f"APK 不存在: {apk}")
             return 2
         global PKG
-        PKG = resolve_pkg()
+        suffix = variant_suffix(apk)
+        PKG = resolve_pkg(suffix)
         if not PKG:
             say("无法解析包名（pm list packages 里没有 .antimatterdimensions）")
-            PKG = "net.oreki.antimatterdimensions"
+            PKG = "net.oreki.antimatterdimensions" + suffix
         say(f"包名 = {PKG}")
         if step1_devices():
             step2_install(apk)
