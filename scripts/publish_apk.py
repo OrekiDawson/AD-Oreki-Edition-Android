@@ -85,27 +85,19 @@ def read_badging(apk):
     return {"package": m.group(1), "versionCode": m.group(2), "versionName": m.group(3)}
 
 
-def _verify_at_sdk(apk, min_sdk, max_sdk):
-    """按指定 SDK 范围验证签名；v2 只在 24..27 范围参与验证。"""
-    r = subprocess.run(
-        [str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose", "--print-certs",
-         "--min-sdk-version", str(min_sdk), "--max-sdk-version", str(max_sdk), str(apk)],
-        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    return (r.stdout or "") + (r.stderr or ""), r.returncode
-
-
 def verify_signature(apk):
-    # minSdk 32 的单次默认验证只会选择 v3，不能拿它判断 v2 是否不存在。
-    # 分别按 Android 7.x（v2 路径）和 Android 9+（v3 路径）验证，
-    # 两个范围都必须通过，且证书必须一致；这不是降低门禁。
-    out2, rc2 = _verify_at_sdk(apk, 24, 27)
-    out3, rc3 = _verify_at_sdk(apk, 28, 32)
-    v2 = "Verified using v2 scheme (APK Signature Scheme v2): true" in out2
-    v3 = "Verified using v3 scheme (APK Signature Scheme v3): true" in out3
-    certs = set(re.findall(r"certificate SHA-256 digest: ([0-9a-f]{64})", out2 + "\n" + out3))
-    cert = next(iter(certs)) if len(certs) == 1 else None
-    return {"v2": v2, "v3": v3, "cert": cert, "rc": 0 if rc2 == 0 and rc3 == 0 else 1,
-            "v2_rc": rc2, "v3_rc": rc3}
+    from verify_apk_v3 import verify_v3_only
+    r = subprocess.run(
+        [str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose", "--print-certs", str(apk)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    try:
+        if r.returncode != 0:
+            raise ValueError("apksigner verify failed")
+        cert = verify_v3_only(Path(apk), r.stdout or "", EXPECT_CERT)
+        return {"v2": False, "v3": True, "cert": cert, "rc": 0}
+    except (OSError, ValueError) as exc:
+        log(f"签名校验失败：{exc}")
+        return {"v2": False, "v3": False, "cert": None, "rc": 1}
 
 
 def wait_upload(dest, timeout=300, step=10):
@@ -226,7 +218,7 @@ def main():
     sig = verify_signature(apk)
     log("    签名 v2=%s v3=%s" % (sig["v2"], sig["v3"]))
     log("    证书 SHA-256=%s" % sig["cert"])
-    if not (sig["v2"] and sig["v3"]):
+    if sig["rc"] != 0 or sig["v2"] or not sig["v3"]:
         log("    失败：签名方案未全部通过")
         return 2
     if sig["cert"] != EXPECT_CERT:

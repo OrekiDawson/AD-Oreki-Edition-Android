@@ -83,7 +83,7 @@ class AgpCandidateWiringTests(unittest.TestCase):
             if "dump" in command:
                 return 0, "package: name='net.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0'"
             if "verify" in command:
-                return 0, "Verified using v2 scheme (APK Signature Scheme v2): true"
+                return 0, "Verified using v3 scheme (APK Signature Scheme v3): true"
             prepared = pathlib.Path(command[command.index("-o") + 1])
             (prepared / "smali").mkdir(parents=True, exist_ok=True)
             return 0, "ok"
@@ -97,17 +97,20 @@ class AgpCandidateWiringTests(unittest.TestCase):
         self.assertEqual(len(report["sha256"]), 64)
         self.assertEqual(report["apktool_exit"], 0)
         self.assertEqual(report["badging"]["exit"], 0)
-        self.assertEqual(report["sign_v2"]["exit"], 0)
+        self.assertNotIn("sign_v2", report)
         self.assertEqual(report["sign_v3"]["exit"], 0)
         self.assertTrue(report["prepared_dir"].endswith("prepared"))
-        self.assertEqual(len(calls), 4)
+        self.assertEqual(len(calls), 3)
+        self.assertNotIn("--min-sdk-version", calls[1])
+        self.assertNotIn("--max-sdk-version", calls[1])
 
     def test_workflow_verifies_agp_signature_without_resigning(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("Verify AGP-produced signature without re-signing", text)
         self.assertIn("apksigner", text)
         self.assertNotIn("apksigner sign", text)
-        self.assertIn("--min-sdk-version 24", text)
+        self.assertNotIn("--min-sdk-version 24", text)
+        self.assertEqual(text.count("scripts/verify_apk_v3.py"), 2)
         verify_signature = text.index("Verify AGP-produced signature without re-signing")
         provenance = text.index("Write AGP provenance, candidate metadata and release manifest")
         self.assertLess(verify_signature, provenance)
