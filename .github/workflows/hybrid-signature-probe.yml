@@ -1,0 +1,51 @@
+name: P0 混合签名工具链实测（不发布）
+
+'on':
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/sign_apk_hybrid.py'
+      - '.github/workflows/hybrid-signature-probe.yml'
+      - 'scripts/verify_apk_v3.py'
+      - 'scripts/ci/probe_hybrid_signature.sh'
+      - 'scripts/apksig/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hybrid-signature-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    name: 实测 V3.0 + V3.2 + V4
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 配置 JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: 配置 Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: 安装 API 37 与 Build Tools 37.0.0
+        run: sdkmanager --install 'platforms;android-37.0' 'build-tools;37.0.0'
+      - name: 临时密钥真实签名及双文件验签
+        shell: bash
+        run: |
+          bash scripts/ci/probe_hybrid_signature.sh hybrid-evidence
+      - name: 上传工具链实测证据（不含密钥和 APK）
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: hybrid-signature-probe
+          path: hybrid-evidence/
+          retention-days: 14

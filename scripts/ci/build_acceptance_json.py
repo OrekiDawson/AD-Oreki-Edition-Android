@@ -56,6 +56,7 @@ POLICY_FILE = SCRIPTS / "release-gate-policy.json"
 sys.path.insert(0, str(SCRIPTS))
 import verify_release_acceptance as VRA  # noqa: E402
 import verify_completion_evidence as VCE  # noqa: E402
+import verify_apk_v3 as V3  # noqa: E402
 
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 VALID_STATES = frozenset({"PASS", "FAIL", "BLOCKED", "NOT RUN"})
@@ -119,10 +120,17 @@ def read_apk_identity(apk) -> dict:
     version_name = re.search(r"versionName='([^']+)'", out)
     if not (package and version_code and version_name):
         raise BuilderError("aapt2 badging 缺少 package/versionCode/versionName")
-    rc, sign_out = run([apksigner, "verify", "--verbose", "--print-certs",
-                        "--min-sdk-version", "24", "--max-sdk-version", "32", str(path)])
+    rc, sign_out = run([apksigner, "verify", "--verbose", "--print-certs", str(path)])
     if rc != 0:
         raise BuilderError("apksigner verify 失败: " + sign_out[-300:])
+    try:
+        block_ids = V3.signing_block_ids(path)
+    except ValueError as exc:
+        raise BuilderError("APK 签名结构校验失败: " + str(exc)) from exc
+    if V3.V3_ID not in block_ids or block_ids & {V3.V2_ID, V3.V31_ID}:
+        raise BuilderError("APK 必须含 V3 且不得含 V2/V3.1 签名块")
+    if pathlib.Path(str(path) + ".idsig").exists():
+        raise BuilderError("过渡 acceptance APK 不得携带 V4 sidecar")
     digests = re.findall(r"certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", sign_out)
     if not digests:
         raise BuilderError("apksigner 未输出证书 SHA-256")

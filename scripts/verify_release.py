@@ -215,25 +215,23 @@ def main():
           not abi_problems, "；".join(abi_problems) if abi_problems else "OK")
 
     # ---------------- 2. 签名 ----------------
-    # minSdk 32 的默认验证只选择 v3，不能据此判 v2 缺失。
-    # 分别按 API 24–27（v2 路径）与 API 28–32（v3 路径）验证；
-    # 两条路径都必须 rc=0 且真实出现对应的 true。
-    sign_v2 = tool_report.get("sign_v2") or {}
+    from verify_apk_v3 import verify_v3_only
+    sdk = re.search(r"(?m)^(?:sdkVersion|minSdkVersion):'(\d+)'", out)
+    check("正式 APK minSdk", bool(sdk) and int(sdk.group(1)) == 32,
+          sdk.group(1) if sdk else "未解析到")
     sign_v3 = tool_report.get("sign_v3") or {}
-    rc2, out2 = int(sign_v2.get("exit", 1)), str(sign_v2.get("output", ""))
     rc3, out3 = int(sign_v3.get("exit", 1)), str(sign_v3.get("output", ""))
-    schemes = {
-        "v1": False,
-        "v2": bool(re.search(r"Verified using v2 scheme[^:]*:\s*true", out2)),
-        "v3": bool(re.search(r"Verified using v3 scheme[^:]*:\s*true", out3)),
-    }
-    cert_matches = re.findall(r"certificate SHA-256 digest: ([0-9a-f]+)", out2 + "\n" + out3)
+    check("签名校验进程退出码", rc3 == 0, f"v3_rc={rc3}")
+    schemes = {}
     cert = None
-    if cert_matches and all(c == cert_matches[0] for c in cert_matches):
-        cert = cert_matches[0]
-    check("签名校验进程退出码", rc2 == 0 and rc3 == 0, f"v2_rc={rc2} v3_rc={rc3}")
-    check("签名方案 v2+v3", schemes["v2"] and schemes["v3"], str(schemes))
-    print(f"INFO  签名方案明细: {schemes}（API 24-27 验 v2，API 28-32 验 v3）")
+    try:
+        if rc3 != 0:
+            raise ValueError("apksigner verify failed")
+        cert = verify_v3_only(apk, out3, EXPECT_CERT)
+        schemes = {"v1": False, "v2": False, "v3": True, "v3.1": False, "v4": False}
+        check("仅 V3 签名（实际 APK 签名块）", True, str(schemes))
+    except (OSError, ValueError) as exc:
+        check("仅 V3 签名（实际 APK 签名块）", False, str(exc))
     check("签名证书未被更换", bool(cert) and cert == EXPECT_CERT,
           cert if cert else "未解析到或不一致")
 
