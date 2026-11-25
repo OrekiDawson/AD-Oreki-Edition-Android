@@ -115,15 +115,15 @@ def variant_suffix(apk_path):
 
 def parse_pkg(pm_list_out, suffix=""):
     """从 `pm list packages` 输出里找 antimatterdimensions 的包名。
-    suffix 非空时优先精确变体（如 `.debug`），找不到再退回基础包名。"""
+
+    R129 修正（#317 Kody medium）：suffix 非空时**只**认该变体，找不到就返回空串，
+    绝不再回退基础包名；否则只装了 release 包时会拿 release 包执行步骤 3/4/5，
+    得到对另一个变体的假 PASS/FAIL。suffix 为空时只认基础包名。"""
     names = [line.strip().removeprefix("package:")
              for line in (pm_list_out or "").splitlines()]
     target = ".antimatterdimensions" + suffix
     for name in names:
-        if suffix and name.endswith(target):
-            return name
-    for name in names:
-        if name.endswith(".antimatterdimensions"):
+        if name.endswith(target):
             return name
     return ""
 
@@ -437,6 +437,11 @@ def self_test():
     ok(parse_pkg("package:net.oreki.antimatterdimensions\npackage:com.android.chrome\n")
        == "net.oreki.antimatterdimensions", "parse_pkg 未取到工程包名")
     ok(parse_pkg("package:com.android.chrome\n") == "", "parse_pkg 对无关输出应返回空串")
+    # 只装了 release 包时，debug 变体必须解析失败（不得回退到 release 包验证）
+    ok(parse_pkg("package:net.oreki.antimatterdimensions\n", ".debug") == "",
+       "parse_pkg 在 suffix=.debug 时不得回退基础包名")
+    ok(parse_pkg("package:net.oreki.antimatterdimensions.debug\n", ".debug")
+       == "net.oreki.antimatterdimensions.debug", "parse_pkg 未取到 debug 变体包名")
 
     # 4c) 屏幕尺寸与节点 y（「dump 有」还要「在屏内」才算可见）
     ok(parse_wm_size("Physical size: 1440x3200") == (1440, 3200), "parse_wm_size 未解析 Physical")
@@ -533,13 +538,16 @@ def main():
             return 2
         global PKG
         suffix = variant_suffix(apk)
-        PKG = resolve_pkg(suffix)
-        if not PKG:
-            say("无法解析包名（pm list packages 里没有 .antimatterdimensions）")
-            PKG = "net.oreki.antimatterdimensions" + suffix
-        say(f"包名 = {PKG}")
+        say(f"变体 suffix = '{suffix}'")
         if step1_devices():
             step2_install(apk)
+            # 包名必须在安装成功之后再解析，保证步骤 3/4/5 永远指向本次安装的变体。
+            PKG = resolve_pkg(suffix)
+            if not PKG:
+                PKG = "net.oreki.antimatterdimensions" + suffix
+                say(f"pm 未列出变体包名，按约定包名兜底 = {PKG}")
+            else:
+                say(f"包名 = {PKG}")
             step3_launch()
             step4_logcat(tag_dir)
             step5_settings(tag_dir)
