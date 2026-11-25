@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.text.InputType
@@ -23,24 +22,25 @@ import kajfosz.antimatterdimensions.OrekiSpeed
 
 /** 教程同风格的设置页，沿用原有配置回调，不改变游戏策略。 */
 class SpeedSettingsActivity : Activity() {
-    private val surface = Color.rgb(15, 19, 24)
-    private val container = Color.rgb(26, 32, 39)
-    private val onSurface = Color.rgb(227, 232, 238)
-    private val onVariant = Color.rgb(175, 186, 198)
-    private val primary = Color.rgb(173, 210, 247)
-    private val primaryContainer = Color.rgb(0, 73, 110)
-    private val onPrimaryContainer = Color.rgb(201, 230, 255)
-    private val onPrimary = Color.rgb(0, 50, 78)
-    private val outline = Color.rgb(105, 119, 134)
-    private val warning = Color.rgb(255, 180, 170)
-    private val warningContainer = Color.rgb(81, 32, 32)
-    private val warningText = Color.rgb(255, 218, 214)
+    private val surface get() = OrekiMaterialStyle.surface
+    private val container get() = OrekiMaterialStyle.container
+    private val onSurface get() = OrekiMaterialStyle.onSurface
+    private val onVariant get() = OrekiMaterialStyle.onVariant
+    private val primary get() = OrekiMaterialStyle.primary
+    private val primaryContainer get() = OrekiMaterialStyle.primaryContainer
+    private val onPrimaryContainer get() = OrekiMaterialStyle.onPrimaryContainer
+    private val onPrimary get() = OrekiMaterialStyle.onPrimary
+    private val outline get() = OrekiMaterialStyle.outline
+    private val warning get() = OrekiMaterialStyle.warning
+    private val warningContainer get() = OrekiMaterialStyle.warningContainer
+    private val warningText get() = OrekiMaterialStyle.warningText
     private lateinit var speedField: EditText
     private lateinit var intervalField: EditText
     private lateinit var assistToggle: Switch
     private var syncingAssistToggle = false
     private lateinit var assistStatus: TextView
     private val assistCards = mutableListOf<Triple<Int, TextView, Button>>()
+    private val sectionAnchors = linkedMapOf<String, View>()
     private lateinit var content: LinearLayout
     private lateinit var scroll: ScrollView
 
@@ -80,6 +80,7 @@ class SpeedSettingsActivity : Activity() {
             view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
             insets
         }
+        addSectionNavigation()
         addSpeed()
         addAutomation()
         addAssist()
@@ -113,7 +114,7 @@ class SpeedSettingsActivity : Activity() {
     }
 
     private fun addSpeed() {
-        val panel = section("游戏速度")
+        val panel = section("游戏速度", "速度")
         val mode = label(OrekiSpeedModeListener.describe(), 16f, onSurface)
         panel.addView(mode, lp(12))
         val dynamicListener = OrekiSpeedModeListener(mode, true)
@@ -131,6 +132,8 @@ class SpeedSettingsActivity : Activity() {
         pair(panel, dynamic, manual)
         val speed = input(panel, "新倍率：", InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
         speedField = speed
+        // 十进制文本可直接编辑；避免极小倍率以科学计数法显示在数字键盘输入框。
+        speed.setText(java.math.BigDecimal.valueOf(OrekiSpeed.mult()).stripTrailingZeros().toPlainString())
         note(panel, "点击预设只填入倍率，保存后才应用。")
         fun preset(value: Int): Button {
             val listener = SettingsClickListener(0, speed, this).apply { setPreset(value.toDouble()) }
@@ -144,7 +147,7 @@ class SpeedSettingsActivity : Activity() {
 
     private fun addAutomation() {
         OrekiAutomationScheduler.init(this)
-        val panel = section("智能调度（Oreki 自动操作节拍）")
+        val panel = section("智能调度（Oreki 自动操作节拍）", "调度")
         val status = label(OrekiAutomationScheduler.statusLine(), 14f, onVariant)
         panel.addView(status, lp(12))
         toggle(panel, "启用 Oreki 智能调度", OrekiAutomationScheduler.isEnabled())
@@ -161,8 +164,18 @@ class SpeedSettingsActivity : Activity() {
         })
         pair(panel, intervalPreset(1), intervalPreset(60))
         // 10 秒已有恢复默认按钮，不再重复同一动作。
-        pair(panel, button("保存间隔", true, OrekiAutomationUiListener(this, 0, interval, status)),
-            button("恢复默认（10 秒）", false, OrekiAutomationUiListener(this, 1, interval, status)))
+        val saveInterval = OrekiAutomationUiListener(this, 0, interval, status)
+        val save = button("保存间隔", true, saveInterval)
+        pair(panel, save, button("恢复默认（10 秒）", false, OrekiAutomationUiListener(this, 1, interval, status)))
+        interval.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                save.performClick()
+                interval.clearFocus()
+                (getSystemService(INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager)
+                    ?.hideSoftInputFromWindow(interval.windowToken, 0)
+                true
+            } else false
+        }
         toggle(panel, "严格模式", OrekiAutomationScheduler.isStrictGlobal())
             .setOnCheckedChangeListener(OrekiAutomationUiListener(this, 3, null, status))
         note(panel, "严格模式限制连续自动操作节拍，可能显著降低推进速度。默认关闭。")
@@ -171,7 +184,7 @@ class SpeedSettingsActivity : Activity() {
     }
 
     private fun addAssist() {
-        val panel = section("成就辅助")
+        val panel = section("成就辅助", "成就")
         panel.addView(label("强制点亮成就 · 不校验达成条件", 16f, warning, true), lp(8))
         assistStatus = label("", 14f, onSurface)
         panel.addView(assistStatus, lp(12))
@@ -247,13 +260,32 @@ class SpeedSettingsActivity : Activity() {
         return body
     }
 
-    private fun section(title: String): LinearLayout {
+    /** 同页跳转；不新增 Activity、不重置表单、不触发任何游戏操作。 */
+    private fun addSectionNavigation() {
+        val nav = column()
+        nav.addView(label("快速定位", 14f, onVariant, true), lp(4))
+        val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        listOf("速度", "调度", "成就").forEachIndexed { index, key ->
+            val item = button(key, false, View.OnClickListener {
+                sectionAnchors[key]?.let { target -> scroll.smoothScrollTo(0, target.top) }
+            })
+            item.contentDescription = "跳转到${key}设置"
+            row.addView(item, LinearLayout.LayoutParams(0, -2, 1f).apply {
+                if (index < 2) marginEnd = dp(8)
+            })
+        }
+        nav.addView(row, lp())
+        content.addView(nav, lp(16))
+    }
+
+    private fun section(title: String, anchor: String? = null): LinearLayout {
         val panel = column().apply {
             background = shape(container, 20f)
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
         panel.addView(label(title, 18f, primary, true).apply { isAccessibilityHeading = true }, lp(12))
         content.addView(panel, lp(16))
+        if (anchor != null) sectionAnchors[anchor] = panel
         return panel
     }
 
@@ -263,6 +295,7 @@ class SpeedSettingsActivity : Activity() {
         val field = EditText(this).apply {
             inputType = type
             setSingleLine(true)
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             setTextColor(onSurface)
             setHintTextColor(onVariant)
             textSize = 16f
@@ -342,11 +375,8 @@ class SpeedSettingsActivity : Activity() {
 
     private fun column() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
     private fun lp(bottom: Int = 0) = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(bottom) }
-    private fun shape(color: Int, radius: Float, stroke: Int? = null) = GradientDrawable().apply {
-        setColor(color)
-        cornerRadius = dp(radius).toFloat()
-        if (stroke != null) setStroke(dp(1), stroke)
-    }
+    private fun shape(color: Int, radius: Float, stroke: Int? = null) =
+        OrekiMaterialStyle.shape(this, color, radius, stroke)
     private fun dp(value: Int) = dp(value.toFloat())
-    private fun dp(value: Float) = (value * resources.displayMetrics.density + .5f).toInt()
+    private fun dp(value: Float) = OrekiMaterialStyle.dp(this, value)
 }
