@@ -411,9 +411,13 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("constructorlessOwnerSpecs", gradle)
         self.assertIn("requiredNoConstructorSpecs", gradle)
         self.assertIn("adaptConstructorlessOwnerClass", gradle)
+        self.assertIn('it.name == "bundle${variant}ClassesToCompileJar"', gradle)
+        self.assertIn('it.name == "bundle${variant}ClassesToRuntimeJar"', gradle)
         self.assertIn('it.name == "dexBuilder${variant}"', gradle)
         self.assertIn('it.name == "minify${variant}WithR8"', gradle)
         self.assertIn("transformedBytecodeConsumer.dependsOn(adaptSourceAbi)", gradle)
+        self.assertIn("transformedBytecodeConsumer.outputs.cacheIf { false }", gradle)
+        self.assertIn("transformedBytecodeConsumer.outputs.upToDateWhen { false }", gradle)
         self.assertIn("dependsOn(adaptSourceAbi)", gradle)
         removal_specs = re.search(
             r"constructorRemovalSpecs\s*=\s*listOf\s*\((?P<body>.*?)^[ \t]*\)",
