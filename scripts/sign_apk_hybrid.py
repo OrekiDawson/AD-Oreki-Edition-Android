@@ -21,12 +21,15 @@ HEX = re.compile(r"[0-9a-f]{64}")
 
 
 def run(args):
-    completed = subprocess.run([str(x) for x in args], check=False, text=True,
+    completed = subprocess.run([str(x) for x in args], check=False,
                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # Windows 本地 JVM 可能以系统区域编码输出告警/中文消息；按 UTF-8 容错解码，
+    # 不因区域字节崩溃，解析所需的英文结果行与证书指纹不受影响。
+    output = completed.stdout.decode("utf-8", errors="replace")
     if completed.returncode:
         # 命令行只含密码环境变量名；不回显命令、密码或私钥。
-        raise ValueError(f"官方工具 {Path(str(args[0])).name} 失败 (exit={completed.returncode}):\n{completed.stdout}")
-    return completed.stdout
+        raise ValueError(f"官方工具 {Path(str(args[0])).name} 失败 (exit={completed.returncode}):\n{output}")
+    return output
 
 
 def sha256(path):
@@ -133,12 +136,16 @@ def publish_pair(staged_apk: Path, final_apk: Path) -> None:
     """以不覆盖目标的硬链接成对发布 APK 与 V4 sidecar。"""
     staged_sidecar = Path(str(staged_apk) + ".idsig")
     final_sidecar = Path(str(final_apk) + ".idsig")
+    # 硬链接本无跟随符号链接语义；不使用 follow_symlinks 关键字（Windows 的
+    # os.link 不接受该参数），这里在调用前显式拒绝符号链接输入。
+    if staged_apk.is_symlink() or staged_sidecar.is_symlink():
+        raise ValueError("暂存 APK 或 idsig 为符号链接，拒绝硬链接发布")
     sidecar_published = False
     apk_published = False
     try:
-        os.link(staged_sidecar, final_sidecar, follow_symlinks=False)
+        os.link(staged_sidecar, final_sidecar)
         sidecar_published = True
-        os.link(staged_apk, final_apk, follow_symlinks=False)
+        os.link(staged_apk, final_apk)
         apk_published = True
     except BaseException:
         if sidecar_published:

@@ -24,6 +24,11 @@ jobs:
       # 快速识别 AGP Candidate 契约漂移：纯 Python，不等待 JDK、Gradle 与其他长串测试。
       - name: Fast-fail AGP candidate wiring contract
         run: python3 -m unittest scripts.tests.test_agp_candidate_wiring scripts.tests.test_verify_apk_v3 -v
+      # 混合签名成对发布/回滚与 KDE 仅 V3 签名契约的唯一守护；纯 Python，无需 JDK。
+      - name: Test hybrid signing pair publish and rollback guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_sign_apk_hybrid.py' -v
+      - name: Test KDE sender V3-only signature contract
+        run: python3 -m unittest discover -s scripts/tests -p 'test_kde_send_apk_contract.py' -v
       - uses: actions/setup-java@v6
         with:
           distribution: temurin

@@ -7,6 +7,8 @@ name: P0 混合签名工具链实测（不发布）
       - 'scripts/sign_apk_hybrid.py'
       - '.github/workflows/hybrid-signature-probe.yml'
       - 'scripts/verify_apk_v3.py'
+      - 'scripts/ci/probe_hybrid_signature.sh'
+      - 'scripts/apksig/**'
   workflow_dispatch:
 
 permissions:
