@@ -154,13 +154,12 @@ class SpeedSettingsActivity : Activity() {
         intervalField = interval
         interval.setText(OrekiAutomationScheduler.getIntervalSec().toString())
         note(panel, "1～60 的整数秒，默认 10 秒。保存后立即生效。")
-        val quick = details(panel, "快速选择间隔")
-        fun intervalPreset(seconds: Int): Button = button("${seconds} 秒", false, View.OnClickListener {
+        fun intervalPreset(seconds: Int): Button = button("应用 ${seconds} 秒", false, View.OnClickListener {
             interval.setText(seconds.toString())
             interval.setSelection(interval.text.length)
             OrekiAutomationUiListener(this, 0, interval, status).onClick(it)
         })
-        pair(quick, intervalPreset(1), intervalPreset(60))
+        pair(panel, intervalPreset(1), intervalPreset(60))
         // 10 秒已有恢复默认按钮，不再重复同一动作。
         pair(panel, button("保存间隔", true, OrekiAutomationUiListener(this, 0, interval, status)),
             button("恢复默认（10 秒）", false, OrekiAutomationUiListener(this, 1, interval, status)))
