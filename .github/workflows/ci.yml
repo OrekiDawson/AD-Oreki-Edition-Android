@@ -15,6 +15,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  change-scope:
+    name: 判定纯 AGENTS.md 变更
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rules_only: ${{ steps.classify.outputs.rules_only }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: 使用可信 Git 差异识别纯规则文件
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          # 只有 PR/main push 的非空、完整差异可豁免；手动构建及未知范围均保留原构建门禁。
+          if [[ "$GITHUB_EVENT_NAME" != pull_request && "$GITHUB_EVENT_NAME" != push ]] ||
+             [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ || "$BASE_SHA" =~ ^0+$ ]] ||
+             [[ "$(git rev-parse HEAD)" != "$GITHUB_SHA" || "$BASE_SHA" == "$GITHUB_SHA" ]] ||
+             ! git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"; then
+            echo 'rules_only=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::无法证明是纯规则变更，保留完整 AGP 构建要求。'
+            exit 0
+          fi
+          python3 - <<'PY'
+          import os
+          import subprocess
+
+          # 禁用 rename 检测以同时检查旧、新路径；NUL 分隔避免特殊文件名误判。
+          raw = subprocess.check_output([
+              "git", "diff", "--raw", "-z", "--no-renames", "--no-ext-diff",
+              os.environ["BASE_SHA"], os.environ["GITHUB_SHA"], "--"
+          ])
+          entries = raw[:-1].split(b"\0") if raw.endswith(b"\0") else []
+          rules_only = bool(entries) and len(entries) % 2 == 0
+          for meta, path in zip(entries[::2], entries[1::2]):
+              fields = meta.split()
+              # 仅允许新增/修改普通文本文件；删除、重命名、符号链接、模式变更均不豁免。
+              if (len(fields) != 5 or fields[-1] not in (b"A", b"M")
+                      or fields[1] != b"100644"
+                      or fields[0] != (b":000000" if fields[-1] == b"A" else b":100644")
+                      or path.rsplit(b"/", 1)[-1] != b"AGENTS.md"):
+                  rules_only = False
+                  break
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              print("rules_only=" + str(rules_only).lower(), file=out)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              if rules_only:
+                  print("纯 AGENTS.md 变更：完整 APK/ABI/DEX 构建不适用（SKIPPED），源码规范检查仍须通过。", file=summary)
+              else:
+                  print("非纯规则或未知变更：保留原有完整 AGP 构建门禁。", file=summary)
+          PY
+
   source-policy:
     name: 源码规范与回归检查
     runs-on: ubuntu-latest
@@ -241,6 +293,9 @@ jobs:
           echo "NOT RUN: proprietary AGP full-game APK, ABI and DEX parity are not claimed by this check."
 
   agp-kotlin-dex:
+    needs: change-scope
+    # 仅已证实的纯规则变更不适用；判定失败、混合改动和手动运行均不豁免。
+    if: ${{ !cancelled() && (needs.change-scope.result != 'success' || needs.change-scope.outputs.rules_only != 'true') }}
     name: AGP 专有输入构建（缺输入时明确 NOT RUN）
     runs-on: ubuntu-latest
     timeout-minutes: 30
