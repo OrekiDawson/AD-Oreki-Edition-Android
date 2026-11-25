@@ -85,7 +85,7 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn("verifyStorePolicyOutputSelfTest", text)
         speed_ui = (
             ROOT
-            / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.java"
+            / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.kt"
         ).read_text(encoding="utf-8")
         self.assertIn("取值范围 0.000001 ~ 100000，建议", speed_ui)
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
