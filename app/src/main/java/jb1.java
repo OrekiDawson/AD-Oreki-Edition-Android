@@ -5,8 +5,8 @@ public final class jb1 {
     public int d;
     public Object e;
 
-    public jb1(Object value) {
-        this.e = value;
+    public jb1(Object obj) {
+        this.e = obj;
     }
 
     public void a(int i) {

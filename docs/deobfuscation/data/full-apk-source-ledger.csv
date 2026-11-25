@@ -4565,7 +4565,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,456
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4563,Lcw2;,yes,(default),RESEARCH_ONLY,defpackage/cw2.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4564,Lcw4;,yes,(default),RESEARCH_ONLY,defpackage/cw4.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4565,Lcw5;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/cw5.java,app:AGP,yes,existing-takeover-guard,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4566,Lkc7;,yes,(default),BLOCKED,defpackage/kc7.java,blocked-candidate,no,blocked,first-party-original,javac compile failure: interface depends on blocked vc7 descriptor
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4566,Lkc7;,yes,(default),LOCAL_SOURCE_COMPILED,,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4567,Lob7;,yes,(default),RESEARCH_ONLY,defpackage/ob7.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4568,Lcw6;,yes,(default),RESEARCH_ONLY,defpackage/cw6.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,4569,Lio6;,yes,(default),RESEARCH_ONLY,defpackage/io6.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -5479,7 +5479,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,547
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5477,Lfz7;,yes,(default),RESEARCH_ONLY,defpackage/fz7.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5478,Lfz8;,yes,(default),RESEARCH_ONLY,defpackage/fz8.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5479,Lg03;,yes,(default),RESEARCH_ONLY,defpackage/g03.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5480,Lg06;,yes,(default),BLOCKED,defpackage/g06.java,blocked-candidate,no,blocked,first-party-original,dependency oj5(byte) is ACC_SYNTHETIC and javac cannot reference it
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5480,Lg06;,yes,(default),BLOCKED,defpackage/g06.java,blocked-candidate,no,blocked,first-party-original,dependency oj5(int) constructor missing from JADX source
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5481,Lg07;,yes,(default),RESEARCH_ONLY,defpackage/g07.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5482,Lg08;,yes,(default),RESEARCH_ONLY,defpackage/g08.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5483,Lg09;,yes,(default),RESEARCH_ONLY,defpackage/g09.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -5707,7 +5707,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,570
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5705,Lgq2;,yes,(default),RESEARCH_ONLY,defpackage/gq2.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5706,Lgq3;,yes,(default),RESEARCH_ONLY,defpackage/gq3.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5707,Lgq4;,yes,(default),RESEARCH_ONLY,defpackage/gq4.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5708,Lgq5;,yes,(default),BLOCKED,defpackage/gq5.java,blocked-candidate,no,blocked,first-party-original,depends on blocked fq5.class and synthetic lx3.o(Throwable) classfile member
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5708,Lgq5;,yes,(default),BLOCKED,defpackage/gq5.java,blocked-candidate,no,blocked,first-party-original,dependencies fq5() constructor and lx3.o(Exception) missing from JADX source
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5709,Lhq6;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/hq6.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5710,Lgq6;,yes,(default),RESEARCH_ONLY,defpackage/gq6.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,5711,Lgq7;,yes,(default),RESEARCH_ONLY,defpackage/gq7.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -6383,7 +6383,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,638
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6381,Lj54;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/j54.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6382,Lj56;,yes,(default),RESEARCH_ONLY,defpackage/j56.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6383,Lj57;,yes,(default),RESEARCH_ONLY,defpackage/j57.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6384,Lj58;,yes,(default),BLOCKED,defpackage/j58.java,blocked-candidate,no,blocked,first-party-original,original DEX omits required JVM zza() implementation inherited from k25
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6384,Lj58;,yes,(default),BLOCKED,defpackage/j58.java,blocked-candidate,no,blocked,first-party-original,JADX source omits inherited abstract zza() required by k25; retain frozen JAR implementation
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6385,Lj59;,yes,(default),RESEARCH_ONLY,defpackage/j59.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6386,Lj60;,yes,(default),RESEARCH_ONLY,defpackage/j60.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,6387,Lj62;,yes,(default),RESEARCH_ONLY,defpackage/j62.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -7240,7 +7240,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,723
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7238,Lma8;,yes,(default),RESEARCH_ONLY,defpackage/ma8.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7239,Lma9;,yes,(default),RESEARCH_ONLY,defpackage/ma9.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7240,Lma;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/ma.java,app:AGP,yes,existing-takeover-guard,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7241,Lmb1;,yes,(default),BLOCKED,defpackage/mb1.java,blocked-candidate,no,blocked,first-party-original,dependency x38 implements malformed ws5.class default-method classfile
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7241,Lmb1;,yes,(default),BLOCKED,defpackage/mb1.java,blocked-candidate,no,blocked,first-party-original,depends on blocked ws5.class version-49 invalid classfile
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7242,Lmb2;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/mb2.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7243,Lmb4;,yes,(default),RESEARCH_ONLY,defpackage/mb4.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7244,Lmb5;,yes,(default),BLOCKED,defpackage/mb5.java,blocked-candidate,no,blocked,first-party-original,javac compile failure: cannot find symbol
@@ -7337,7 +7337,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,733
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7335,Lmo0;,yes,(default),RESEARCH_ONLY,defpackage/mo0.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7336,Lmo1;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/mo1.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7337,Lmo2;,yes,(default),RESEARCH_ONLY,defpackage/mo2.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7338,Lmo3;,yes,(default),BLOCKED,defpackage/mo3.java,blocked-candidate,no,blocked,first-party-original,"dependencies xy0(byte) and wy0(String,byte) are ACC_SYNTHETIC"
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7338,Lmo3;,yes,(default),BLOCKED,defpackage/mo3.java,blocked-candidate,no,blocked,first-party-original,"dependencies xy0(int) and wy0(String,byte) constructors missing from JADX source"
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7339,Lmo4;,yes,(default),RESEARCH_ONLY,defpackage/mo4.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7340,Lmo6;,yes,(default),RESEARCH_ONLY,defpackage/mo6.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7341,Lmo7;,yes,(default),RESEARCH_ONLY,defpackage/mo7.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -7587,7 +7587,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,758
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7585,Lnm2;,yes,(default),RESEARCH_ONLY,defpackage/nm2.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7586,Lnm3;,yes,(default),RESEARCH_ONLY,defpackage/nm3.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7587,Lnm4;,yes,(default),RESEARCH_ONLY,defpackage/nm4.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7588,Lnm5;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/nm5.java,app:AGP,yes,existing-takeover-guard,first-party-original,
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7588,Lnm5;,yes,(default),BLOCKED,defpackage/nm5.java,blocked-candidate,no,blocked,first-party-original,depends on blocked ws5.class version-49 invalid classfile
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7589,Lnm6;,yes,(default),RESEARCH_ONLY,defpackage/nm6.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7590,Lnm7;,yes,(default),RESEARCH_ONLY,defpackage/nm7.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7591,Lnm8;,yes,(default),RESEARCH_ONLY,defpackage/nm8.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -7843,7 +7843,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,784
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7841,Lok6;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/ok6.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7842,Lok7;,yes,(default),RESEARCH_ONLY,defpackage/ok7.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7843,Lol1;,yes,(default),RESEARCH_ONLY,defpackage/ol1.java,JADX-reference,not-proven,not-run,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7844,Lol3;,yes,(default),BLOCKED,defpackage/ol3.java,blocked-candidate,no,blocked,first-party-original,depends on blocked nl3.class and synthetic media3 dependency constructors
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7844,Lol3;,yes,(default),BLOCKED,defpackage/ol3.java,blocked-candidate,no,blocked,first-party-original,dependencies nl3() constructor and lx3.o(Exception) missing from JADX source
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7845,Lol4;,yes,(default),RESEARCH_ONLY,defpackage/ol4.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7846,Lol5;,yes,(default),BLOCKED,defpackage/ol5.java,blocked-candidate,no,blocked,first-party-original,javac compile failure: missing Firebase internal package and w16/c0 ABI
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,7847,Lol6;,yes,(default),RESEARCH_ONLY,defpackage/ol6.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -8545,7 +8545,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,854
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8543,Lr9;,yes,(default),BLOCKED,defpackage/r9.java,blocked-candidate,no,blocked,first-party-original,javac compile failure: missing ou2() constructor
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8544,Lra1;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/ra1.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8545,Lra2;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/ra2.java,app:AGP,yes,existing-takeover-guard,first-party-original,
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8546,Lra3;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/ra3.java,app:AGP,yes,existing-takeover-guard,first-party-original,
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8546,Lra3;,yes,(default),BLOCKED,defpackage/ra3.java,blocked-candidate,no,blocked,first-party-original,"JADX source omits original super constructor ua3(int,int,int); retain frozen JAR implementation"
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8547,Lra6;,yes,(default),RESEARCH_ONLY,defpackage/ra6.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8548,Lra7;,yes,(default),RESEARCH_ONLY,defpackage/ra7.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,8549,Lra8;,yes,(default),RESEARCH_ONLY,defpackage/ra8.java,JADX-reference,not-proven,not-run,first-party-original,
@@ -10283,7 +10283,7 @@ classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,102
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10281,Ly8;,yes,(default),RESEARCH_ONLY,defpackage/y8.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10282,Ly90;,yes,(default),RESEARCH_ONLY,defpackage/y90.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10283,Ly92;,yes,(default),BLOCKED,defpackage/y92.java,blocked-candidate,no,blocked,first-party-original,javac compile failure: cannot access androidx.compose.ui.node.f version 49 classfile; bi0(long) absent
-classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10284,Ly93;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/y93.java,app:AGP,yes,existing-takeover-guard,first-party-original,
+classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10284,Ly93;,yes,(default),BLOCKED,defpackage/y93.java,blocked-candidate,no,blocked,first-party-original,JADX source omits original ua3/y93 constructor ABI; retain frozen JAR implementation
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10285,Ly95;,yes,(default),LOCAL_SOURCE_COMPILED,app/src/main/java/y95.java,app:AGP,yes,existing-takeover-guard,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10286,Ly96;,yes,(default),RESEARCH_ONLY,defpackage/y96.java,JADX-reference,not-proven,not-run,first-party-original,
 classes.dex,ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e,10287,Ly97;,yes,(default),BINARY_ONLY_REMAINDER,,frozen-game-jar,no,runtime-existing,binary-only,present in frozen game JAR; no matched source file

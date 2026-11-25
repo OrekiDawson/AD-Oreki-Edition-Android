@@ -37,13 +37,9 @@ public abstract class a55 extends z45 {
                     ah3[] ah3VarArr3 = this.a;
                     for (int i2 = 0; i2 < ah3VarArr.length; i2++) {
                         ah3VarArr3[i2].a = ah3VarArr[i2].a;
-                        int i3 = 0;
-                        while (true) {
-                            float[] fArr = ah3VarArr[i2].b;
-                            if (i3 < fArr.length) {
-                                ah3VarArr3[i2].b[i3] = fArr[i3];
-                                i3++;
-                            }
+                        float[] fArr = ah3VarArr[i2].b;
+                        for (int i3 = 0; i3 < fArr.length; i3++) {
+                            ah3VarArr3[i2].b[i3] = fArr[i3];
                         }
                     }
                     return;

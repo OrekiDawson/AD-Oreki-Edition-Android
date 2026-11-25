@@ -2,11 +2,11 @@ import dalvik.system.DelegateLastClassLoader;
 import android.app.Activity;
 import android.view.View;
 import android.view.autofill.AutofillManager;
+import android.view.textclassifier.TextClassifier;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.view.textclassifier.TextClassifier;
 
 
 
@@ -22,16 +22,31 @@ public abstract  class aq {
         activity.setShowWhenLocked(true);
     }
 
-    public static void d(AutofillManager manager, View view, int visibility, boolean isVisible) {
-        manager.notifyViewVisibilityChanged(view, visibility, isVisible);
+    public static void d(
+        AutofillManager autofillManager,
+        View view,
+        int i,
+        boolean z
+    ) {
+        autofillManager.notifyViewVisibilityChanged(view, i, z);
     }
 
     public static void e(WebView webView) {
         webView.setTextClassifier(TextClassifier.NO_OP);
     }
 
-    public static void f(WebViewClient client, WebView view, WebResourceRequest request,
-                         int error, SafeBrowsingResponse response) {
-        client.onSafeBrowsingHit(view, request, error, response);
+    public static void f(
+        WebViewClient webViewClient,
+        WebView webView,
+        WebResourceRequest webResourceRequest,
+        int i,
+        SafeBrowsingResponse safeBrowsingResponse
+    ) {
+        webViewClient.onSafeBrowsingHit(
+            webView,
+            webResourceRequest,
+            i,
+            safeBrowsingResponse
+        );
     }
 }

@@ -40,6 +40,7 @@ public final class a63 implements b63 {
                     ku2Var2 = ku2Var3.f;
                 }
                 if (i == 1) {
+                    continue;
                 }
             }
             ku2Var = ed0.H(r03Var);
@@ -98,6 +99,7 @@ public final class a63 implements b63 {
                             }
                         }
                         if (i == 1) {
+                            continue;
                         }
                     }
                     ku2VarH = ed0.H(r03Var);
