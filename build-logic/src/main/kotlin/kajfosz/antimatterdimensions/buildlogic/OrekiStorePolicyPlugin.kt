@@ -481,8 +481,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     setOf("takeover.class"),
                 )
                 val badReport = File(dir, "bad-report.json")
-                report["output_jar_sha256"] = "0".repeat(64)
-                badReport.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(report)), Charsets.UTF_8)
+                val badReportMap = linkedMapOf<String, Any>()
+                badReportMap.putAll(report)
+                badReportMap["output_jar_sha256"] = "0".repeat(64)
+                badReport.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(badReportMap)), Charsets.UTF_8)
                 val failed = try {
                     verifyArtifacts(
                         inputJar,
@@ -497,11 +499,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 if (!failed) throw GradleException("[oreki] store-policy 自测篡改未 fail-closed")
                 // 源码独占条目：不在输入 JAR 但存在对应源码文件时应当放行。
                 val sourceRoot = File(dir, "sources")
+                sourceRoot.mkdirs()
                 File(sourceRoot, "absent-owned.java").writeText(
                     "class absent-owned {}",
                     Charsets.UTF_8,
                 )
-                report["source_takeover_entries"] = listOf("absent-owned.class")
+                report["source_takeover_entries"] = listOf("absent-owned.class", "takeover.class")
                 val reportSourceOnly = File(dir, "report-source-only.json")
                 reportSourceOnly.writeText(
                     JsonOutput.prettyPrint(JsonOutput.toJson(report)),
@@ -511,11 +514,11 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     inputJar,
                     outputJar,
                     reportSourceOnly,
-                    setOf("absent-owned.class"),
+                    setOf("absent-owned.class", "takeover.class"),
                     sourceRoots = listOf(sourceRoot),
                 )
                 // 既不在输入 JAR、又没有源码文件的条目必须 fail-closed。
-                report["source_takeover_entries"] = listOf("ghost.class")
+                report["source_takeover_entries"] = listOf("ghost.class", "takeover.class")
                 val reportGhost = File(dir, "report-ghost.json")
                 reportGhost.writeText(
                     JsonOutput.prettyPrint(JsonOutput.toJson(report)),
@@ -526,7 +529,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         inputJar,
                         outputJar,
                         reportGhost,
-                        setOf("ghost.class"),
+                        setOf("ghost.class", "takeover.class"),
                         sourceRoots = listOf(sourceRoot),
                     )
                     false
