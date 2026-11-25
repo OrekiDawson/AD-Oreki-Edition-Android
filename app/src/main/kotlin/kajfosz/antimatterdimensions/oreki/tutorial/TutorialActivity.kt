@@ -399,7 +399,7 @@ private class TutorialReader(
                 onTabClick(index)
                 dialog.dismiss()
             }
-            .setNeutralButton("游戏设置") { _, _ -> openSettings() }
+            .setNeutralButton("Oreki 设置") { _, _ -> openSettings() }
             .setNegativeButton("关闭", null)
             .show()
     }
