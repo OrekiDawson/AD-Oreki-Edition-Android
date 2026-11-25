@@ -1434,3 +1434,50 @@ WebViewClient 单条转发语义恢复。`jb1` 遗漏原版
 
 ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
 **NOT RUN**；保持 Issue #25/#52/#61/#285 OPEN。
+
+### 13.20 PR #300 审查线程字节码复核结论（3.21.0 基线裁决）
+
+PR #300 收口时以冻结原版 3.21.0 基线 Smali
+（`work/base_decoded_321/smali`）与冻结输入 JAR
+（`build/inputs/game-final.jar`，`javap -p/-c`）为唯一裁决依据，逐条复核
+Kody 标记的四个代码线程；ABI 守卫只比对成员名、描述符与访问位，不校验
+方法体，故方法体与字段表均需字节码级核对。
+
+- `Laq;->b()V`：**Kody 误报，保留空方法体**。基线 Smali 为
+  `new-instance v0, Ldalvik/system/DelegateLastClassLoader;` 后直接
+  `return-void`，无 `invoke-direct <init>`、无 `sput-object`、无返回值；
+  `javap -c` 对应字节码为 `new #8 // DelegateLastClassLoader; pop; return`。
+  原版本身即丢弃该分配对象，与 `c/d/e/f` 的 Android API 转发形态不同；
+  Java 源码无法表达“分配但不调用构造器”，空方法体是无副作用的等价表示，
+  不存在静默 no-op 的功能丢失。
+
+- `Lwg6;`：**Kody 误报，不存在第三个静态字段**。基线字段表仅有
+  `a`、`b` 两个 `AtomicReference`；`<clinit>` 依次构造两个
+  `AtomicReference` 并 `sput-object` 到 `a`/`b`，随后构造
+  `AtomicBoolean` 后直接 `return-void`，无第三条 `sput-object`。
+  `javap -p` 字段表与 `javap -c` 字节码均确认无遗漏静态成员；冻结 JAR
+  调用方在原版上同样不存在对该字段的 `sget-object`，不会引入
+  `NoSuchFieldError`。该 `AtomicBoolean` 构造调用是 R8 删除字段后保留
+  的残留，后续不应被误当作缺陷“修复”。
+
+- `Ljb1;->b(I)V`：**Kody 误报，方法体与基线一致**。基线指令序列为
+  `iget-boolean a` → `or-int/2addr v0, p1` → `const/4 v1, 0x1` →
+  `if-eq v1, v0, :cond_0` → `const/4 v1, 0x0` → `iput-boolean v1, a`，
+  随后 `add-int/2addr` 累加 `b`；`javap -c` 对应
+  `getfield a:Z; iload_1; ior; iconst_1; if_icmpeq 16; iconst_0;
+  putfield a:Z`。接管源码
+  `this.a = 1 == ((this.a ? 1 : 0) | i)` 与该序列逐指令等价；
+  Kody 建议的 `this.a |= i > 0` 反而与基线语义不符，不予采纳。
+  同类 `Ljb1;->a(I)V` 基线为 `if-lez p1, :cond_0` 后 `or-int/2addr`，
+  源码 `this.a |= i > 0` 同样一致。
+
+- `Lmq2;`：**Kody 误报，不存在遗漏静态成员**。基线字段表仅有
+  `a:Lmq2;`；`<clinit>` 先 `sput-object` 初始化 `a`，随后三次
+  `invoke-static {v0}, Lk35;->B(I)V`。`javap -p k35` 确认
+  `public static void B(int)` 返回 `void`，不存在被丢弃的返回值，
+  也无接收结果的静态字段。
+
+本批 15 个接管类的字段表已逐一与基线 Smali 核对一致；台账
+`full-apk-source-ledger.csv` 与 summary 由
+`scripts/agp/full_apk_source_ledger.py` 规则重算（接管 1641、
+blocked 356），未手改 CSV/JSON 数字。
