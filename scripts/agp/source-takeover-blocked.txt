@@ -1,5 +1,14 @@
 # 未进入本批 AGP 生产接管的候选；文件仅记录准确阻断，不参与构建。
 # entry | descriptor | reason
+g06.class | Lg06; | dependency oj5(int) constructor missing from JADX source
+gq5.class | Lgq5; | dependencies fq5() constructor and lx3.o(Exception) missing from JADX source
+j58.class | Lj58; | JADX source omits inherited abstract zza() required by k25; retain frozen JAR implementation
+mb1.class | Lmb1; | depends on blocked ws5.class version-49 invalid classfile
+mo3.class | Lmo3; | dependencies xy0(int) and wy0(String,byte) constructors missing from JADX source
+nm5.class | Lnm5; | depends on blocked ws5.class version-49 invalid classfile
+ol3.class | Lol3; | dependencies nl3() constructor and lx3.o(Exception) missing from JADX source
+ra3.class | Lra3; | JADX source omits original super constructor ua3(int,int,int); retain frozen JAR implementation
+y93.class | Ly93; | JADX source omits original ua3/y93 constructor ABI; retain frozen JAR implementation
 me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
 f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
 su8.class | Lsu8; | depends on blocked ws5.class
