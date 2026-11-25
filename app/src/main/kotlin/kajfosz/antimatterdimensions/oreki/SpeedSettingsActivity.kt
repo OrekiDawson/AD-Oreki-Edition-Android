@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import kajfosz.antimatterdimensions.OrekiSpeed
 
 /** 教程同风格的设置页，沿用原有配置回调，不改变游戏策略。 */
 class SpeedSettingsActivity : Activity() {
@@ -34,6 +35,10 @@ class SpeedSettingsActivity : Activity() {
     private val warning = Color.rgb(255, 180, 170)
     private val warningContainer = Color.rgb(81, 32, 32)
     private val warningText = Color.rgb(255, 218, 214)
+    private lateinit var speedField: EditText
+    private lateinit var intervalField: EditText
+    private lateinit var assistToggle: Switch
+    private var syncingAssistToggle = false
     private lateinit var assistStatus: TextView
     private val assistCards = mutableListOf<Triple<Int, TextView, Button>>()
     private lateinit var content: LinearLayout
@@ -79,15 +84,20 @@ class SpeedSettingsActivity : Activity() {
         addAutomation()
         addAssist()
         section("倍率说明").also {
-            note(it, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。")
-            note(it, "取值范围 0.000001 ~ 100000，建议 100 ~ 100000；倍率过高时手机可能掉帧。修改后立即生效，无需重启。")
+            val details = details(it, "倍率与计时说明")
+            note(details, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。")
+            note(details, "取值范围 0.000001 ~ 100000，建议 100 ~ 100000；倍率过高时手机可能掉帧。修改后立即生效，无需重启。")
         }
         root.isFocusableInTouchMode = true
         setContentView(root)
         root.requestFocus()
         root.requestApplyInsets()
         refreshAssist()
-        if (state != null) scroll.post { scroll.scrollTo(0, state.getInt("oreki_settings_scroll", 0)) }
+        if (state != null) {
+            state.getString("speed_draft")?.let { speedField.setText(it) }
+            state.getString("interval_draft")?.let { intervalField.setText(it) }
+            scroll.post { scroll.scrollTo(0, state.getInt("oreki_settings_scroll", 0)) }
+        }
     }
 
     override fun onResume() {
@@ -98,15 +108,30 @@ class SpeedSettingsActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         if (::scroll.isInitialized) outState.putInt("oreki_settings_scroll", scroll.scrollY)
+        if (::speedField.isInitialized) outState.putString("speed_draft", speedField.text.toString())
+        if (::intervalField.isInitialized) outState.putString("interval_draft", intervalField.text.toString())
     }
 
     private fun addSpeed() {
         val panel = section("游戏速度")
         val mode = label(OrekiSpeedModeListener.describe(), 16f, onSurface)
         panel.addView(mode, lp(12))
-        pair(panel, button("动态（自动升档）", false, OrekiSpeedModeListener(mode, true)),
-            button("手动（固定）", false, OrekiSpeedModeListener(mode, false)))
+        val dynamicListener = OrekiSpeedModeListener(mode, true)
+        val manualListener = OrekiSpeedModeListener(mode, false)
+        val dynamic = button("动态（自动升档）", false, dynamicListener)
+        val manual = button("手动（固定）", false, manualListener)
+        fun refreshMode() {
+            val actual = OrekiSpeed.isDynamic()
+            dynamic.isSelected = actual
+            manual.isSelected = !actual
+        }
+        dynamic.setOnClickListener { dynamicListener.onClick(it); refreshMode() }
+        manual.setOnClickListener { manualListener.onClick(it); refreshMode() }
+        refreshMode()
+        pair(panel, dynamic, manual)
         val speed = input(panel, "新倍率：", InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        speedField = speed
+        note(panel, "点击预设只填入倍率，保存后才应用。")
         fun preset(value: Int): Button {
             val listener = SettingsClickListener(0, speed, this).apply { setPreset(value.toDouble()) }
             return button("${value}×", false, listener)
@@ -126,15 +151,24 @@ class SpeedSettingsActivity : Activity() {
             .setOnCheckedChangeListener(OrekiAutomationUiListener(this, 2, null, status))
         note(panel, "关闭后停止 Oreki 调度并清空待执行状态；手动操作不受影响。")
         val interval = input(panel, "调度间隔（秒）", InputType.TYPE_CLASS_NUMBER)
+        intervalField = interval
         interval.setText(OrekiAutomationScheduler.getIntervalSec().toString())
         note(panel, "1～60 的整数秒，默认 10 秒。保存后立即生效。")
+        val quick = details(panel, "快速选择间隔")
+        fun intervalPreset(seconds: Int): Button = button("${seconds} 秒", false, View.OnClickListener {
+            interval.setText(seconds.toString())
+            interval.setSelection(interval.text.length)
+            OrekiAutomationUiListener(this, 0, interval, status).onClick(it)
+        })
+        pair(quick, intervalPreset(1), intervalPreset(60))
+        // 10 秒已有恢复默认按钮，不再重复同一动作。
         pair(panel, button("保存间隔", true, OrekiAutomationUiListener(this, 0, interval, status)),
             button("恢复默认（10 秒）", false, OrekiAutomationUiListener(this, 1, interval, status)))
         toggle(panel, "严格模式", OrekiAutomationScheduler.isStrictGlobal())
             .setOnCheckedChangeListener(OrekiAutomationUiListener(this, 3, null, status))
         note(panel, "严格模式限制连续自动操作节拍，可能显著降低推进速度。默认关闭。")
         note(panel, "调度状态以当前生效配置为准；间隔表示调度机会，不保证每次都能购买。自动购买器托管及阶段限制以当前游戏实现为准。")
-        note(panel, "键名与 Web 端逐字相同（oreki.automation.enabled / oreki.automation.intervalSec / oreki.automation.strictGlobal），默认启用、10 秒、单任务档。每次真正执行都会在 logcat 打一行 OREKI_SCHED（带 act= / gap= / taskGap= 毫秒），可直接用来核对间隔是否合规。")
+        note(details(panel, "开发与调试说明"), "键名与 Web 端逐字相同（oreki.automation.enabled / oreki.automation.intervalSec / oreki.automation.strictGlobal），默认启用、10 秒、单任务档。每次真正执行都会在 logcat 打一行 OREKI_SCHED（带 act= / gap= / taskGap= 毫秒），可直接用来核对间隔是否合规。")
     }
 
     private fun addAssist() {
@@ -142,16 +176,22 @@ class SpeedSettingsActivity : Activity() {
         panel.addView(label("强制点亮成就 · 不校验达成条件", 16f, warning, true), lp(8))
         assistStatus = label("", 14f, onSurface)
         panel.addView(assistStatus, lp(12))
-        toggle(panel, "我已知晓代价，启用「强制点亮」", StageAssist.isEnabled())
-            .setOnCheckedChangeListener(StageAssistToggleListener(this))
+        assistToggle = toggle(panel, "我已知晓代价，启用「强制点亮」", StageAssist.isEnabled())
+        assistToggle.setOnCheckedChangeListener { _, checked ->
+            if (!syncingAssistToggle) {
+                // 与旧 StageAssistToggleListener 使用同一写入口；无需 recreate 整页。
+                StageAssist.setEnabled(checked)
+                refreshAssist()
+            }
+        }
         panel.addView(label("默认关闭。执行强制点亮会直接写入成就，并留下不可清除的 stage_assist_used 标记；该存档不能用于真实通关验收，操作不可撤销。", 14f, warningText).apply {
             background = shape(warningContainer, 12f)
             setPadding(dp(12), dp(12), dp(12), dp(12))
         }, lp(12))
-        assistCard(panel, "解锁 Reality 之前 / 重置后（第 1–13 行）", 1)
-        assistCard(panel, "首进 Reality 时（仅成就 147）", 2)
-        assistCard(panel, "Doom 之前（第 1–17 行）", 3)
-        note(panel, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 特蕾莎 入口的开关（MainActivity 直接读 147），第 1–17 行是 佩勒 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。\n\n【这不是「走原版解锁流程」】三张卡片都不校验成就的达成条件：点「强制点亮」就是把这些成就位直接写成已解锁（原版 E(ZZ) 只判「是否已解锁」，随后直接置位，属强制解锁入口），并写入不可清除的永久标记 stage_assist_used —— 一旦写入，该存档不能再用于「真实通关」验收，且无法撤销。想要干净的存档，请不要点这三张卡片。\n\n佩勒 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。")
+        assistCard(panel, "现实前 / 重置后 · 第 1–13 行成就", 1)
+        assistCard(panel, "特蕾莎 · 成就 147", 2)
+        assistCard(panel, "佩勒前 · 第 1–17 行成就", 3)
+        note(details(panel, "成就辅助的条件与限制"), "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是特蕾莎入口的开关（MainActivity 直接读 147），第 1–17 行是佩勒入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。\n\n【这不是「走原版解锁流程」】三张卡片都不校验成就的达成条件：点「强制点亮」就是把这些成就位直接写成已解锁（原版 E(ZZ) 只判「是否已解锁」，随后直接置位，属强制解锁入口），并写入不可清除的永久标记 stage_assist_used —— 一旦写入，该存档不能再用于「真实通关」验收，且无法撤销。想要干净的存档，请不要点这三张卡片。\n\n佩勒入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。")
     }
 
     private fun assistCard(parent: LinearLayout, title: String, stage: Int) {
@@ -173,6 +213,10 @@ class SpeedSettingsActivity : Activity() {
     private fun refreshAssist() {
         if (!::assistStatus.isInitialized) return
         val enabled = StageAssist.isEnabled()
+        if (::assistToggle.isInitialized && assistToggle.isChecked != enabled) {
+            syncingAssistToggle = true
+            try { assistToggle.isChecked = enabled } finally { syncingAssistToggle = false }
+        }
         val allowed = StageAssist.canWrite()
         val used = when (StageAssist.usedState()) {
             0 -> "未记录使用"
@@ -189,6 +233,19 @@ class SpeedSettingsActivity : Activity() {
             summary.text = StageAssist.cardSummary(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒")
             action.isEnabled = allowed
         }
+    }
+
+    /** 次要说明默认折叠；不折叠关键警示或操作入口。 */
+    private fun details(parent: LinearLayout, title: String): LinearLayout {
+        val body = column().apply { visibility = View.GONE }
+        val toggle = button("展开$title", false, View.OnClickListener { view ->
+            val expanded = body.visibility != View.VISIBLE
+            body.visibility = if (expanded) View.VISIBLE else View.GONE
+            (view as Button).text = if (expanded) "收起$title" else "展开$title"
+        })
+        parent.addView(toggle, lp(8))
+        parent.addView(body, lp())
+        return body
     }
 
     private fun section(title: String): LinearLayout {
@@ -245,10 +302,11 @@ class SpeedSettingsActivity : Activity() {
             minHeight = dp(48)
             minimumWidth = 0
             setPadding(dp(12), dp(10), dp(12), dp(10))
-            setTextColor(ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
-                intArrayOf(onVariant, if (filled) onPrimary else onPrimaryContainer)))
+            setTextColor(ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf(android.R.attr.state_selected), intArrayOf()),
+                intArrayOf(onVariant, onPrimary, if (filled) onPrimary else onPrimaryContainer)))
             val fill = android.graphics.drawable.StateListDrawable().apply {
                 addState(intArrayOf(-android.R.attr.state_enabled), shape(Color.rgb(45, 53, 62), 24f))
+                addState(intArrayOf(android.R.attr.state_selected), shape(primary, 24f))
                 addState(intArrayOf(), shape(if (filled) primary else primaryContainer, 24f))
             }
             background = RippleDrawable(ColorStateList.valueOf(Color.argb(48, 173, 210, 247)),
