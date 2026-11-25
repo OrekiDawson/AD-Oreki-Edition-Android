@@ -31,6 +31,11 @@ class SpeedSettingsActivity : Activity() {
     private val onPrimaryContainer = Color.rgb(201, 230, 255)
     private val onPrimary = Color.rgb(0, 50, 78)
     private val outline = Color.rgb(105, 119, 134)
+    private val warning = Color.rgb(255, 180, 170)
+    private val warningContainer = Color.rgb(81, 32, 32)
+    private val warningText = Color.rgb(255, 218, 214)
+    private lateinit var assistStatus: TextView
+    private val assistCards = mutableListOf<Triple<Int, TextView, Button>>()
     private lateinit var content: LinearLayout
     private lateinit var scroll: ScrollView
 
@@ -81,7 +86,13 @@ class SpeedSettingsActivity : Activity() {
         setContentView(root)
         root.requestFocus()
         root.requestApplyInsets()
+        refreshAssist()
         if (state != null) scroll.post { scroll.scrollTo(0, state.getInt("oreki_settings_scroll", 0)) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshAssist()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -127,10 +138,16 @@ class SpeedSettingsActivity : Activity() {
     }
 
     private fun addAssist() {
-        val panel = section("阶段辅助（强制点亮成就，不校验条件）")
+        val panel = section("成就辅助")
+        panel.addView(label("强制点亮成就 · 不校验达成条件", 16f, warning, true), lp(8))
+        assistStatus = label("", 14f, onSurface)
+        panel.addView(assistStatus, lp(12))
         toggle(panel, "我已知晓代价，启用「强制点亮」", StageAssist.isEnabled())
             .setOnCheckedChangeListener(StageAssistToggleListener(this))
-        note(panel, "不校验成就条件，直接写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。默认关闭。")
+        panel.addView(label("默认关闭。执行强制点亮会直接写入成就，并留下不可清除的 stage_assist_used 标记；该存档不能用于真实通关验收，操作不可撤销。", 14f, warningText).apply {
+            background = shape(warningContainer, 12f)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+        }, lp(12))
         assistCard(panel, "解锁 Reality 之前 / 重置后（第 1–13 行）", 1)
         assistCard(panel, "首进 Reality 时（仅成就 147）", 2)
         assistCard(panel, "Doom 之前（第 1–17 行）", 3)
@@ -143,10 +160,35 @@ class SpeedSettingsActivity : Activity() {
             setPadding(dp(12), dp(12), dp(12), dp(12))
         }
         card.addView(label(title, 16f, onSurface, true), lp(8))
-        note(card, StageAssist.cardSummary(stage))
-        card.addView(button(StageAssist.buttonLabel(stage), false,
-            SettingsClickListener(4, null, this, stage)).apply { isEnabled = StageAssist.canWrite() }, lp())
+        val summary = label(StageAssist.cardSummary(stage), 14f, onVariant)
+        card.addView(summary, lp(12))
+        val action = button(StageAssist.buttonLabel(stage), false,
+            SettingsClickListener(4, null, this, stage)).apply { isEnabled = StageAssist.canWrite() }
+        card.addView(action, lp())
+        assistCards += Triple(stage, summary, action)
         parent.addView(card, lp(12))
+    }
+
+    /** 仅回读现有状态；开关仍由原回调持久化，执行仍由原二次确认入口处理。 */
+    private fun refreshAssist() {
+        if (!::assistStatus.isInitialized) return
+        val enabled = StageAssist.isEnabled()
+        val allowed = StageAssist.canWrite()
+        val used = when (StageAssist.usedState()) {
+            0 -> "未记录使用"
+            1 -> "已记录使用（不能用于真实通关验收）"
+            else -> "标记读取未知"
+        }
+        val status = when {
+            !enabled -> "已关闭，成就操作不可用"
+            !allowed -> "已启用，但当前阶段禁止写入"
+            else -> "已启用，操作仍需二次确认"
+        }
+        assistStatus.text = "状态：$status\n辅助使用标记：$used"
+        assistCards.forEach { (stage, summary, action) ->
+            summary.text = StageAssist.cardSummary(stage)
+            action.isEnabled = allowed
+        }
     }
 
     private fun section(title: String): LinearLayout {
@@ -205,8 +247,12 @@ class SpeedSettingsActivity : Activity() {
             setPadding(dp(12), dp(10), dp(12), dp(10))
             setTextColor(ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
                 intArrayOf(onVariant, if (filled) onPrimary else onPrimaryContainer)))
+            val fill = android.graphics.drawable.StateListDrawable().apply {
+                addState(intArrayOf(-android.R.attr.state_enabled), shape(Color.rgb(45, 53, 62), 24f))
+                addState(intArrayOf(), shape(if (filled) primary else primaryContainer, 24f))
+            }
             background = RippleDrawable(ColorStateList.valueOf(Color.argb(48, 173, 210, 247)),
-                shape(if (filled) primary else primaryContainer, 24f), shape(Color.WHITE, 24f))
+                fill, shape(Color.WHITE, 24f))
             setOnClickListener(listener)
         }
 
