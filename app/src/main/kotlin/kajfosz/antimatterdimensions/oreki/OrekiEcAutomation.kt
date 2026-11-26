@@ -521,7 +521,22 @@ object OrekiEcAutomation {
             // 铺路已完整失败（原版 D() 与递归 pave 都无法买下前置），此时才允许一次受控
             // respec：Reality 后 unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
             // 只能靠清空旧研究树重铺。闸门用 30 秒，避免与 EC 单拍周期抖动互相覆盖。
-            if (unlocked != target && respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
+            //
+            // [R130 KODY-FIX] 只对「Reality 后的 EC4」生效：EC1..EC3 与新档首关不受此分支影响，
+            // 避免对无关目标整树 respec；闸门仍为同一目标 30 秒一次。
+            if (target == 4 && afterFirstReality() && unlocked != target &&
+                respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
+                // respec 只清空研究树，若当拍直接退出，兄弟模块（OrekiEternity.buyNormalStudies）
+                // 会按 challenge.y() 的旧值选 121 列重新填满，导致目标列 123 仍被互斥挡住、
+                // 下一拍再次 respec 的周期性清树。这里在 respec 后立即按目标列自行补买，
+                // 抢占本拍，避免其它模块用错误列填树。
+                paveVisited.clear()
+                for (id in k) {
+                    if (paveTimeStudy(id, 0)) {
+                        note("RESPEC-REPAVE id=" + target + " ts=" + id + " -> unlocked=" + Abi.unlocked())
+                        break
+                    }
+                }
                 return true
             }
             return false
