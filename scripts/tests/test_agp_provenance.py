@@ -78,6 +78,8 @@ class AgpProvenanceTests(unittest.TestCase):
         end = build.find("buildTypes", start)
         self.assertGreater(end, start)
         self.assertIn("enableV3Signing = true", build[start:end])
+        for scheme in (1, 2, 4):
+            self.assertIn(f"enableV{scheme}Signing = false", build[start:end])
 
     def test_rejects_game_jar_sha_mismatch(self):
         with tempfile.TemporaryDirectory() as temporary:

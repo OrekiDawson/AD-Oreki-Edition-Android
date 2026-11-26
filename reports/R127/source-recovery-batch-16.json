@@ -1,0 +1,251 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-16",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 20,
+  "blocked_count": 20,
+  "newly_blocked_candidates": 20,
+  "previous_source_coverage": 1915,
+  "source_coverage": 1935,
+  "coverage_percent": 12.631,
+  "takeover_entries": 1959,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "av0.class",
+      "descriptor": "Lav0;",
+      "source": "av0.java"
+    },
+    {
+      "entry": "b41.class",
+      "descriptor": "Lb41;",
+      "source": "b41.java"
+    },
+    {
+      "entry": "co4.class",
+      "descriptor": "Lco4;",
+      "source": "co4.java"
+    },
+    {
+      "entry": "fl.class",
+      "descriptor": "Lfl;",
+      "source": "fl.java"
+    },
+    {
+      "entry": "iw2.class",
+      "descriptor": "Liw2;",
+      "source": "iw2.java"
+    },
+    {
+      "entry": "k01.class",
+      "descriptor": "Lk01;",
+      "source": "k01.java"
+    },
+    {
+      "entry": "l6.class",
+      "descriptor": "Ll6;",
+      "source": "l6.java"
+    },
+    {
+      "entry": "n56.class",
+      "descriptor": "Ln56;",
+      "source": "n56.java"
+    },
+    {
+      "entry": "nl5.class",
+      "descriptor": "Lnl5;",
+      "source": "nl5.java"
+    },
+    {
+      "entry": "no3.class",
+      "descriptor": "Lno3;",
+      "source": "no3.java"
+    },
+    {
+      "entry": "nr.class",
+      "descriptor": "Lnr;",
+      "source": "nr.java"
+    },
+    {
+      "entry": "sz3.class",
+      "descriptor": "Lsz3;",
+      "source": "sz3.java"
+    },
+    {
+      "entry": "t4.class",
+      "descriptor": "Lt4;",
+      "source": "t4.java"
+    },
+    {
+      "entry": "ta4.class",
+      "descriptor": "Lta4;",
+      "source": "ta4.java"
+    },
+    {
+      "entry": "tv4.class",
+      "descriptor": "Ltv4;",
+      "source": "tv4.java"
+    },
+    {
+      "entry": "uv5.class",
+      "descriptor": "Luv5;",
+      "source": "uv5.java"
+    },
+    {
+      "entry": "wz8.class",
+      "descriptor": "Lwz8;",
+      "source": "wz8.java"
+    },
+    {
+      "entry": "x2.class",
+      "descriptor": "Lx2;",
+      "source": "x2.java"
+    },
+    {
+      "entry": "xy6.class",
+      "descriptor": "Lxy6;",
+      "source": "xy6.java"
+    },
+    {
+      "entry": "yn2.class",
+      "descriptor": "Lyn2;",
+      "source": "yn2.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "au2.class",
+      "descriptor": "Lau2;",
+      "reason": "javac compile failure: constructor au2 cannot apply superclass ou2() or cu2()"
+    },
+    {
+      "entry": "c48.class",
+      "descriptor": "Lc48;",
+      "reason": "javac compile failure: constructor mismatch with a48(String)"
+    },
+    {
+      "entry": "e83.class",
+      "descriptor": "Le83;",
+      "reason": "javac compile failure: missing q51(byte) constructor"
+    },
+    {
+      "entry": "ea8.class",
+      "descriptor": "Lea8;",
+      "reason": "javac compile failure: missing mx7.e/j98.h and u9.zza remains private"
+    },
+    {
+      "entry": "ft0.class",
+      "descriptor": "Lft0;",
+      "reason": "javac compile failure: final field b is not initialized by the default constructor"
+    },
+    {
+      "entry": "hl8.class",
+      "descriptor": "Lhl8;",
+      "reason": "javac compile failure: zzijx cannot be converted to oy8"
+    },
+    {
+      "entry": "ia3.class",
+      "descriptor": "Lia3;",
+      "reason": "javac compile failure: missing ua3(int,int) constructor"
+    },
+    {
+      "entry": "jx1.class",
+      "descriptor": "Ljx1;",
+      "reason": "javac compile failure: missing ag5() constructor"
+    },
+    {
+      "entry": "me4.class",
+      "descriptor": "Lme4;",
+      "reason": "javac compile failure: missing h86.x(Intent,int) override"
+    },
+    {
+      "entry": "od8.class",
+      "descriptor": "Lod8;",
+      "reason": "javac compile failure: missing hx7.T/mx7.V and u9.zza remains private"
+    },
+    {
+      "entry": "ou4.class",
+      "descriptor": "Lou4;",
+      "reason": "javac compile failure: qu4.o and q13(byte) unavailable"
+    },
+    {
+      "entry": "pq8.class",
+      "descriptor": "Lpq8;",
+      "reason": "javac compile failure: missing e(f) constructor"
+    },
+    {
+      "entry": "sp0.class",
+      "descriptor": "Lsp0;",
+      "reason": "javac compile failure: missing iq0.B(BigDouble,Object) override and Player.PelleRift"
+    },
+    {
+      "entry": "t20.class",
+      "descriptor": "Lt20;",
+      "reason": "javac compile failure: missing t0() constructor"
+    },
+    {
+      "entry": "td5.class",
+      "descriptor": "Ltd5;",
+      "reason": "javac compile failure: superclass sd5(Window,qx7) constructor unavailable"
+    },
+    {
+      "entry": "u39.class",
+      "descriptor": "Lu39;",
+      "reason": "javac compile failure: missing xx8() constructor"
+    },
+    {
+      "entry": "um7.class",
+      "descriptor": "Lum7;",
+      "reason": "javac compile failure: missing cl7(y55,ht6) constructor"
+    },
+    {
+      "entry": "wa6.class",
+      "descriptor": "Lwa6;",
+      "reason": "javac compile failure: missing w39.p() override and constructor"
+    },
+    {
+      "entry": "x84.class",
+      "descriptor": "Lx84;",
+      "reason": "javac compile failure: missing k51(String,byte) constructor"
+    },
+    {
+      "entry": "zi7.class",
+      "descriptor": "Lzi7;",
+      "reason": "javac compile failure: m47.v unavailable"
+    }
+  ],
+  "canonical_inputs": {
+    "restored_from": "/mnt/windows/Users/Oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work",
+    "base_files": 17412,
+    "base_tree_sha256": "39e1039dbb1719596da47ce3706de67f1925ed45e4b8fdf0fb9dc693c77e5e78",
+    "base_manifest_sha256": "b07e4343839b3deb197e4cf0a3cc03cad264d1c4109456204df96f56e64ff6b0",
+    "base_public_xml_sha256": "d6471a87848cf1f3842f9da92a559c1489f506ca60ee4dd9e224b81f2e53ad4f",
+    "split_files": 50,
+    "split_tree_sha256": "2b674c30ffc4ed7eb1c85e8df7b0d447716eb9b03bbd59c5ced086004a54aaa5",
+    "split_public_xml_sha256": "21d70290f19b4c09b59da3e9d9c0f38b47a341a506c63b9c29371057ee820f7e"
+  },
+  "verification": {
+    "prepareFullGameInputs": "PASS: 14973 resources",
+    "static_tests": "PASS: 25",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1959",
+    "sourceTakeoverDex": "PASS: 1959",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1935 local compiled, 574 blocked",
+    "debugApk": {
+      "bytes": 83852184,
+      "sha256": "3f429cabe710335d4188b1545b1972072fa5ab8c614e271e859221c49c0ae3f2"
+    },
+    "d8_stack_map_warnings": 6
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-16",
+    "blocked_source_references": "blocked-source-references",
+    "digests": [
+      "blocked-source-references/SHA256SUMS"
+    ]
+  }
+}

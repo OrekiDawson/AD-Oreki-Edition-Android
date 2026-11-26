@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "batch": "R128-source-recovery-batch-25",
+  "selection": "targeted 128-class JADX subset from frozen JAR + Smali identity + committed 15,319 ledger",
+  "decompiled_candidate_count": 128,
+  "imported_candidate_count": 33,
+  "accepted_count": 21,
+  "blocked_count": 12,
+  "previous_source_coverage": 2145,
+  "source_coverage": 2166,
+  "coverage_percent": 14.139,
+  "takeover_entries": 2190,
+  "takeover_outside_baseline": 24,
+  "blocked_entries": 742,
+  "accepted": [
+    "Lxu8;",
+    "Lab1;",
+    "Lkt7;",
+    "Lbk8;",
+    "Lfb1;",
+    "Lfd2;",
+    "Lq37;",
+    "Lg71;",
+    "Lgc9;",
+    "Lw52;",
+    "Lwk2;",
+    "Lwn2;",
+    "Lj75;",
+    "Loz0;",
+    "Lmm6;",
+    "Ly26;",
+    "Lvb5;",
+    "Ln75;",
+    "Ld34;",
+    "Lpa7;",
+    "Lbz7;"
+  ],
+  "blocked": [
+    "Lox7;",
+    "Llr6;",
+    "Lbh8;",
+    "Lsf7;",
+    "Li98;",
+    "Lei7;",
+    "Lzu3;",
+    "Lqh8;",
+    "Lme;",
+    "Lh26;",
+    "Lwh8;",
+    "Lq58;"
+  ],
+  "abi_corrections": {
+    "narrow_integer_assignments": [
+      "Lxu8;"
+    ],
+    "synthetic_constructors": [
+      "Lab1;",
+      "Lkt7;"
+    ]
+  },
+  "verification": {
+    "compileDebugJavaWithJavac": "PASS",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 2190",
+    "sourceTakeoverClasses": "PASS: 2190",
+    "sourceTakeoverDex": "PASS: 2190",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 2166 local compiled, 742 blocked",
+    "staticTests": "PASS: 25",
+    "debugApk": {
+      "bytes": 83886704,
+      "sha256": "2d730afa220fd2d2f272185f0f6a8dd42cd2f2ed2a1db2f1e633b3a775dff04d"
+    },
+    "ledger": {
+      "sha256": "447b1420996992a722d9ca61aabd0b5a0410b211ac0fb4e6bc01d717b99722d7",
+      "blockedSha256": "0c4f4e2f2dcab8349c63d173429bd9a7fb47d62730980c3929fe6cc0ed6050ae",
+      "takeoverSha256": "8478e669d8d331a69f62ed3c5633787352e7f79d68ee41b2d74d2a46ced5bacb"
+    }
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-25",
+    "blocked_source_references": "blocked-source-references",
+    "candidate_selection": "candidate-selection.json",
+    "candidate_subset_jar": "batch-25-candidates.jar",
+    "jadx_sources": "jadx-sources/sources",
+    "build_evidence": "build-evidence",
+    "digests": [
+      "blocked-source-references/SHA256SUMS",
+      "SHA256SUMS"
+    ]
+  },
+  "jadx_errors": {
+    "class": "Lox7;",
+    "reason": "ConstructorVisitor and method generation errors"
+  },
+  "notes": [
+    "JADX 对 ox7 报告构造器/方法生成错误；该类未进入编译，保留原始参考并精确阻断。",
+    "33个导入候选中其余12个因构造器、隐藏字段、版本49依赖或 JADX ABI 差异失败，原始源码已保留。",
+    "1个窄整型转换与2个 synthetic 构造器已依据 Smali/JAR 签名恢复。",
+    "发布冻结继续有效；Debug APK仅作为本地源码接管构建证据。"
+  ]
+}

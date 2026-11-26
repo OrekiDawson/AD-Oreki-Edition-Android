@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """为 verify_release.py / verify_patch_contract.py 准备 APK 工具报告（R114-01）。
 
-等价于旧链 Gradle prepareVerifyRelease 的产物（aapt2 badging + apksigner v2/v3 +
+等价于旧链 Gradle prepareVerifyRelease 的产物（aapt2 badging + apksigner V3 +
 apktool 解包），但可在 AGP 候选链路复用；只读 APK，不构建、不签名、不联网。
 
 用法：
@@ -63,10 +63,7 @@ def make_report(apk: pathlib.Path, out_dir: pathlib.Path, apktool_jar: pathlib.P
     aapt2 = default_android_tool("aapt2")
     apksigner = default_android_tool("apksigner")
     badging = runner([aapt2, "dump", "badging", str(apk)])
-    sign_v2 = runner([apksigner, "verify", "--verbose", "--print-certs",
-                      "--min-sdk-version", "24", "--max-sdk-version", "27", str(apk)])
-    sign_v3 = runner([apksigner, "verify", "--verbose", "--print-certs",
-                      "--min-sdk-version", "28", "--max-sdk-version", "32", str(apk)])
+    sign_v3 = runner([apksigner, "verify", "--verbose", "--print-certs", str(apk)])
     decoded = runner(["java", "-Xmx4g", "-jar", str(apktool_jar), "d", "-r", "-f",
                       "-o", str(prepared), str(apk)])
     if decoded[0] != 0 or not (prepared / "smali").is_dir():
@@ -76,7 +73,6 @@ def make_report(apk: pathlib.Path, out_dir: pathlib.Path, apktool_jar: pathlib.P
         "size": apk.stat().st_size,
         "sha256": sha256_file(apk),
         "badging": {"exit": badging[0], "output": badging[1]},
-        "sign_v2": {"exit": sign_v2[0], "output": sign_v2[1]},
         "sign_v3": {"exit": sign_v3[0], "output": sign_v3[1]},
         "prepared_dir": str(prepared.resolve()),
         "apktool_exit": decoded[0],
