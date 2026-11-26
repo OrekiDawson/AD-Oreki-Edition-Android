@@ -174,6 +174,11 @@ object OrekiCrunchPolicy {
     private const val PRE_BREAK_WAIT_START_NS: Long = 60_000_000_000L
     private const val PRE_BREAK_WAIT_MAX_NS: Long = 900_000_000_000L
 
+    /** [R130 P0 四修] 放行保持窗口：一次放行后至少保持这么久，避免同一帧的第二次
+     *  评估立刻改判等待，把 autobuyer 又按回暂停、放行永远换不来真实结算。
+     *  取 8 秒 ≥ 原版「时间」模式 5 秒间隔，保证放行后 autobuyer 至少有一次触发机会。 */
+    private const val PRE_BREAK_ALLOW_HOLD_NS: Long = 8_000_000_000L
+
     @Volatile private var preBreakWindowNs: Long = PRE_BREAK_WAIT_START_NS
 
     /** 上次放行时的 IP 量级；用于识别「放行但零收益」并延长窗口。 */
@@ -181,6 +186,14 @@ object OrekiCrunchPolicy {
 
     /** 上次放行时刻（nanoTime）；0 = 尚未放行。 */
     private var preBreakLastAllowAt: Long = 0L
+
+    /** 放行保持截止时刻（nanoTime）；此期间重复评估仍返回放行。 */
+    @Volatile private var preBreakHoldUntilNs: Long = 0L
+
+    /** 放行保持是否仍有效；纯函数便于单测固定。 */
+    @JvmStatic
+    fun preBreakHoldActive(holdUntilNs: Long, nowNs: Long): Boolean =
+        holdUntilNs > 0L && nowNs < holdUntilNs
 
     @JvmStatic
     fun decide(): Decision {
@@ -270,6 +283,12 @@ object OrekiCrunchPolicy {
             // 直到反物质真正长到能产出 IP 的量级；一旦观察到 IP 增长即回到 60s。
             // 判据本身仍为纯函数，可在单测中固定。
             val nowNs = System.nanoTime()
+            // [R130 P0 四修] 放行保持：同一帧/相邻 tick 的重复评估不得把刚给出的放行改判等待，
+            // 否则 OrekiStageAuto 立刻重新暂停 autobuyer，放行永远换不来真实结算。
+            // 实测 15:57:11 allow=true 后 30ms 内 allow=false，IP 仍为 0.0e0。
+            if (preBreakHoldActive(preBreakHoldUntilNs, nowNs)) {
+                return Decision(true, "pre-break-hold")
+            }
             if (preBreakLastIpLog != null && ipLog != null &&
                 ipLog > preBreakLastIpLog!!
             ) {
@@ -282,6 +301,7 @@ object OrekiCrunchPolicy {
             if (elapsed >= preBreakWindowNs) {
                 if (jumpReason != null) {
                     preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
                     return Decision(true, jumpReason)
                 }
                 // 窗口已过但收益仍不足：延长窗口，让反物质继续长，

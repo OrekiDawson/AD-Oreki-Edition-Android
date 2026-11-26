@@ -1,7 +1,9 @@
 package kajfosz.antimatterdimensions.oreki;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -53,5 +55,21 @@ public class OrekiCrunchPolicyPreBreakTest {
         assertNull(OrekiCrunchPolicy.preBreakJumpReason(Double.NEGATIVE_INFINITY, 1.0));
         assertNull(OrekiCrunchPolicy.preBreakJumpReason(3.0, Double.POSITIVE_INFINITY));
         assertNull(OrekiCrunchPolicy.preBreakJumpReason(3.0, Double.NaN));
+    }
+
+    /**
+     * [R130 P0 四修 / Kody·high 写回窗口] 放行必须保持足够长，否则同一帧的第二次评估
+     * 立刻改判等待，autobuyer 被重新暂停，放行换不来任何真实结算（实测 30ms 内翻转）。
+     */
+    @Test
+    public void holdsAllowanceForAtLeastOneAutobuyerInterval() {
+        long now = 1_000_000_000_000L;
+        // 尚未放行 → 不保持
+        assertFalse(OrekiCrunchPolicy.preBreakHoldActive(0L, now));
+        // 放行后 8 秒内保持（原版「时间」模式 5 秒间隔必须能触发一次）
+        assertTrue(OrekiCrunchPolicy.preBreakHoldActive(now + 8_000_000_000L, now));
+        assertTrue(OrekiCrunchPolicy.preBreakHoldActive(now + 8_000_000_000L, now + 5_000_000_000L));
+        // 到期即恢复常规判据
+        assertFalse(OrekiCrunchPolicy.preBreakHoldActive(now + 8_000_000_000L, now + 8_000_000_001L));
     }
 }
