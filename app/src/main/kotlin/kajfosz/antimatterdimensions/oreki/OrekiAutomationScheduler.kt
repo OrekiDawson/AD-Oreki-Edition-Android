@@ -545,6 +545,9 @@ object OrekiAutomationScheduler {
         if (lastGuiTickAtMs != 0L && now - lastGuiTickAtMs < gap) return false
         lastGuiTickAtMs = now
         guiTickCount++
+        // [R129 P0] 每个有效 tick 先把玩家关掉的原版总开关恢复为开启，
+        // 让托管继续执行；恢复失败不阻断日志与后续动作，由 allow() 的 deny 兜底。
+        restoreOriginalAutobuyersOn()
         try {
             android.util.Log.i(TAG, "gui-tick #" + guiTickCount + " gapMs=" + gap)
         } catch (_: Throwable) {
@@ -584,6 +587,48 @@ object OrekiAutomationScheduler {
     } catch (_: Throwable) {
         // 读不到 ⇒ 视为关闭：自动购买消费资源且不可逆，停摆可诊断、越权不可逆
         false
+    }
+
+    /**
+     * [R129 P0] 把原版「自动购买器」总开关恢复为开启。
+     *
+     * 规则：MOD 调度器独占自动购买器托管，原版全局开关**不能**关闭 MOD 托管；
+     * 玩家允许随时改动，但只存活到下一个有效 tick，随后按最新状态恢复。
+     * 旧实现把 `autobuyersOn` 当作硬门禁（关闭后全员 deny），导致玩家一次误点
+     * 就让整个智能调度永久停摆且无法自愈。
+     *
+     * 写入目标与原版按钮同一字段：`Player$Options.e0(Z)`（setter），失败再退到
+     * 直接写 `autobuyersOn` 字段；两条路径都只改开关本身，不动单项配置。
+     */
+    private fun restoreOriginalAutobuyersOn(): Boolean {
+        if (originalAutobuyersOn()) return false
+        try {
+            val playerCls = Class.forName("kajfosz.antimatterdimensions.player.Player")
+            val player = playerCls.getField("a").get(null)
+            val options = playerCls.getMethod("K").invoke(player)
+            val written = try {
+                options.javaClass
+                    .getMethod("e0", Boolean::class.javaPrimitiveType)
+                    .invoke(options, true)
+                true
+            } catch (_: Throwable) {
+                val field = options.javaClass.getDeclaredField("autobuyersOn")
+                field.isAccessible = true
+                field.setBoolean(options, true)
+                true
+            }
+            try {
+                android.util.Log.i(TAG, "restore original autobuyersOn=true ok=" + written)
+            } catch (_: Throwable) {
+            }
+            return written
+        } catch (error: Throwable) {
+            try {
+                android.util.Log.w(TAG, "restore original autobuyersOn failed", error)
+            } catch (_: Throwable) {
+            }
+            return false
+        }
     }
 
     /**
