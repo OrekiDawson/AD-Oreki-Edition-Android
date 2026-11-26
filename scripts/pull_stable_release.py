@@ -292,7 +292,9 @@ def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | No
                 if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
                     log("WARN: 新固定名 idsig 校验不一致，保留旧文件")
                     return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
-        except OSError as exc:
+        except (OSError, PullError) as exc:
+            # atomic_replace_bytes 的源/目标哈希复核失败会抛 PullError；
+            # 与 OSError 同样降级为 kept-*，保留旧文件，不阻断后续收尾。
             log(f"WARN: 旧名 idsig 补写受阻，保留原文件：{exc}")
             return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
         disposition = "duplicate-removed"

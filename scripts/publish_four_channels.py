@@ -764,7 +764,10 @@ def retire_legacy_stable(root: Path, current_sha: str) -> dict[str, object] | No
                 if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
                     say("本地：新固定名 idsig 校验不一致，保留旧文件")
                     return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
-        except OSError as exc:
+        except (OSError, RuntimeError) as exc:
+            # atomic_copy 在临时文件与源哈希不一致时抛 RuntimeError（云盘客户端实时同步
+            # latest/ 时源 idsig 可能被改写）；一律降级为 kept-*，保留旧文件，
+            # 不阻断已完成的 APK 原子替换与后续 write_checksums。
             say(f"本地：旧名 idsig 补写受阻，保留原文件：{exc}")
             return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
         disposition = "duplicate-removed"
