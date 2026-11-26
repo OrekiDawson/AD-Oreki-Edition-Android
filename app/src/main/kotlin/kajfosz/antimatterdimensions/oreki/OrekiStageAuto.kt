@@ -1499,19 +1499,20 @@ object OrekiStageAuto {
         }
 
         // ---- 2) 可重复的 ipMult ----
+        //
+        // [R130] 旧逻辑在「ID1 已解锁但一次都没买过」时**永久停买 ipMult**，
+        // 而 3.21 真实链路里 ID1 在 Break 之前就处于 `idUnlocked == true` 状态：
+        // 实测干净新档（17:48 起）ipMult 卡在 2 级不再上涨，单次坍缩收益固定
+        // `10 × 2^2 = 82` IP（`ipGainLog` 恒 1.9138），27 分钟只有 1.08e3 IP，
+        // 32767 IP 的 Break 门槛在指数断链后不可达 —— 这就是 pre-break 长跑的
+        // 真实死锁点。
+        //
+        // 现在改为**预留式购买**：只要扣掉本次 ipMult 成本后余额仍不低于 ID1 的
+        // 原版 IP 门槛（`idIpRequirement`），就照常买；门槛不被破坏时没有理由
+        // 冻结指数增长。首次永恒之后不再预留（届时 ID 已可自由购买）。
         val id1 = GameApi.infinityDimension(1) ?: return false
-        if (!GameApi.idUnlocked(id1)) {
-            // 未解锁：IP ≥ 1e7 就停手，攒钱等 ID1 解锁
-            val ip = ipBalance()
-            val ipVersusGate = cmp(ip, 1.0e7)
-            if (ipVersusGate != null && ipVersusGate >= 0) {
-                logIupDiag("id1-reserve-wait")
-                return false
-            }
-        } else {
-            // 已解锁：只有买过 ID1 才恢复买 ipMult
-            if (GameApi.idPurchases(id1) == 0L) return false
-        }
+        val id1IpReserve: Any? =
+            if (cmp(GameApi.eternities(), 0.0) == 0) GameApi.idIpRequirement(id1) else null
 
         val ipMult = GameApi.ipMultUpgrade()
         if (ipMult == null) {
@@ -1533,6 +1534,16 @@ object OrekiStageAuto {
         // 这个不存在的签名让扣费**恒失败** —— 结果是免费升级，等同伪造进度。
         // 现在 `currencyBuy()` 已锁定原版 `Currency.u(BigDouble)`，先判余额再扣；
         // 扣费返回 false 时立即退出，绝不写等级。
+        //
+        // [R130] 先做 ID1 预留算术：扣完仍保住门槛才允许买，门槛本身不被破坏。
+        if (id1IpReserve != null) {
+            val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
+            val remaining = GameApi.subtractBigDouble(ipNow, cost)
+            if (remaining == null || (GameApi.compareBigDoubles(remaining, id1IpReserve) ?: -1) < 0) {
+                logIupDiag("ipmult-reserve", " cost=" + cost)
+                return false
+            }
+        }
         if (!GameApi.currencyBuy(currency, cost)) {
             logIupDiag("currency-buy-failed", " cost=" + cost)
             return false
