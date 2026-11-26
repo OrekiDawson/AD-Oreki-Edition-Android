@@ -2376,10 +2376,24 @@ object OrekiStageAuto {
     /** 大坍缩三个非节拍配置字段；mode/time 由 writeManagedCrunchInterval 独占。 */
     private fun applyManagedCrunchThresholds(crunch: Any?) {
         if (crunch == null || !GameApi.crunchUnlocked(crunch)) return
+        // [R130] pre-Break 的坍缩阈值不能是 10 IP。
+        //
+        // 实测（干净新档 18:42-19:02，五次冷启动一致）：原版 `amount` 就是「本次坍缩
+        // 收益至少多少 IP 才允许坍缩」，而收益按**本次无限**的 AM 峰值计算；重置后
+        // 峰值从零重新累积，于是 `gain == 10` 恰等于阈值 1e1 ⇒ 每 2~5 分钟在 10 IP
+        // 处循环，`inf` 只增不减、`maxAM` 永远回到 1e206~1e281 再被清零，21 分钟
+        // 仍是 10 IP/次 —— Break 的 32767 IP 不可达。
+        // 现在 pre-Break 用 1e6 IP 门槛，让 AM 必须先真实成长到足够高才坍缩；
+        // 首次 Break 之后恢复原阈值 10（后续阶段由各自策略接管）。
+        val threshold = if (isBroken()) {
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD
+        } else {
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD_PRE_BREAK
+        }
         reconcileBigDoubleField(
             "crunch.amount",
             GameApi.crunchAmount(crunch),
-            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
+            threshold,
         ) {
             if (!GameApi.setCrunchAmount(crunch, it)) {
                 Log.e(TAG_AU4C, "managed[crunch.amount] write failed")
@@ -2388,7 +2402,7 @@ object OrekiStageAuto {
         reconcileBigDoubleField(
             "crunch.xHighest",
             GameApi.crunchXHighest(crunch),
-            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
+            threshold,
         ) { GameApi.setCrunchXHighest(crunch, it) }
         val increase = GameApi.crunchIncreaseWithMult(crunch)
         reconcileBooleanField(
