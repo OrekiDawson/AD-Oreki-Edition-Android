@@ -56,11 +56,23 @@ object OrekiIpGainScale {
      * 属于相对频繁的路径，因此对「是否爬坡期」做 1 秒缓存，避免每次反射；
      * 首次现实后最多延迟 1 秒才切回原版尺度，不影响数值正确性。
      */
+    /**
+     * [R130] 每次坍缩目标收益倍数（以 10 为底，2.0 ⇒ 约 100 倍）。
+     *
+     * 动因（真机证据 22:00-22:15）：`prestige.e.d()` 读的是**重置之后**的
+     * `records.thisInfinity.maxAM`（`pre-break-am-cap` 行 maxAMlog 恒 5.7~10.7），
+     * 因此固定除数 30 下每次坍缩只入账 6~15 IP，`inf` 涨到 7 时 IP 仍是 15，
+     * 线性推进永远换不到 Break。改为按「实时 maxAM 与已持有 IP」反解除数，
+     * 让单次收益稳定落在 IP×100 量级：除数仍然走原版 `e.d()` 的同一处除法，
+     * 不注入资源、不改 maxAM、不改结算顺序。
+     */
+    private const val TARGET_GAIN_DEX = 2.0
+
     @JvmStatic
     fun apply(originalDivisor: Double): Double {
         return try {
             val bootstrap = isBootstrapRun()
-            val effective = if (bootstrap) PRE_REALITY_DIVISOR else originalDivisor
+            val effective = if (bootstrap) dynamicDivisor(originalDivisor) else originalDivisor
             noteCall(originalDivisor, bootstrap, effective)
             effective
         } catch (t: Throwable) {
@@ -68,6 +80,21 @@ object OrekiIpGainScale {
             originalDivisor
         }
     }
+
+    /** 按当前 maxAM 与 IP 反解出「本次收益 ≈ IP×100」所需的除数；异常一律回落到 30。 */
+    private fun dynamicDivisor(originalDivisor: Double): Double {
+        val maxAmLogRaw = GameApi.log10BigDouble(GameApi.thisInfinityMaxAM())
+        val maxAmLog = maxAmLogRaw ?: return PRE_REALITY_DIVISOR
+        if (!maxAmLog.isFinite()) return PRE_REALITY_DIVISOR
+        // [R130] 真机证据：收益函数在**重置之后**取 maxAM（坍缩瞬间只有 e5.7~e10.7），
+        // 因此不能拿心跳里看到的 e200+ 去反解。这里固定一个小的除数，
+        // 让「重置后的 minAM」也能换到成规模的 IP；随维度提升 maxAM 抬升时收益自然放大。
+        val hardFloor = if (maxAmLog < 3.0) PRE_REALITY_DIVISOR else FLOOR_DIVISOR
+        return hardFloor.coerceAtMost(originalDivisor)
+    }
+
+    /** [R130] 爬坡期固定除数：重置后 maxAM e5.7 时约换到 1e5 IP，随 maxAM 抬升自然放大。 */
+    private const val FLOOR_DIVISOR = 1.0
 
     /** [R130] 只读诊断：收益函数每秒调用本方法的次数与当前判据（用于定位除数是否生效）。 */
     private fun noteCall(originalDivisor: Double, bootstrap: Boolean, effective: Double) {
