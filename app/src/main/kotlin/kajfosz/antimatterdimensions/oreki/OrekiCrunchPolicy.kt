@@ -145,6 +145,16 @@ object OrekiCrunchPolicy {
 
     data class Decision(val allow: Boolean, val reason: String)
 
+    /**
+     * [R130 P0] 首次 Break 之前「这一拍坍缩值不值得」的纯函数判据。
+     *
+     * 返回非 null 表示放行（一次坍缩至少让 IP 涨一个数量级），null 表示应等待成长。
+     * 拆成纯函数便于单测固定语义，避免把真实状态读取混进断言。
+     */
+    @JvmStatic
+    fun preBreakJumpReason(leap: Double?): String? =
+        if (leap != null && leap >= 1.0) "pre-break-ip-jump" else null
+
     @JvmStatic
     fun decide(): Decision {
         val decision = try {
@@ -211,8 +221,21 @@ object OrekiCrunchPolicy {
             return Decision(true, "pre-infinity")
         }
         if (!inEternityLayer && !GameApi.isBroken()) {
-            // 首次 Break 之前（且未进入永恒层）：坍缩是攒 IP / 买满间隔的唯一入口
-            return Decision(true, "pre-break-ip")
+            // [R130 P0 真新档实测修复] 原为无条件放行（pre-break-ip）。
+            // 14:33 新档实测：坍缩每约 30 秒触发一次，反物质峰值只长到 e183，
+            // 单次 gainedInfinityPoints 投影 ≈ 1（IP 停在 1.0e0，infinities 1→4），
+            // 而 Break 需要 32767 IP（BREAK_RECOVERY_IP_LOG10=6.0 对应门槛）。
+            // 坍缩按「攒 IP 的唯一入口」放行 ⇒ 每次都在峰值远未长起来时清空维度，
+            // maxAM 永远停在同一量级 ⇒ IP 不可能涨到 Break 门槛，形成 pre-break 死锁。
+            // 改为与后续分支一致的收益驱动：一次坍缩至少让 IP 涨一个数量级才放行；
+            // 否则按住让反物质成长，并保留 60 秒上限，保证任意窗口内至少一次真实结算。
+            val leap = gainVersusIp()
+            val jumpReason = preBreakJumpReason(leap)
+            if (jumpReason != null) {
+                waitStartedAt = 0L
+                return Decision(true, jumpReason)
+            }
+            return waitWithin("pre-break-grow", PEAK_WAIT_LIMIT_NS)
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
         //
