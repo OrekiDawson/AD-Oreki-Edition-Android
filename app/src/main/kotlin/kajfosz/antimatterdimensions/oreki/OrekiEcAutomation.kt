@@ -239,16 +239,16 @@ object OrekiEcAutomation {
      *
      * @return true = 本拍执行了 respec（调用方应 return true 占一拍）。
      */
-    private fun respecIfTargetPrereqBlocked(target: Int, unlocked: Int): Boolean {
+    private fun respecIfTargetPrereqBlocked(target: Int, unlocked: Int, intervalMs: Long = 3000L): Boolean {
         if (target !in 1..EC_COUNT || unlocked !in 0..EC_COUNT) return false
-        if (lastEcRespecKey == -target && android.os.SystemClock.elapsedRealtime() - lastEcRespecAt < 3000L) return false
         val nowMs = android.os.SystemClock.elapsedRealtime()
+        if (lastEcRespecKey == -target && nowMs - lastEcRespecAt < intervalMs) return false
         lastEcRespecKey = -target
         lastEcRespecAt = nowMs
-        val ok = Abi.respecTimeStudies()
+        val ret = Abi.respecTimeStudies()
         note("RESPEC prereq-blocked target=" + target + " unlockedBefore=" + unlocked +
-            " ret=" + ok + " unlockedAfter=" + Abi.unlocked() + " tt=" + Abi.theorem())
-        return true
+            " ret=" + ret + " unlockedAfter=" + Abi.unlocked() + " tt=" + Abi.theorem())
+        return ret == true
     }
 
     /**
@@ -463,12 +463,10 @@ object OrekiEcAutomation {
         // unlocked 仍为 0，[respecIfCurrentEcMaxed] 因「当前关未进入」永不触发，而 EC4 需要的
         // 123 列与已买的 121 列互斥（A(143) 在 V<2 时恒 false），[paveTimeStudy] 也补不通
         // ⇒ EC 链在 EC4 永久卡死，与消除 Reality 后死循环的原意相反。
-        // 目标与当前解锁关不一致且前置不成立时，允许一次受控 respec（复用同一 3 秒闸门），
-        // 清空旧时间研究树后 pave 才能按下一关列重新铺路；不写完成位、不改 completed。
-        if (unlocked != target && Abi.prereqOk(study) != true &&
-            respecIfTargetPrereqBlocked(target, unlocked)) {
-            return true
-        }
+        //
+        // 受控 respec 只在该关**铺路确实失败之后**才尝试（见 ① 的尾声），不能在进入 settle 时
+        // 先做：`prereqOk != true` 是「本模块还没买下前置研究」的常态，提前 respec 会每 3 秒
+        // 清空一次刚铺好的研究树，反而让前置永远铺不完。
         // ① A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
         //
         // [R97 真机 EC4 卡点] 这一项**必须排在 z() 之前**：铺前置研究本身不消耗 EC 的价格，
@@ -520,6 +518,12 @@ object OrekiEcAutomation {
             val pu: Any? = null
             note("PREPARE id=" + target + " prereq=missing k=" + k + " purchaseUntil=" + pu +
                 " pave=none tt=" + Abi.theorem() + " " + Abi.tsChain(k))
+            // 铺路已完整失败（原版 D() 与递归 pave 都无法买下前置），此时才允许一次受控
+            // respec：Reality 后 unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
+            // 只能靠清空旧研究树重铺。闸门用 30 秒，避免与 EC 单拍周期抖动互相覆盖。
+            if (unlocked != target && respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
+                return true
+            }
             return false
         }
 
