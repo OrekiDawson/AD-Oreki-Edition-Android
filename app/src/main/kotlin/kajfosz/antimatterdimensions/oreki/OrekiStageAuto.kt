@@ -2734,6 +2734,12 @@ object OrekiStageAuto {
                     " brake=" + GameApi.isBroken() +
                     " amAtCap=" + amAtCap() +
                     " maxAMlog=" + GameApi.log10BigDouble(GameApi.thisInfinityMaxAM()) +
+                    // [R130] 同时记录「当前反物质」与「已持有 IP」：19:02-19:14 段出现
+                    // maxAMlog=297 但 ipGainLog 恒 1.0 的矛盾，必须先用同一行日志区分
+                    // 「收益按当前 AM 算（自动化把 AM 花光）」「收益按峰值算但口径错」
+                    // 「IP 从未真正入账」三种可能，再决定改结算还是改探针。
+                    " amlog=" + GameApi.log10BigDouble(GameApi.antimatterValue()) +
+                    " iplog=" + GameApi.log10BigDouble(GameApi.infinityPoints()) +
                     " ipGainLog=" + GameApi.log10BigDouble(GameApi.gainedInfinityPoints()) +
                     " canBigCrunch=" + GameApi.canBigCrunch() +
                     " autoBig{" + autoBig + "}" +
