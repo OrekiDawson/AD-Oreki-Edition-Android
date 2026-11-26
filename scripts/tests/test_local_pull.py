@@ -147,6 +147,66 @@ class PullHelpersTests(unittest.TestCase):
             self.assertEqual(result["disposition"], "kept-unlink-failed")
             self.assertTrue(legacy.is_file())
 
+    def test_same_sha_legacy_idsig_is_promoted_to_new_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            payload = b"identical-stable"
+            digest = hashlib.sha256(payload).hexdigest()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(payload)
+            legacy.with_name(legacy.name + ".idsig").write_bytes(b"v4-idsig")
+            (dest / "latest" / APK_NAME).write_bytes(payload)
+            result = pull.retire_legacy_stable(dest, digest)
+            self.assertEqual(result["disposition"], "duplicate-removed")
+            self.assertFalse(legacy.exists())
+            new_idsig = dest / "latest" / (APK_NAME + ".idsig")
+            self.assertTrue(new_idsig.is_file())
+            self.assertEqual(new_idsig.read_bytes(), b"v4-idsig")
+
+    def test_truncated_archive_copy_is_recopied_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(b"old-stable-full")
+            legacy_sha = hashlib.sha256(b"old-stable-full").hexdigest()
+            archive_dir = dest / "archive" / f"legacy-{legacy_sha[:12]}"
+            archive_dir.mkdir(parents=True)
+            (archive_dir / pull.LEGACY_APK_NAME).write_bytes(b"trunc")
+            (dest / "latest" / APK_NAME).write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            result = pull.retire_legacy_stable(dest, digest)
+            self.assertEqual(result["disposition"], "archive-kept")
+            archived = archive_dir / pull.LEGACY_APK_NAME
+            self.assertEqual(hashlib.sha256(archived.read_bytes()).hexdigest(), legacy_sha)
+            self.assertFalse(legacy.exists())
+
+    def test_rebuild_checksums_degrades_on_oserror(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            (dest / "archive").mkdir()
+            (dest / "latest" / APK_NAME).write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            archived = dest / "archive" / "locked.apk"
+            archived.write_bytes(b"locked")
+            real = pull.sha256_file
+            calls = {"archived": 0}
+
+            def flaky(path):
+                if pathlib.Path(path).name == "locked.apk":
+                    calls["archived"] += 1
+                    raise PermissionError("locked by antivirus")
+                return real(path)
+
+            with mock.patch.object(pull, "sha256_file", side_effect=flaky):
+                index = pull.rebuild_checksums(dest, digest)
+            self.assertEqual(calls["archived"], 1)
+            sums = index.read_text(encoding="utf-8")
+            self.assertIn(f"{digest}  latest/{APK_NAME}", sums)
+            self.assertNotIn("locked.apk", sums)
+
 
 class PullEndToEndTests(unittest.TestCase):
     def setUp(self):

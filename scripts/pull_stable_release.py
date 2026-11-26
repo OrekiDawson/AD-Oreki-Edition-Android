@@ -271,6 +271,16 @@ def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | No
     log(f"回收旧固定稳定名：{legacy} sha256={legacy_sha}（新交付 {current_sha}）")
     sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
     if legacy_sha == current_sha:
+        # 同包迁移：`.idsig` 属于同一份 APK 的 V4 侧文件，先补写到新固定名再清理旧副本。
+        legacy_idsig = legacy.with_name(legacy.name + ".idsig")
+        new_idsig = dest / "latest" / (DEFAULT_APK_NAME + ".idsig")
+        try:
+            if legacy_idsig.is_file() and not new_idsig.is_file():
+                shutil.copy2(legacy_idsig, new_idsig)
+                log(f"已把旧名 idsig 补写为新固定名：{new_idsig}")
+        except OSError as exc:
+            log(f"WARN: 旧名 idsig 补写受阻，保留原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
         disposition = "duplicate-removed"
         moved: list[Path] = []
     else:
@@ -278,10 +288,16 @@ def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | No
         target = archive_dir / LEGACY_APK_NAME
         try:
             archive_dir.mkdir(parents=True, exist_ok=True)
+            for attempt in (1, 2):
+                if not target.is_file() or sha256_file(target) == legacy_sha:
+                    break
+                # 上次中断留下的截断副本：先移除再重拷一次，避免 kept-verify-failed 永久自锁。
+                log(f"WARN: 归档副本哈希不一致，删除重拷（第 {attempt} 次）：{target}")
+                target.unlink()
             if not target.is_file():
                 shutil.copy2(legacy, target)
             if sha256_file(target) != legacy_sha:
-                log("FAIL: 旧稳定包归档副本哈希不一致，保留 latest 原文件")
+                log("FAIL: 旧稳定包归档副本哈希仍不一致，保留 latest 原文件")
                 return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
             for sidecar in sidecars:
                 if sidecar.is_file():
@@ -322,12 +338,27 @@ def update_checksums(dest: Path, sha256: str) -> None:
 
 
 def rebuild_checksums(dest: Path, sha256: str | None = None) -> Path:
+    """按真实文件重建索引；单个文件读取失败只降级跳过，不打断已完成的交付。"""
     entries: list[str] = []
     for candidate in sorted((dest / "latest").glob("*.apk")):
-        digest = sha256 if sha256 and candidate.name == DEFAULT_APK_NAME else sha256_file(candidate)
+        try:
+            digest = sha256 if sha256 and candidate.name == DEFAULT_APK_NAME else sha256_file(candidate)
+        except OSError as exc:
+            log(f"WARN: 读取 {candidate} 失败，索引暂不登记：{exc}")
+            continue
         entries.append(f"{digest}  {candidate.relative_to(dest).as_posix()}")
-    for candidate in sorted((dest / "archive").rglob("*.apk")):
-        entries.append(f"{sha256_file(candidate)}  {candidate.relative_to(dest).as_posix()}")
+    try:
+        archived = sorted((dest / "archive").rglob("*.apk"))
+    except OSError as exc:
+        log(f"WARN: 遍历归档目录失败，索引仅登记 latest：{exc}")
+        archived = []
+    for candidate in archived:
+        try:
+            digest = sha256_file(candidate)
+        except OSError as exc:
+            log(f"WARN: 读取归档 {candidate} 失败，索引暂不登记：{exc}")
+            continue
+        entries.append(f"{digest}  {candidate.relative_to(dest).as_posix()}")
     index = dest / "SHA256SUMS"
     atomic_write_text(index, ("\n".join(entries) + "\n") if entries else "")
     return index

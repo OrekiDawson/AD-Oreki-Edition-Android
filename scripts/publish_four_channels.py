@@ -714,7 +714,10 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
         atomic_write(destination_root / "SHA256SUMS", f"{actual}  {destination.name}\n")
     else:
         # 旧固定名只做归档保留，不在此处删除；写 checksums 时会按真实文件重建索引。
-        state["legacy_stable"] = retire_legacy_stable(root, actual)
+        legacy_result = retire_legacy_stable(root, actual)
+        if legacy_result is not None:
+            # 只在真的有旧包处置结果时写回，避免重复发布把上一次的归档位置清空。
+            state["legacy_stable"] = legacy_result
         write_checksums(root)
     set_channel(state, "local", "success", f"{destination}; sha256={actual}")
     save_state(destination_root, state)
@@ -738,16 +741,33 @@ def retire_legacy_stable(root: Path, current_sha: str) -> dict[str, object] | No
     sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
     moved: list[Path] = []
     if legacy_sha == current_sha:
+        # 同包迁移：旧名与新名字节一致，`.idsig` 是同一份 APK 的 V4 签名侧文件，
+        # 必须先补写到新固定名，再清理旧副本，否则本地稳定包会只剩 APK、丢 idsig 配对。
+        legacy_idsig = legacy.with_name(legacy.name + ".idsig")
+        new_idsig = root / "latest" / (STABLE_APK_NAME + ".idsig")
+        try:
+            if legacy_idsig.is_file() and not new_idsig.is_file():
+                shutil.copy2(legacy_idsig, new_idsig)
+                say(f"本地：旧名 idsig 已补写为新固定名 {new_idsig}")
+        except OSError as exc:
+            say(f"本地：旧名 idsig 补写受阻，保留原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
         disposition = "duplicate-removed"
     else:
         archive_dir = root / "archive" / f"legacy-{legacy_sha[:12]}"
         target = archive_dir / SOURCE_APK_NAME
         try:
             archive_dir.mkdir(parents=True, exist_ok=True)
+            for attempt in (1, 2):
+                if not target.is_file() or sha256_file(target) == legacy_sha:
+                    break
+                # 上次中断留下的截断副本：先移除再重拷一次，避免 kept-verify-failed 永久自锁。
+                say(f"本地：归档副本哈希不一致，删除重拷（第 {attempt} 次）{target}")
+                target.unlink()
             if not target.is_file():
                 shutil.copy2(legacy, target)
             if sha256_file(target) != legacy_sha:
-                say("本地：旧稳定包归档副本哈希不一致，保留 latest 原文件")
+                say("本地：旧稳定包归档副本哈希仍不一致，保留 latest 原文件")
                 return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
             for sidecar in sidecars:
                 if sidecar.is_file():
