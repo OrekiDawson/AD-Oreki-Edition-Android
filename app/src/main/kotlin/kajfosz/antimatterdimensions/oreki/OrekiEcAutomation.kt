@@ -522,9 +522,10 @@ object OrekiEcAutomation {
             // respec：Reality 后 unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
             // 只能靠清空旧研究树重铺。闸门用 30 秒，避免与 EC 单拍周期抖动互相覆盖。
             //
-            // [R130 KODY-FIX] 只对「Reality 后的 EC4」生效：EC1..EC3 与新档首关不受此分支影响，
-            // 避免对无关目标整树 respec；闸门仍为同一目标 30 秒一次。
-            if (target == 4 && afterFirstReality() && unlocked != target &&
+            // [R130 KODY-FIX] 只对「Reality 后需要 123 列的目标」生效：EC4/EC8 共用 123/133/143
+            // 族（OrekiEternity 的 targetEc == 4 || targetEc == 8 选 123 列），其余目标不受
+            // 此分支影响，避免对无关目标整树 respec；闸门仍为同一目标 30 秒一次。
+            if ((target == 4 || target == 8) && afterFirstReality() && unlocked != target &&
                 respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
                 // respec 只清空研究树，若当拍直接退出，兄弟模块（OrekiEternity.buyNormalStudies）
                 // 会按 challenge.y() 的旧值选 121 列重新填满，导致目标列 123 仍被互斥挡住、
