@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-11",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 24,
+  "blocked_count": 16,
+  "previous_source_coverage": 1802,
+  "source_coverage": 1826,
+  "coverage_percent": 11.92,
+  "takeover_entries": 1850,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "pj7.class",
+      "descriptor": "Lpj7;",
+      "source": "pj7.java"
+    },
+    {
+      "entry": "cj3.class",
+      "descriptor": "Lcj3;",
+      "source": "cj3.java"
+    },
+    {
+      "entry": "k98.class",
+      "descriptor": "Lk98;",
+      "source": "k98.java"
+    },
+    {
+      "entry": "wr8.class",
+      "descriptor": "Lwr8;",
+      "source": "wr8.java"
+    },
+    {
+      "entry": "gx6.class",
+      "descriptor": "Lgx6;",
+      "source": "gx6.java"
+    },
+    {
+      "entry": "s37.class",
+      "descriptor": "Ls37;",
+      "source": "s37.java"
+    },
+    {
+      "entry": "hu8.class",
+      "descriptor": "Lhu8;",
+      "source": "hu8.java"
+    },
+    {
+      "entry": "i23.class",
+      "descriptor": "Li23;",
+      "source": "i23.java"
+    },
+    {
+      "entry": "st5.class",
+      "descriptor": "Lst5;",
+      "source": "st5.java"
+    },
+    {
+      "entry": "ai1.class",
+      "descriptor": "Lai1;",
+      "source": "ai1.java"
+    },
+    {
+      "entry": "vj0.class",
+      "descriptor": "Lvj0;",
+      "source": "vj0.java"
+    },
+    {
+      "entry": "my1.class",
+      "descriptor": "Lmy1;",
+      "source": "my1.java"
+    },
+    {
+      "entry": "og1.class",
+      "descriptor": "Log1;",
+      "source": "og1.java"
+    },
+    {
+      "entry": "ej3.class",
+      "descriptor": "Lej3;",
+      "source": "ej3.java"
+    },
+    {
+      "entry": "yy8.class",
+      "descriptor": "Lyy8;",
+      "source": "yy8.java"
+    },
+    {
+      "entry": "jn1.class",
+      "descriptor": "Ljn1;",
+      "source": "jn1.java"
+    },
+    {
+      "entry": "l10.class",
+      "descriptor": "Ll10;",
+      "source": "l10.java"
+    },
+    {
+      "entry": "ti6.class",
+      "descriptor": "Lti6;",
+      "source": "ti6.java"
+    },
+    {
+      "entry": "be.class",
+      "descriptor": "Lbe;",
+      "source": "be.java"
+    },
+    {
+      "entry": "e48.class",
+      "descriptor": "Le48;",
+      "source": "e48.java"
+    },
+    {
+      "entry": "aa2.class",
+      "descriptor": "Laa2;",
+      "source": "aa2.java"
+    },
+    {
+      "entry": "ds3.class",
+      "descriptor": "Lds3;",
+      "source": "ds3.java"
+    },
+    {
+      "entry": "ob4.class",
+      "descriptor": "Lob4;",
+      "source": "ob4.java"
+    },
+    {
+      "entry": "dm5.class",
+      "descriptor": "Ldm5;",
+      "source": "dm5.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "a10.class",
+      "descriptor": "La10;",
+      "reason": "javac compile failure: kotlin.b unavailable; gm1.a(Throwable) absent"
+    },
+    {
+      "entry": "lz2.class",
+      "descriptor": "Llz2;",
+      "reason": "javac compile failure: kotlin.a unavailable; iz2(int) and al2.m(String) absent"
+    },
+    {
+      "entry": "dk1.class",
+      "descriptor": "Ldk1;",
+      "reason": "javac compile failure: missing z42.v(int,View) override and required constructor"
+    },
+    {
+      "entry": "g2.class",
+      "descriptor": "Lg2;",
+      "reason": "javac compile failure: superclass f2 requires yg0"
+    },
+    {
+      "entry": "k86.class",
+      "descriptor": "Lk86;",
+      "reason": "javac compile failure: cannot find symbol constructor oj5(byte)"
+    },
+    {
+      "entry": "kw.class",
+      "descriptor": "Lkw;",
+      "reason": "javac compile failure: abstract a cannot be instantiated; fields b/c and a.g are absent"
+    },
+    {
+      "entry": "t53.class",
+      "descriptor": "Lt53;",
+      "reason": "javac compile failure: EmptyCoroutineContext.a absent and return type is not ek0"
+    },
+    {
+      "entry": "r93.class",
+      "descriptor": "Lr93;",
+      "reason": "javac compile failure: missing ua3(int,int), r93(int,int,int), and kt0.d()"
+    },
+    {
+      "entry": "ih1.class",
+      "descriptor": "Lih1;",
+      "reason": "javac compile failure: rg0(byte) does not accept NavigationView fixture"
+    },
+    {
+      "entry": "o46.class",
+      "descriptor": "Lo46;",
+      "reason": "javac compile failure: cannot find symbol constructor a46(o46,Application)"
+    },
+    {
+      "entry": "wb9.class",
+      "descriptor": "Lwb9;",
+      "reason": "javac compile failure: missing kl5() and gl5(byte) constructors"
+    },
+    {
+      "entry": "ln7.class",
+      "descriptor": "Lln7;",
+      "reason": "javac compile failure: cannot find symbol constructor ik7(byte,boolean)"
+    },
+    {
+      "entry": "wf3.class",
+      "descriptor": "Lwf3;",
+      "reason": "javac compile failure: cannot access ws5 default method in version 49.0 classfile"
+    },
+    {
+      "entry": "zq4.class",
+      "descriptor": "Lzq4;",
+      "reason": "javac compile failure: EmptyList.a and di0.b(int,int,int) absent"
+    },
+    {
+      "entry": "ba3.class",
+      "descriptor": "Lba3;",
+      "reason": "javac compile failure: missing ua3(int,int) and ba3(int,int,int) constructors"
+    },
+    {
+      "entry": "gz1.class",
+      "descriptor": "Lgz1;",
+      "reason": "javac compile failure: superclass fs1 requires Context,Looper,int,o66,ks1,ls1"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 56",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1850",
+    "sourceTakeoverDex": "PASS: 1850",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1826 local compiled, 483 blocked",
+    "d8_stack_map_warnings": 6
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-11",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

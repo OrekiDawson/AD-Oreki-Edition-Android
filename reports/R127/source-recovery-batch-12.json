@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-12",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 26,
+  "blocked_count": 14,
+  "previous_source_coverage": 1826,
+  "source_coverage": 1852,
+  "coverage_percent": 12.09,
+  "takeover_entries": 1876,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "bb5.class",
+      "descriptor": "Lbb5;",
+      "source": "bb5.java"
+    },
+    {
+      "entry": "zf4.class",
+      "descriptor": "Lzf4;",
+      "source": "zf4.java"
+    },
+    {
+      "entry": "gh4.class",
+      "descriptor": "Lgh4;",
+      "source": "gh4.java"
+    },
+    {
+      "entry": "ck.class",
+      "descriptor": "Lck;",
+      "source": "ck.java"
+    },
+    {
+      "entry": "fu0.class",
+      "descriptor": "Lfu0;",
+      "source": "fu0.java"
+    },
+    {
+      "entry": "qu.class",
+      "descriptor": "Lqu;",
+      "source": "qu.java"
+    },
+    {
+      "entry": "xw0.class",
+      "descriptor": "Lxw0;",
+      "source": "xw0.java"
+    },
+    {
+      "entry": "b42.class",
+      "descriptor": "Lb42;",
+      "source": "b42.java"
+    },
+    {
+      "entry": "ek.class",
+      "descriptor": "Lek;",
+      "source": "ek.java"
+    },
+    {
+      "entry": "h12.class",
+      "descriptor": "Lh12;",
+      "source": "h12.java"
+    },
+    {
+      "entry": "kj0.class",
+      "descriptor": "Lkj0;",
+      "source": "kj0.java"
+    },
+    {
+      "entry": "gv4.class",
+      "descriptor": "Lgv4;",
+      "source": "gv4.java"
+    },
+    {
+      "entry": "d9.class",
+      "descriptor": "Ld9;",
+      "source": "d9.java"
+    },
+    {
+      "entry": "mq7.class",
+      "descriptor": "Lmq7;",
+      "source": "mq7.java"
+    },
+    {
+      "entry": "z97.class",
+      "descriptor": "Lz97;",
+      "source": "z97.java"
+    },
+    {
+      "entry": "jo6.class",
+      "descriptor": "Ljo6;",
+      "source": "jo6.java"
+    },
+    {
+      "entry": "k68.class",
+      "descriptor": "Lk68;",
+      "source": "k68.java"
+    },
+    {
+      "entry": "ze.class",
+      "descriptor": "Lze;",
+      "source": "ze.java"
+    },
+    {
+      "entry": "ec6.class",
+      "descriptor": "Lec6;",
+      "source": "ec6.java"
+    },
+    {
+      "entry": "fc7.class",
+      "descriptor": "Lfc7;",
+      "source": "fc7.java"
+    },
+    {
+      "entry": "fk.class",
+      "descriptor": "Lfk;",
+      "source": "fk.java"
+    },
+    {
+      "entry": "bg0.class",
+      "descriptor": "Lbg0;",
+      "source": "bg0.java"
+    },
+    {
+      "entry": "e39.class",
+      "descriptor": "Le39;",
+      "source": "e39.java"
+    },
+    {
+      "entry": "kc8.class",
+      "descriptor": "Lkc8;",
+      "source": "kc8.java"
+    },
+    {
+      "entry": "oa.class",
+      "descriptor": "Loa;",
+      "source": "oa.java"
+    },
+    {
+      "entry": "bb9.class",
+      "descriptor": "Lbb9;",
+      "source": "bb9.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "wn3.class",
+      "descriptor": "Lwn3;",
+      "reason": "javac compile failure: cannot find symbol constructor vn3()"
+    },
+    {
+      "entry": "x13.class",
+      "descriptor": "Lx13;",
+      "reason": "javac compile failure: missing q13(byte) constructor"
+    },
+    {
+      "entry": "kw3.class",
+      "descriptor": "Lkw3;",
+      "reason": "javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent"
+    },
+    {
+      "entry": "fl5.class",
+      "descriptor": "Lfl5;",
+      "reason": "javac compile failure: cannot find symbol constructor kl5()"
+    },
+    {
+      "entry": "pw3.class",
+      "descriptor": "Lpw3;",
+      "reason": "javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent"
+    },
+    {
+      "entry": "ar3.class",
+      "descriptor": "Lar3;",
+      "reason": "javac compile failure: superclass lk1 requires fv4"
+    },
+    {
+      "entry": "mc1.class",
+      "descriptor": "Lmc1;",
+      "reason": "javac compile failure: cannot find symbol constructor lc1()"
+    },
+    {
+      "entry": "j84.class",
+      "descriptor": "Lj84;",
+      "reason": "javac compile failure: no suitable f(String) constructor"
+    },
+    {
+      "entry": "k91.class",
+      "descriptor": "Lk91;",
+      "reason": "javac compile failure: missing lx3(byte) and kt0(Object,byte) constructors"
+    },
+    {
+      "entry": "hp8.class",
+      "descriptor": "Lhp8;",
+      "reason": "javac compile failure: superclass e requires f; o0.G/H/J are absent"
+    },
+    {
+      "entry": "yj.class",
+      "descriptor": "Lyj;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "os2.class",
+      "descriptor": "Los2;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "ln3.class",
+      "descriptor": "Lln3;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "hv2.class",
+      "descriptor": "Lhv2;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 56",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1876",
+    "sourceTakeoverDex": "PASS: 1876",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1852 local compiled, 497 blocked",
+    "d8_stack_map_warnings": 5
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-12",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

@@ -170,7 +170,7 @@ def check_artifact(apk, test_mode):
     info["sig_v2"] = sig["v2"]
     info["sig_v3"] = sig["v3"]
     info["cert"] = sig["cert"]
-    if not (sig["v2"] and sig["v3"]):
+    if sig["rc"] != 0 or sig["v2"] or not sig["v3"]:
         return False, {"reason": "签名方案未全部通过（v2=%s v3=%s）" % (sig["v2"], sig["v3"])}
     if sig["cert"] != EXPECT_CERT:
         return False, {"reason": "证书与项目密钥不符：%s" % sig["cert"]}

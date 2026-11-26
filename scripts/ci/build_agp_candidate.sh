@@ -14,7 +14,6 @@
 #   --official-tree <path>    官方只读 3.21 树
 #   --split-tree <path>       同版 mdpi split 树
 #   OREKI_VERIFY_RELEASE      已有真实 verify-release.json 路径（给出则生成 release-manifest）
-#   OREKI_REQUIRE_V3=true     要求 v2+v3 签名（当前 AGP 产物为 v2-only，默认仅 WARN）
 #
 # 说明：本脚本只负责 AGP 构建 + 签名核验 + 证据写入；verify-release / verify-patch-contract
 # 报告仍需由 CI 的 APK 工具报告 + verifier 生成（见报告 blocker 清单）。
@@ -69,17 +68,7 @@ ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1)"
 [ -n "$SIGNER" ] || fail "找不到 apksigner"
 VERBOSE="$("$SIGNER" verify --verbose --print-certs "$APK" 2>&1)" || fail "apksigner verify 失败"
-printf '%s' "$VERBOSE" | grep -Fq "$OREKI_CERT_SHA256" || fail "签名证书与钉住值不符"
-V2=no; V3=no
-printf '%s' "$VERBOSE" | grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" && V2=yes
-printf '%s' "$VERBOSE" | grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" && V3=yes
-if [ "${OREKI_REQUIRE_V3:-false}" = "true" ]; then
-  if [ "$V2" != yes ] || [ "$V3" != yes ]; then
-    fail "要求 v2+v3 签名，实际 v2=$V2 v3=$V3（AGP signingConfig 未启用 v3）"
-  fi
-else
-  echo "[3/3] WARN 签名方案 v2=$V2 v3=$V3（verify_release.py 目前要求 v2+v3，需决定改 AGP signingConfig 或调整 verifier）"
-fi
+printf '%s\n' "$VERBOSE" | python3 "$ROOT/scripts/verify_apk_v3.py" "$APK" - "$OREKI_CERT_SHA256"
 
 mkdir -p "$CANDIDATE_DIR"
 cp "$APK" "$CANDIDATE_DIR/antimatter-dimensions.apk"

@@ -78,7 +78,7 @@
 | ABI | `public interface a5 { void j(Object); }`，无字段、构造器、默认方法 |
 | AGP 生产源码 | `app/src/main/java/a5.java` |
 | JAR 排除清单 | `build-logic/source-takeover.txt` |
-| 同批守卫 | store-policy 输入必须存在该 entry、输出必须移除该 entry；报告与清单不一致即 fail-closed |
+| 同批守卫 | store-policy 条目要么存在于输入 JAR，要么在 `app/src/main/java`/`app/src/main/kotlin` 存在对应源码文件（源码独占条目记为 `absent:<entry>`）；输出必须移除该 entry。Python 结构化校验、`StorePolicyTransformer` 报告与 Gradle `verifyArtifacts` 三处按同一判据放行/拒绝，报告与清单不一致即 fail-closed |
 
 选择理由：该接口被原版 `ComponentActivity`、账单活动及多个回调实现真实引用；
 恢复为默认包 Java 源码后 descriptor 与方法签名保持完全一致，适合作为后续批量迁移
@@ -1386,3 +1386,98 @@ source/target 与 class path，不再只匹配插件源码字符串。
 生产接管数保持 1650，blocked 保持 347；本批清偿的是其中一个已接管类的
 构造器 ABI 精确性。ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项
 游戏门禁仍为 **NOT RUN**。
+
+### 13.19 十五个普通原版类接管与后处理缓存正确性
+
+本批从已归档 JADX `defpackage` 源码中筛选 warning-free、JAR entry 存在且
+Smali 身份匹配的普通类，经两轮增量编译后接管：
+
+- `aq by1 dv7 gk3 jb1 jc1 mq2 n58 o15`
+- `q01 qs1 qz3 se5 v24 wg6`
+
+`aq` 的 JADX 输出遗漏了原版四个 public static Android API bridge
+`c/d/e/f`；按原 Smali 的 Activity、AutofillManager、WebView 和
+WebViewClient 单条转发语义恢复。`jb1` 遗漏原版
+`public <init>(Object)`；按 Smali 恢复字段 `e` 初始化后调用
+`Object.<init>()V`。其余 13 类无空方法、伪成员或业务改写。
+
+未能安全恢复的候选同批进入 blocked，并记录具体原因：
+
+- `j58` 缺少继承链要求的抽象 `zza()`；
+- `ra3/y93` 缺少父类构造器 ABI；
+- `gq5/ol3/mo3/g06` 的依赖构造器或方法未在 JADX 中出现；
+- `mb1/nm5` 依赖已知 blocked 的 `ws5` version-49 classfile。
+
+同时修复受控 ASM 后处理的缓存正确性：
+`bundle<Variant>ClassesToCompileJar`、`bundle<Variant>ClassesToRuntimeJar`、
+`dexBuilder<Variant>` 与 `minify<Variant>WithR8` 均显式依赖
+`adaptSourceAbi<Variant>`，且对这四个消费者关闭 up-to-date/build-cache
+复用。原因是原地 class 后处理对 Gradle 的产出快照不可见；最终集成树首次
+非强制构建确实复用了改造前 `Ljs7;` 构造器 DEX，修复后普通构建稳定通过。
+
+实际验证：
+
+- 生产接管数由 `1650` 增至 **1665**，blocked 由 `347` 增至 **356**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug`：**PASS**。
+- Classes/ABI/DEX：**1665/1665 PASS**；`unexpected_constructors=[]`。
+- Python 定向测试 **43/43 PASS**；ABI 策略测试 **6/6 PASS**；
+  build_mod 退役守卫 PASS。
+- `:build-logic:test` **10/10 PASS**。
+- FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true`：**PASS**。
+- FullGame Debug APK：
+  `20b003e0e6078bd9ff4a7d1153bd614741bdee49298daac5561ae9e58a34daf3`
+  （83,892,408 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 3443 ms，进程存活，
+  `gui-tick #1/#2/#3` 均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
+  crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
+  NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
+
+ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
+**NOT RUN**；保持 Issue #25/#52/#61/#285 OPEN。
+
+### 13.20 PR #300 审查线程字节码复核结论（3.21.0 基线裁决）
+
+PR #300 收口时以冻结原版 3.21.0 基线 Smali
+（`work/base_decoded_321/smali`）与冻结输入 JAR
+（`build/inputs/game-final.jar`，`javap -p/-c`）为唯一裁决依据，逐条复核
+Kody 标记的四个代码线程；ABI 守卫只比对成员名、描述符与访问位，不校验
+方法体，故方法体与字段表均需字节码级核对。
+
+- `Laq;->b()V`：**Kody 误报，保留空方法体**。基线 Smali 为
+  `new-instance v0, Ldalvik/system/DelegateLastClassLoader;` 后直接
+  `return-void`，无 `invoke-direct <init>`、无 `sput-object`、无返回值；
+  `javap -c` 对应字节码为 `new #8 // DelegateLastClassLoader; pop; return`。
+  原版本身即丢弃该分配对象，与 `c/d/e/f` 的 Android API 转发形态不同；
+  Java 源码无法表达“分配但不调用构造器”，空方法体是无副作用的等价表示，
+  不存在静默 no-op 的功能丢失。
+
+- `Lwg6;`：**Kody 误报，不存在第三个静态字段**。基线字段表仅有
+  `a`、`b` 两个 `AtomicReference`；`<clinit>` 依次构造两个
+  `AtomicReference` 并 `sput-object` 到 `a`/`b`，随后构造
+  `AtomicBoolean` 后直接 `return-void`，无第三条 `sput-object`。
+  `javap -p` 字段表与 `javap -c` 字节码均确认无遗漏静态成员；冻结 JAR
+  调用方在原版上同样不存在对该字段的 `sget-object`，不会引入
+  `NoSuchFieldError`。该 `AtomicBoolean` 构造调用是 R8 删除字段后保留
+  的残留，后续不应被误当作缺陷“修复”。
+
+- `Ljb1;->b(I)V`：**Kody 误报，方法体与基线一致**。基线指令序列为
+  `iget-boolean a` → `or-int/2addr v0, p1` → `const/4 v1, 0x1` →
+  `if-eq v1, v0, :cond_0` → `const/4 v1, 0x0` → `iput-boolean v1, a`，
+  随后 `add-int/2addr` 累加 `b`；`javap -c` 对应
+  `getfield a:Z; iload_1; ior; iconst_1; if_icmpeq 16; iconst_0;
+  putfield a:Z`。接管源码
+  `this.a = 1 == ((this.a ? 1 : 0) | i)` 与该序列逐指令等价；
+  Kody 建议的 `this.a |= i > 0` 反而与基线语义不符，不予采纳。
+  同类 `Ljb1;->a(I)V` 基线为 `if-lez p1, :cond_0` 后 `or-int/2addr`，
+  源码 `this.a |= i > 0` 同样一致。
+
+- `Lmq2;`：**Kody 误报，不存在遗漏静态成员**。基线字段表仅有
+  `a:Lmq2;`；`<clinit>` 先 `sput-object` 初始化 `a`，随后三次
+  `invoke-static {v0}, Lk35;->B(I)V`。`javap -p k35` 确认
+  `public static void B(int)` 返回 `void`，不存在被丢弃的返回值，
+  也无接收结果的静态字段。
+
+本批 15 个接管类的字段表已逐一与基线 Smali 核对一致；台账
+`full-apk-source-ledger.csv` 与 summary 由
+`scripts/agp/full_apk_source_ledger.py` 规则重算（接管 1641、
+blocked 356），未手改 CSV/JSON 数字。

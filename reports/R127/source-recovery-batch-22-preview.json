@@ -1,0 +1,292 @@
+{
+  "schema": 1,
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "counts": {
+    "java_files": 128,
+    "warning_free_class": 59,
+    "jar_present": 59,
+    "smali_verified": 46,
+    "already_in_manifest": 0,
+    "existing_source": 0,
+    "reused_existing": 0,
+    "emitted": 46
+  },
+  "emitted": [
+    {
+      "descriptor": "Lab7;",
+      "entry": "ab7.class",
+      "source": "ab7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lqa1;",
+      "entry": "qa1.class",
+      "source": "qa1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljd2;",
+      "entry": "jd2.class",
+      "source": "jd2.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lya7;",
+      "entry": "ya7.class",
+      "source": "ya7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lv6;",
+      "entry": "v6.class",
+      "source": "v6.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lp13;",
+      "entry": "p13.class",
+      "source": "p13.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lpv3;",
+      "entry": "pv3.class",
+      "source": "pv3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lde;",
+      "entry": "de.class",
+      "source": "de.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lo50;",
+      "entry": "o50.class",
+      "source": "o50.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lq50;",
+      "entry": "q50.class",
+      "source": "q50.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lqb7;",
+      "entry": "qb7.class",
+      "source": "qb7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lbz1;",
+      "entry": "bz1.class",
+      "source": "bz1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lva9;",
+      "entry": "va9.class",
+      "source": "va9.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lpu3;",
+      "entry": "pu3.class",
+      "source": "pu3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lob;",
+      "entry": "ob.class",
+      "source": "ob.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lp50;",
+      "entry": "p50.class",
+      "source": "p50.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lfm3;",
+      "entry": "fm3.class",
+      "source": "fm3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lpd1;",
+      "entry": "pd1.class",
+      "source": "pd1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ldu3;",
+      "entry": "du3.class",
+      "source": "du3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lwq3;",
+      "entry": "wq3.class",
+      "source": "wq3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lra1;",
+      "entry": "ra1.class",
+      "source": "ra1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lh54;",
+      "entry": "h54.class",
+      "source": "h54.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Llu3;",
+      "entry": "lu3.class",
+      "source": "lu3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lva1;",
+      "entry": "va1.class",
+      "source": "va1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lu83;",
+      "entry": "u83.class",
+      "source": "u83.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lgt8;",
+      "entry": "gt8.class",
+      "source": "gt8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lcf0;",
+      "entry": "cf0.class",
+      "source": "cf0.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Li50;",
+      "entry": "i50.class",
+      "source": "i50.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "La59;",
+      "entry": "a59.class",
+      "source": "a59.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lda6;",
+      "entry": "da6.class",
+      "source": "da6.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lye;",
+      "entry": "ye.class",
+      "source": "ye.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lsu7;",
+      "entry": "su7.class",
+      "source": "su7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljn2;",
+      "entry": "jn2.class",
+      "source": "jn2.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lce5;",
+      "entry": "ce5.class",
+      "source": "ce5.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lpw7;",
+      "entry": "pw7.class",
+      "source": "pw7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lb68;",
+      "entry": "b68.class",
+      "source": "b68.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ler1;",
+      "entry": "er1.class",
+      "source": "er1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lhw3;",
+      "entry": "hw3.class",
+      "source": "hw3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Liw3;",
+      "entry": "iw3.class",
+      "source": "iw3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Loa5;",
+      "entry": "oa5.class",
+      "source": "oa5.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lo42;",
+      "entry": "o42.class",
+      "source": "o42.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lvc1;",
+      "entry": "vc1.class",
+      "source": "vc1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lca7;",
+      "entry": "ca7.class",
+      "source": "ca7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lxt;",
+      "entry": "xt.class",
+      "source": "xt.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lgd0;",
+      "entry": "gd0.class",
+      "source": "gd0.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lz48;",
+      "entry": "z48.class",
+      "source": "z48.java",
+      "reused_existing": false
+    }
+  ]
+}
