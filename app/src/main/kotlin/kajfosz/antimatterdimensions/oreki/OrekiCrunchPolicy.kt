@@ -170,6 +170,18 @@ object OrekiCrunchPolicy {
     /** pre-break 单次坍缩的绝对收益下限：log10(IP) ≥ 1 即至少 10 IP。 */
     private const val PRE_BREAK_MIN_GAIN_LOG10: Double = 1.0
 
+    /** pre-break 零收益自适应窗口：起始 60 秒，上限 900 秒。 */
+    private const val PRE_BREAK_WAIT_START_NS: Long = 60_000_000_000L
+    private const val PRE_BREAK_WAIT_MAX_NS: Long = 900_000_000_000L
+
+    @Volatile private var preBreakWindowNs: Long = PRE_BREAK_WAIT_START_NS
+
+    /** 上次放行时的 IP 量级；用于识别「放行但零收益」并延长窗口。 */
+    private var preBreakLastIpLog: Double? = null
+
+    /** 上次放行时刻（nanoTime）；0 = 尚未放行。 */
+    private var preBreakLastAllowAt: Long = 0L
+
     @JvmStatic
     fun decide(): Decision {
         val decision = try {
@@ -251,12 +263,38 @@ object OrekiCrunchPolicy {
             val gainLog = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
             val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
             val ipLog = if (ipNow == null) null else GameApi.log10BigDouble(ipNow)
-            val jumpReason = preBreakJumpReason(gainLog, ipLog)
-            if (jumpReason != null) {
-                waitStartedAt = 0L
-                return Decision(true, jumpReason)
+            // [R130 P0 三修] 投影仍可能高估：15:19:49 放行 `pre-break-ip-jump` 后，
+            // 15:20:55 EDP_FRAME 仍 `inf=1.0e0 ip=0.0e0`（实际收益 0）。
+            // 因此加入「实测零收益自适应窗口」：每次放行记录当时的 IP 量级，
+            // 若窗口结束后 IP 没有增加，就把窗口翻倍（60s → 120s → … → 900s），
+            // 直到反物质真正长到能产出 IP 的量级；一旦观察到 IP 增长即回到 60s。
+            // 判据本身仍为纯函数，可在单测中固定。
+            val nowNs = System.nanoTime()
+            if (preBreakLastIpLog != null && ipLog != null &&
+                ipLog > preBreakLastIpLog!!
+            ) {
+                // 上一轮放行确实带来了 IP 增长 → 回到起始窗口
+                preBreakWindowNs = PRE_BREAK_WAIT_START_NS
             }
-            return waitWithin("pre-break-grow", PEAK_WAIT_LIMIT_NS)
+            preBreakLastIpLog = ipLog
+            val jumpReason = preBreakJumpReason(gainLog, ipLog)
+            val elapsed = if (preBreakLastAllowAt == 0L) Long.MAX_VALUE else nowNs - preBreakLastAllowAt
+            if (elapsed >= preBreakWindowNs) {
+                if (jumpReason != null) {
+                    preBreakLastAllowAt = nowNs
+                    return Decision(true, jumpReason)
+                }
+                // 窗口已过但收益仍不足：延长窗口，让反物质继续长，
+                // 防止「每 60 秒一次零收益坍缩」把 maxAM 永久按住。
+                if (preBreakLastAllowAt != 0L) {
+                    preBreakWindowNs = kotlin.math.min(
+                        preBreakWindowNs * 2L,
+                        PRE_BREAK_WAIT_MAX_NS
+                    )
+                    preBreakLastAllowAt = nowNs
+                }
+            }
+            return Decision(false, "pre-break-grow")
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
         //
