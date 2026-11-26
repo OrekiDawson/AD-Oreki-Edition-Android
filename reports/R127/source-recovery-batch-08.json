@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-08",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 28,
+  "blocked_count": 12,
+  "previous_source_coverage": 1750,
+  "source_coverage": 1778,
+  "coverage_percent": 11.6065,
+  "accepted": [
+    {
+      "entry": "r17.class",
+      "descriptor": "Lr17;",
+      "source": "r17.java"
+    },
+    {
+      "entry": "ct4.class",
+      "descriptor": "Lct4;",
+      "source": "ct4.java"
+    },
+    {
+      "entry": "mu8.class",
+      "descriptor": "Lmu8;",
+      "source": "mu8.java"
+    },
+    {
+      "entry": "j37.class",
+      "descriptor": "Lj37;",
+      "source": "j37.java"
+    },
+    {
+      "entry": "f12.class",
+      "descriptor": "Lf12;",
+      "source": "f12.java"
+    },
+    {
+      "entry": "bm2.class",
+      "descriptor": "Lbm2;",
+      "source": "bm2.java"
+    },
+    {
+      "entry": "e9.class",
+      "descriptor": "Le9;",
+      "source": "e9.java"
+    },
+    {
+      "entry": "p49.class",
+      "descriptor": "Lp49;",
+      "source": "p49.java"
+    },
+    {
+      "entry": "wc8.class",
+      "descriptor": "Lwc8;",
+      "source": "wc8.java"
+    },
+    {
+      "entry": "c36.class",
+      "descriptor": "Lc36;",
+      "source": "c36.java"
+    },
+    {
+      "entry": "kd2.class",
+      "descriptor": "Lkd2;",
+      "source": "kd2.java"
+    },
+    {
+      "entry": "u65.class",
+      "descriptor": "Lu65;",
+      "source": "u65.java"
+    },
+    {
+      "entry": "ij6.class",
+      "descriptor": "Lij6;",
+      "source": "ij6.java"
+    },
+    {
+      "entry": "j09.class",
+      "descriptor": "Lj09;",
+      "source": "j09.java"
+    },
+    {
+      "entry": "pz1.class",
+      "descriptor": "Lpz1;",
+      "source": "pz1.java"
+    },
+    {
+      "entry": "qi.class",
+      "descriptor": "Lqi;",
+      "source": "qi.java"
+    },
+    {
+      "entry": "av.class",
+      "descriptor": "Lav;",
+      "source": "av.java"
+    },
+    {
+      "entry": "zw8.class",
+      "descriptor": "Lzw8;",
+      "source": "zw8.java"
+    },
+    {
+      "entry": "pw.class",
+      "descriptor": "Lpw;",
+      "source": "pw.java"
+    },
+    {
+      "entry": "ue2.class",
+      "descriptor": "Lue2;",
+      "source": "ue2.java"
+    },
+    {
+      "entry": "ls3.class",
+      "descriptor": "Lls3;",
+      "source": "ls3.java"
+    },
+    {
+      "entry": "m77.class",
+      "descriptor": "Lm77;",
+      "source": "m77.java"
+    },
+    {
+      "entry": "om7.class",
+      "descriptor": "Lom7;",
+      "source": "om7.java"
+    },
+    {
+      "entry": "um5.class",
+      "descriptor": "Lum5;",
+      "source": "um5.java"
+    },
+    {
+      "entry": "nr4.class",
+      "descriptor": "Lnr4;",
+      "source": "nr4.java"
+    },
+    {
+      "entry": "r.class",
+      "descriptor": "Lr;",
+      "source": "r.java"
+    },
+    {
+      "entry": "ez0.class",
+      "descriptor": "Lez0;",
+      "source": "ez0.java"
+    },
+    {
+      "entry": "le5.class",
+      "descriptor": "Lle5;",
+      "source": "le5.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "y00.class",
+      "descriptor": "Ly00;",
+      "reason": "javac compile failure: cannot access x00 default method in version 49.0 classfile; override validation also fails"
+    },
+    {
+      "entry": "j7.class",
+      "descriptor": "Lj7;",
+      "reason": "javac compile failure: ArrayAdapter requires a non-default constructor"
+    },
+    {
+      "entry": "yu4.class",
+      "descriptor": "Lyu4;",
+      "reason": "javac compile failure: constructor vu4 requires BigDouble,BigDouble,dw"
+    },
+    {
+      "entry": "z67.class",
+      "descriptor": "Lz67;",
+      "reason": "javac compile failure: missing fr5.z1(int), fl6 typed constructor, and v47.x/q47.y symbols"
+    },
+    {
+      "entry": "fq0.class",
+      "descriptor": "Lfq0;",
+      "reason": "javac compile failure: fq0 does not override iq0.B(BigDouble,Object)"
+    },
+    {
+      "entry": "vl2.class",
+      "descriptor": "Lvl2;",
+      "reason": "javac compile failure: no suitable fs6(Object,Object,Object,byte) constructor"
+    },
+    {
+      "entry": "tn5.class",
+      "descriptor": "Ltn5;",
+      "reason": "javac compile failure: cannot access ws5 default method in version 49.0 classfile"
+    },
+    {
+      "entry": "hr7.class",
+      "descriptor": "Lhr7;",
+      "reason": "javac compile failure: cannot find symbol constructor gr7()"
+    },
+    {
+      "entry": "sh3.class",
+      "descriptor": "Lsh3;",
+      "reason": "javac compile failure: constructor vw3 cannot be applied to given types"
+    },
+    {
+      "entry": "mm2.class",
+      "descriptor": "Lmm2;",
+      "reason": "javac compile failure: cannot find symbol constructor fv4()"
+    },
+    {
+      "entry": "di.class",
+      "descriptor": "Ldi;",
+      "reason": "javac compile failure: missing w29(di) constructor and ne1.l(String)"
+    },
+    {
+      "entry": "t76.class",
+      "descriptor": "Lt76;",
+      "reason": "javac compile failure: s9 requires u9; s0.Q(zzazv) and s0.T0(long) are absent"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 45",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1778",
+    "sourceTakeoverDex": "PASS: 1778",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "d8_stack_map_warnings": 5
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-08",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

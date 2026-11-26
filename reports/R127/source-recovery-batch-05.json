@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-05",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 21,
+  "blocked_count": 19,
+  "previous_source_coverage": 1694,
+  "source_coverage": 1715,
+  "coverage_percent": 11.1952,
+  "accepted": [
+    {
+      "entry": "bs4.class",
+      "source": "bs4.java"
+    },
+    {
+      "entry": "c82.class",
+      "source": "c82.java"
+    },
+    {
+      "entry": "cc9.class",
+      "source": "cc9.java"
+    },
+    {
+      "entry": "g73.class",
+      "source": "g73.java"
+    },
+    {
+      "entry": "ib1.class",
+      "source": "ib1.java"
+    },
+    {
+      "entry": "k9.class",
+      "source": "k9.java"
+    },
+    {
+      "entry": "lr7.class",
+      "source": "lr7.java"
+    },
+    {
+      "entry": "mz2.class",
+      "source": "mz2.java"
+    },
+    {
+      "entry": "o51.class",
+      "source": "o51.java"
+    },
+    {
+      "entry": "p21.class",
+      "source": "p21.java"
+    },
+    {
+      "entry": "pe0.class",
+      "source": "pe0.java"
+    },
+    {
+      "entry": "qs2.class",
+      "source": "qs2.java"
+    },
+    {
+      "entry": "rp1.class",
+      "source": "rp1.java"
+    },
+    {
+      "entry": "rt7.class",
+      "source": "rt7.java"
+    },
+    {
+      "entry": "s22.class",
+      "source": "s22.java"
+    },
+    {
+      "entry": "t22.class",
+      "source": "t22.java"
+    },
+    {
+      "entry": "v22.class",
+      "source": "v22.java"
+    },
+    {
+      "entry": "vy3.class",
+      "source": "vy3.java"
+    },
+    {
+      "entry": "w19.class",
+      "source": "w19.java"
+    },
+    {
+      "entry": "zb5.class",
+      "source": "zb5.java"
+    },
+    {
+      "entry": "zf2.class",
+      "source": "zf2.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "a61.class",
+      "descriptor": "La61;",
+      "reason": "JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor"
+    },
+    {
+      "entry": "c50.class",
+      "descriptor": "Lc50;",
+      "reason": "JADX omitted inherited e50() constructor"
+    },
+    {
+      "entry": "d58.class",
+      "descriptor": "Ld58;",
+      "reason": "JADX omitted required zza() implementation inherited from k25"
+    },
+    {
+      "entry": "d65.class",
+      "descriptor": "Ld65;",
+      "reason": "JADX omitted inherited f34(km1) constructor"
+    },
+    {
+      "entry": "dc3.class",
+      "descriptor": "Ldc3;",
+      "reason": "JADX omitted inherited fc3() constructor"
+    },
+    {
+      "entry": "f52.class",
+      "descriptor": "Lf52;",
+      "reason": "JADX omitted inherited b62() constructor"
+    },
+    {
+      "entry": "ge4.class",
+      "descriptor": "Lge4;",
+      "reason": "JADX omitted inherited he4() constructor"
+    },
+    {
+      "entry": "gh3.class",
+      "descriptor": "Lgh3;",
+      "reason": "JADX omitted inherited d(int,String,fm1,gm1,boolean,gm1,al2,al2,gm1,iq0,double,gm1) constructor and synthetic Player.PelleRift ABI"
+    },
+    {
+      "entry": "ih3.class",
+      "descriptor": "Lih3;",
+      "reason": "JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI"
+    },
+    {
+      "entry": "ik6.class",
+      "descriptor": "Lik6;",
+      "reason": "JADX omitted inherited ag5() constructor"
+    },
+    {
+      "entry": "jh3.class",
+      "descriptor": "Ljh3;",
+      "reason": "JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI"
+    },
+    {
+      "entry": "la3.class",
+      "descriptor": "Lla3;",
+      "reason": "JADX omitted inherited ua3(int,int) and synthetic la3(int,int,int) constructors"
+    },
+    {
+      "entry": "lh3.class",
+      "descriptor": "Llh3;",
+      "reason": "JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI"
+    },
+    {
+      "entry": "oc3.class",
+      "descriptor": "Loc3;",
+      "reason": "JADX omitted inherited qc3() constructor"
+    },
+    {
+      "entry": "pb2.class",
+      "descriptor": "Lpb2;",
+      "reason": "JADX omitted inherited q71() constructor and referenced synthetic f04.b field"
+    },
+    {
+      "entry": "r74.class",
+      "descriptor": "Lr74;",
+      "reason": "JADX omitted inherited gr(long) constructor"
+    },
+    {
+      "entry": "ti3.class",
+      "descriptor": "Lti3;",
+      "reason": "JADX omitted inherited ii3(...) constructor and up0.z/BigDouble ABI differs"
+    },
+    {
+      "entry": "x93.class",
+      "descriptor": "Lx93;",
+      "reason": "JADX omitted inherited ua3(int,int) and synthetic x93(int,int,int) constructors"
+    },
+    {
+      "entry": "y51.class",
+      "descriptor": "Ly51;",
+      "reason": "JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 31",
+    "compileDebugJavaWithJavac": "PASS after failed ABI candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1715",
+    "sourceTakeoverDex": "PASS: 1715",
+    "androidAbi": "PASS: arm64-v8a,x86_64"
+  }
+}

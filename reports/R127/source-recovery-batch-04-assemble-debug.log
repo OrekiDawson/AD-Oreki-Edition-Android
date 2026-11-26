@@ -1,0 +1,141 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.9.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava NO-SOURCE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+
+> Configure project :app
+The Configuration.setVisible(boolean) method has been deprecated. This is scheduled to be removed in Gradle 11. Consult the upgrading guide for further information: https://docs.gradle.org/9.9.2/userguide/upgrading_version_9.html#deprecate-visible-property
+
+> Task :app:generateChangelogZh UP-TO-DATE
+> Task :app:generateKotlinBindings UP-TO-DATE
+> Task :app:prepareFullGameAssets UP-TO-DATE
+> Task :app:prepareFullGameInputs UP-TO-DATE
+> Task :app:verifyFullGameInputs UP-TO-DATE
+> Task :app:prepareGameJar UP-TO-DATE
+> Task :app:filterGameJar UP-TO-DATE
+> Task :app:applyStorePolicy UP-TO-DATE
+> Task :app:verifyStorePolicyOutput UP-TO-DATE
+
+> Task :app:verifyTutorialAsset
+[oreki] 教程资产校验通过: 149657 字节 / 25 章 / 8 阶段提示
+
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:generateDebugGlobalSynthetics UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt:1372:31 Unchecked cast of 'Any' to 'Array<Any>'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.kt:71:71 Unchecked cast of 'Any!' to 'Array<a>'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.kt:84:44 Java type mismatch: inferred type is 'ClassLoader?', but 'ClassLoader' was expected.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.kt:92:37 Java type mismatch: inferred type is 'ClassLoader?', but 'ClassLoader' was expected.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt:1679:44 Condition is always 'true'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt:1975:48 Condition is always 'false'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:54:16 'fun setDecorFitsSystemWindows(p0: Boolean): Unit' is deprecated. Deprecated in Java.
+
+> Task :app:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :app:adaptSourceAbiDebug
+[oreki] 默认包 ABI/JVM 名称适配完成: OrekiSpeed.class.migrateBest -> migrateBest
+[oreki] 默认包 ABI/JVM 名称适配完成: OrekiUiTitle.class.of -> of
+[oreki] 默认包 ABI/JVM 名称适配完成: le3.class.mo8getUnderlyingMatrixsQKQjiQ -> getUnderlyingMatrix-sQKQjiQ
+[oreki] 构造器 shim 已删除: an1.class.<init>()V
+[oreki] 构造器 shim 已删除: bn1.class.<init>()V
+[oreki] 构造器 shim 已删除: cn1.class.<init>()V
+[oreki] 构造器 shim 已删除: dn1.class.<init>()V
+[oreki] 构造器 shim 已删除: en1.class.<init>()V
+[oreki] 构造器 shim 已删除: cc6.class.<init>()V
+[oreki] 构造器 shim 已删除: fp6.class.<init>()V
+[oreki] 构造器 shim 已删除: d38.class.<init>()V
+[oreki] 构造器 shim 已删除: ts6.class.<init>()V
+[oreki] 构造器 shim 已删除: zb6.class.<init>()V
+[oreki] 构造器 shim 已删除: qh6.class.<init>()V
+[oreki] 构造器 shim 已删除: lp6.class.<init>()V
+[oreki] 构造器 shim 已删除: y61.class.<init>()V
+[oreki] 构造器 shim 已删除: js7.class.<init>()V
+[oreki] 构造器 super 已恢复: g21.class java/lang/Object -> j21
+[oreki] 构造器 super 已恢复: i21.class java/lang/Object -> j21
+[oreki] 构造器 super 已恢复: h23.class java/lang/Object -> p32
+[oreki] 构造器 super 已恢复: hf5.class java/lang/Object -> jf5
+[oreki] 构造器 super 已恢复: hp3.class java/lang/Object -> jp3
+[oreki] 构造器调用 owner 已恢复: as7.class js7.<init>()V -> java/lang/Object.<init>()V
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: cc7.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: cy1.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: j36.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: jv7.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: kn5.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: ox1.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: p2.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: p86.class java/lang/Object -> jh5
+[oreki] 无构造器 super 已恢复并删除隐式 <init>: x76.class java/lang/Object -> jh5
+
+> Task :app:compressDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+
+> Task :app:dexBuilderDebug
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/h23.class: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from h23 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/i21.class: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from i21 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/hp3.class: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from hp3 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/hf5.class: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from hf5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/g21.class: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from g21 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r127-source-recovery-ledger/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/as7.class: D8: Invalid stack map table at instruction index 60: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from js7, but was java.lang.Object.<init>().
+
+> Task :app:verifySourceTakeoverDebugAbi FAILED
+FAIL hx6.class: identity={'name': ('hx6', 'hx6'), 'super': ('java/lang/Object', 'java/lang/Object'), 'interfaces': (['tm8'], ['tm8']), 'access': (49, 49)} missing_methods=[('a', '()Let6;', 17), ('zzb', '()Ljava/lang/Object;', 17)] missing_fields=[] unexpected_constructors=[] error=
+FAIL uw6.class: identity={'name': ('uw6', 'uw6'), 'super': ('java/lang/Object', 'java/lang/Object'), 'interfaces': (['tm8'], ['tm8']), 'access': (49, 49)} missing_methods=[('a', '()Lqn8;', 17), ('zzb', '()Ljava/lang/Object;', 17)] missing_fields=[] unexpected_constructors=[] error=
+
+> Task :app:mergeProjectDexDebug
+> Task :app:desugarDebugFileDependencies
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r127-source-recovery-ledger/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:verifySourceTakeoverDebugAbi' (registered by plugin 'oreki.android.store-policy').
+> Process 'command 'python3'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 6s
+50 actionable tasks: 9 executed, 41 up-to-date

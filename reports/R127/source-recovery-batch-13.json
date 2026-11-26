@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-13",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 21,
+  "blocked_count": 19,
+  "previous_source_coverage": 1852,
+  "source_coverage": 1873,
+  "coverage_percent": 12.227,
+  "takeover_entries": 1897,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "on8.class",
+      "descriptor": "Lon8;",
+      "source": "on8.java"
+    },
+    {
+      "entry": "yk.class",
+      "descriptor": "Lyk;",
+      "source": "yk.java"
+    },
+    {
+      "entry": "d11.class",
+      "descriptor": "Ld11;",
+      "source": "d11.java"
+    },
+    {
+      "entry": "hf6.class",
+      "descriptor": "Lhf6;",
+      "source": "hf6.java"
+    },
+    {
+      "entry": "p.class",
+      "descriptor": "Lp;",
+      "source": "p.java"
+    },
+    {
+      "entry": "s50.class",
+      "descriptor": "Ls50;",
+      "source": "s50.java"
+    },
+    {
+      "entry": "wb7.class",
+      "descriptor": "Lwb7;",
+      "source": "wb7.java"
+    },
+    {
+      "entry": "q20.class",
+      "descriptor": "Lq20;",
+      "source": "q20.java"
+    },
+    {
+      "entry": "ro4.class",
+      "descriptor": "Lro4;",
+      "source": "ro4.java"
+    },
+    {
+      "entry": "sj.class",
+      "descriptor": "Lsj;",
+      "source": "sj.java"
+    },
+    {
+      "entry": "y14.class",
+      "descriptor": "Ly14;",
+      "source": "y14.java"
+    },
+    {
+      "entry": "ts8.class",
+      "descriptor": "Lts8;",
+      "source": "ts8.java"
+    },
+    {
+      "entry": "xj.class",
+      "descriptor": "Lxj;",
+      "source": "xj.java"
+    },
+    {
+      "entry": "gy0.class",
+      "descriptor": "Lgy0;",
+      "source": "gy0.java"
+    },
+    {
+      "entry": "rf2.class",
+      "descriptor": "Lrf2;",
+      "source": "rf2.java"
+    },
+    {
+      "entry": "ld2.class",
+      "descriptor": "Lld2;",
+      "source": "ld2.java"
+    },
+    {
+      "entry": "o0.class",
+      "descriptor": "Lo0;",
+      "source": "o0.java"
+    },
+    {
+      "entry": "lp3.class",
+      "descriptor": "Llp3;",
+      "source": "lp3.java"
+    },
+    {
+      "entry": "w97.class",
+      "descriptor": "Lw97;",
+      "source": "w97.java"
+    },
+    {
+      "entry": "yh2.class",
+      "descriptor": "Lyh2;",
+      "source": "yh2.java"
+    },
+    {
+      "entry": "kx8.class",
+      "descriptor": "Lkx8;",
+      "source": "kx8.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "ea6.class",
+      "descriptor": "Lea6;",
+      "reason": "javac compile failure: cannot access xq6 malformed variable-arity method"
+    },
+    {
+      "entry": "f33.class",
+      "descriptor": "Lf33;",
+      "reason": "javac compile failure: superclass gs2 requires Context; v23 constructor absent"
+    },
+    {
+      "entry": "sp5.class",
+      "descriptor": "Lsp5;",
+      "reason": "javac compile failure: missing wa(int) and x31.e(String)"
+    },
+    {
+      "entry": "d73.class",
+      "descriptor": "Ld73;",
+      "reason": "javac compile failure: missing ok8.z(int) override"
+    },
+    {
+      "entry": "an6.class",
+      "descriptor": "Lan6;",
+      "reason": "javac compile failure: missing ag5(IBinder,String,byte) constructor"
+    },
+    {
+      "entry": "r43.class",
+      "descriptor": "Lr43;",
+      "reason": "javac compile failure: cannot find symbol constructor q43()"
+    },
+    {
+      "entry": "m90.class",
+      "descriptor": "Lm90;",
+      "reason": "javac compile failure: Property requires Class,String; no m90(Class,String) constructor"
+    },
+    {
+      "entry": "tx6.class",
+      "descriptor": "Ltx6;",
+      "reason": "javac compile failure: missing fd7(um8,byte) constructor"
+    },
+    {
+      "entry": "wm6.class",
+      "descriptor": "Lwm6;",
+      "reason": "javac compile failure: missing ag5(IBinder,String,byte) constructor"
+    },
+    {
+      "entry": "a99.class",
+      "descriptor": "La99;",
+      "reason": "javac compile failure: no ca9(boolean,Object,Object,byte) constructor; lx3.q(Exception) absent"
+    },
+    {
+      "entry": "iw8.class",
+      "descriptor": "Liw8;",
+      "reason": "javac compile failure: cannot find symbol constructor b()"
+    },
+    {
+      "entry": "xl2.class",
+      "descriptor": "Lxl2;",
+      "reason": "javac compile failure: cannot find symbol constructor wl2()"
+    },
+    {
+      "entry": "oa7.class",
+      "descriptor": "Loa7;",
+      "reason": "javac compile failure: cannot find symbol constructor ja7()"
+    },
+    {
+      "entry": "ek1.class",
+      "descriptor": "Lek1;",
+      "reason": "javac compile failure: missing z42.v(int,View) override and required constructor"
+    },
+    {
+      "entry": "xk4.class",
+      "descriptor": "Lxk4;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "su.class",
+      "descriptor": "Lsu;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "q39.class",
+      "descriptor": "Lq39;",
+      "reason": "javac compile failure: final field a is not initialized by the available constructor"
+    },
+    {
+      "entry": "fb3.class",
+      "descriptor": "Lfb3;",
+      "reason": "source takeover ABI failure: compiled class is missing 28 original static-linkage methods"
+    },
+    {
+      "entry": "rw7.class",
+      "descriptor": "Lrw7;",
+      "reason": "source takeover ABI failure: compiled class is missing uncaughtException(Thread,Throwable)"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 56",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidates blocked",
+    "sourceTakeoverAbi": "PASS: 1897",
+    "sourceTakeoverDex": "PASS: 1897",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1873 local compiled, 516 blocked",
+    "d8_stack_map_warnings": 5
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-13",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

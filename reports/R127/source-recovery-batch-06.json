@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-06",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 18,
+  "blocked_count": 22,
+  "previous_source_coverage": 1715,
+  "source_coverage": 1733,
+  "coverage_percent": 11.3127,
+  "accepted": [
+    {
+      "entry": "bi1.class",
+      "descriptor": "Lbi1;",
+      "source": "bi1.java"
+    },
+    {
+      "entry": "by0.class",
+      "descriptor": "Lby0;",
+      "source": "by0.java"
+    },
+    {
+      "entry": "h37.class",
+      "descriptor": "Lh37;",
+      "source": "h37.java"
+    },
+    {
+      "entry": "h68.class",
+      "descriptor": "Lh68;",
+      "source": "h68.java"
+    },
+    {
+      "entry": "i41.class",
+      "descriptor": "Li41;",
+      "source": "i41.java"
+    },
+    {
+      "entry": "js4.class",
+      "descriptor": "Ljs4;",
+      "source": "js4.java"
+    },
+    {
+      "entry": "nh8.class",
+      "descriptor": "Lnh8;",
+      "source": "nh8.java"
+    },
+    {
+      "entry": "o16.class",
+      "descriptor": "Lo16;",
+      "source": "o16.java"
+    },
+    {
+      "entry": "r78.class",
+      "descriptor": "Lr78;",
+      "source": "r78.java"
+    },
+    {
+      "entry": "r92.class",
+      "descriptor": "Lr92;",
+      "source": "r92.java"
+    },
+    {
+      "entry": "sc6.class",
+      "descriptor": "Lsc6;",
+      "source": "sc6.java"
+    },
+    {
+      "entry": "th8.class",
+      "descriptor": "Lth8;",
+      "source": "th8.java"
+    },
+    {
+      "entry": "tr0.class",
+      "descriptor": "Ltr0;",
+      "source": "tr0.java"
+    },
+    {
+      "entry": "ux8.class",
+      "descriptor": "Lux8;",
+      "source": "ux8.java"
+    },
+    {
+      "entry": "uy7.class",
+      "descriptor": "Luy7;",
+      "source": "uy7.java"
+    },
+    {
+      "entry": "va0.class",
+      "descriptor": "Lva0;",
+      "source": "va0.java"
+    },
+    {
+      "entry": "vq7.class",
+      "descriptor": "Lvq7;",
+      "source": "vq7.java"
+    },
+    {
+      "entry": "xv6.class",
+      "descriptor": "Lxv6;",
+      "source": "xv6.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "a7.class",
+      "descriptor": "La7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "aw5.class",
+      "descriptor": "Law5;",
+      "reason": "javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5"
+    },
+    {
+      "entry": "b7.class",
+      "descriptor": "Lb7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "bq2.class",
+      "descriptor": "Lbq2;",
+      "reason": "javac compile failure: incompatible types: Context cannot be converted to Service"
+    },
+    {
+      "entry": "c7.class",
+      "descriptor": "Lc7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "d7.class",
+      "descriptor": "Ld7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "e7.class",
+      "descriptor": "Le7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "gk1.class",
+      "descriptor": "Lgk1;",
+      "reason": "javac compile failure: gk1 is not abstract and does not override abstract method v(int,View) in z42"
+    },
+    {
+      "entry": "h43.class",
+      "descriptor": "Lh43;",
+      "reason": "javac compile failure: constructor a in class a cannot be applied to given types"
+    },
+    {
+      "entry": "i00.class",
+      "descriptor": "Li00;",
+      "reason": "javac compile failure: constructor d00 in class d00 cannot be applied to given types"
+    },
+    {
+      "entry": "lw5.class",
+      "descriptor": "Llw5;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "m14.class",
+      "descriptor": "Lm14;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "mb5.class",
+      "descriptor": "Lmb5;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "md6.class",
+      "descriptor": "Lmd6;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "ou2.class",
+      "descriptor": "Lou2;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "pz5.class",
+      "descriptor": "Lpz5;",
+      "reason": "javac compile failure: constructor ys5 in class ys5 cannot be applied to given types"
+    },
+    {
+      "entry": "rd5.class",
+      "descriptor": "Lrd5;",
+      "reason": "javac compile failure: constructor qd5 in class qd5 cannot be applied to given types"
+    },
+    {
+      "entry": "rf7.class",
+      "descriptor": "Lrf7;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "s45.class",
+      "descriptor": "Ls45;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "ub0.class",
+      "descriptor": "Lub0;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "w29.class",
+      "descriptor": "Lw29;",
+      "reason": "javac compile failure: cannot find symbol"
+    },
+    {
+      "entry": "xv0.class",
+      "descriptor": "Lxv0;",
+      "reason": "javac compile failure: cannot find symbol"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 31",
+    "compileDebugJavaWithJavac": "PASS after failed ABI candidates blocked",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 1733",
+    "sourceTakeoverDex": "PASS: 1733",
+    "androidAbi": "PASS: arm64-v8a,x86_64"
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-06",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": "SHA256SUMS.logs-and-blocked"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "batch": "R128-source-recovery-batch-23",
+  "selection": "targeted 128-class JADX subset from frozen JAR + Smali identity + committed 15,319 ledger",
+  "decompiled_candidate_count": 128,
+  "imported_candidate_count": 36,
+  "accepted_count": 31,
+  "blocked_count": 5,
+  "previous_source_coverage": 2092,
+  "source_coverage": 2123,
+  "coverage_percent": 13.859,
+  "takeover_entries": 2147,
+  "takeover_outside_baseline": 24,
+  "blocked_entries": 716,
+  "accepted": [
+    "Lae1;",
+    "Llr2;",
+    "Lcx6;",
+    "Lba;",
+    "Lt89;",
+    "Lh19;",
+    "Le41;",
+    "Lz09;",
+    "La95;",
+    "Lcn2;",
+    "Lha1;",
+    "Lqc4;",
+    "Lvr1;",
+    "Ldd3;",
+    "Lfb;",
+    "Lgb2;",
+    "Lvj5;",
+    "Lwl1;",
+    "Ljp7;",
+    "Lxe3;",
+    "Lro7;",
+    "Ly50;",
+    "Ldy;",
+    "Lb73;",
+    "Lkb1;",
+    "Ls7;",
+    "Lqt1;",
+    "Lkz4;",
+    "Lv26;",
+    "Lhb0;",
+    "Llb3;"
+  ],
+  "blocked": [
+    "Lig1;",
+    "Lhg1;",
+    "Lcv4;",
+    "Lrp6;",
+    "Ldh1;"
+  ],
+  "abi_corrections": {
+    "narrow_integer_assignments": [
+      "Lha1;",
+      "Lqc4;",
+      "Lvr1;",
+      "Ly50;"
+    ],
+    "synthetic_constructors": [
+      "Lae1;",
+      "Llr2;",
+      "Lba;",
+      "Lh19;",
+      "Le41;",
+      "Lcn2;",
+      "Lwl1;"
+    ]
+  },
+  "verification": {
+    "compileDebugJavaWithJavac": "PASS",
+    "assembleDebug": "PASS",
+    "sourceTakeoverAbi": "PASS: 2147",
+    "sourceTakeoverClasses": "PASS: 2147",
+    "sourceTakeoverDex": "PASS: 2147",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 2123 local compiled, 716 blocked",
+    "staticTests": "PASS: 25",
+    "debugApk": {
+      "bytes": 83878964,
+      "sha256": "e9eb6135399b8ea60f78fc913af89052ae9788d94aab7cdffb41abb7d9514e11"
+    },
+    "ledger": {
+      "sha256": "45c408d722e9832dbd35e8bc182d21de98fd8d417be5deaa3fcd8b7df767d7c0",
+      "blockedSha256": "9662522e5edc75439d91e7977a7769edd6c0da3f8b5809dcdef18b1188e25ef3",
+      "takeoverSha256": "6aefe0ca94e1157868ad632c2096c717e4bf3a0fa21fce6cfd8494051e565da3"
+    }
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-23",
+    "blocked_source_references": "blocked-source-references",
+    "candidate_selection": "candidate-selection.json",
+    "candidate_subset_jar": "batch-23-candidates.jar",
+    "jadx_sources": "jadx-sources/sources",
+    "build_evidence": "build-evidence",
+    "digests": [
+      "blocked-source-references/SHA256SUMS",
+      "SHA256SUMS"
+    ]
+  },
+  "notes": [
+    "复用定向128类隔离解码流程，没有重复全量反编译。",
+    "36个导入候选中有5个因 relocated Kotlin类型、父类构造器或 Binder ABI 无法闭合，原始源码已保留并移回 blocked。",
+    "4个窄整型/布尔转换与7个 JADX 丢失的 synthetic 构造器已依据 Smali/JAR 签名恢复。",
+    "发布冻结继续有效；Debug APK仅作为本地源码接管构建证据。"
+  ]
+}

@@ -1,0 +1,84 @@
+warning: [options] bootstrap class path is not set in conjunction with -source 8
+  not setting the bootstrap class path may lead to class files that cannot run on JDK 8
+    --release 8 is recommended instead of -source 8 -target 8 because it sets the bootstrap class path automatically
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+app/src/main/java/ug7.java:1: error: package android.content does not exist
+import android.content.Context;
+                      ^
+app/src/main/java/ug7.java:8: error: cannot find symbol
+    public final Context b;
+                 ^
+  symbol:   class Context
+  location: class ug7
+app/src/main/java/ug7.java:10: error: cannot find symbol
+    public ug7(Context context) {
+               ^
+  symbol:   class Context
+  location: class ug7
+app/src/main/java/hc4.java:1: error: package android.content does not exist
+import android.content.SharedPreferences;
+                      ^
+app/src/main/java/hc4.java:7: error: cannot find symbol
+    public final SharedPreferences a;
+                 ^
+  symbol:   class SharedPreferences
+  location: class hc4
+app/src/main/java/hc4.java:10: error: cannot find symbol
+    public hc4(SharedPreferences sharedPreferences, Set set) {
+               ^
+  symbol:   class SharedPreferences
+  location: class hc4
+app/src/main/java/uq1.java:1: error: package android.util does not exist
+import android.util.LruCache;
+                   ^
+app/src/main/java/uq1.java:5: error: cannot find symbol
+public final class uq1 extends LruCache {
+                               ^
+  symbol: class LruCache
+app/src/main/java/fa3.java:5: error: cannot access pf
+    public final void a(y80 y80Var, pf pfVar, xe4 xe4Var, z53 z53Var, va3 va3Var) {
+                                    ^
+  bad class file: /home/oreki/private-staging/r107-tools/out/agpdex2/game-final.jar(/pf.class)
+    default method found in version 49.0 classfile
+    Please remove or make sure it appears in the correct subdirectory of the classpath.
+app/src/main/java/zh7.java:1: error: package org.json does not exist
+import org.json.JSONObject;
+               ^
+app/src/main/java/zh7.java:13: error: cannot find symbol
+    public final ah7 a(String str, JSONObject jSONObject) {
+                                   ^
+  symbol:   class JSONObject
+  location: class zh7
+app/src/main/java/g11.java:4: error: cannot find symbol
+    public g11(e11 e11Var) {
+                           ^
+  symbol:   constructor b62()
+  location: class b62
+app/src/main/java/uq1.java:6: error: method does not override or implement a method from a supertype
+    @Override // android.util.LruCache
+    ^
+app/src/main/java/uq1.java:11: error: cannot access Bitmap
+        return tq1Var.b.getAllocationByteCount();
+                       ^
+  class file for android.graphics.Bitmap not found
+app/src/main/java/fa3.java:1: error: constructor ua3 in class ua3 cannot be applied to given types;
+public final class fa3 extends ua3 {
+             ^
+  required: int,int
+  found:    no arguments
+  reason: actual and formal argument lists differ in length
+app/src/main/java/fa3.java:2: error: constructor fa3 in class fa3 cannot be applied to given types;
+    public static final fa3 c = new fa3(0, 1, 1);
+                                ^
+  required: no arguments
+  found:    int,int,int
+  reason: actual and formal argument lists differ in length
+app/src/main/java/zh7.java:14: error: cannot find symbol
+        return new ah7(this.a.a(str, jSONObject), new th7(), str);
+                                                  ^
+  symbol:   constructor th7()
+  location: class th7
+17 errors
+4 warnings

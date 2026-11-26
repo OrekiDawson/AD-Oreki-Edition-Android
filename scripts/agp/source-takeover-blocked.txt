@@ -1,349 +1,801 @@
 # 未进入本批 AGP 生产接管的候选；文件仅记录准确阻断，不参与构建。
 # entry | descriptor | reason
-me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
-f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
-su8.class | Lsu8; | depends on blocked ws5.class
+a00.class | La00; | javac compile failure: constructor y63 in class y63 cannot be applied to given types;
+a01.class | La01; | javac compile failure: constructor d01 in class d01 cannot be applied to given types;
+a06.class | La06; | javac compile failure: source ABI requires invalid firebase-auth-api package and zzagb type
+a07.class | La07; | javac compile failure: cannot find symbol
+a08.class | La08; | javac compile failure: cannot find symbol
+a09.class | La09; | javac compile failure: source ABI requires invalid firebase-auth-api package and generated classes
+a10.class | La10; | javac compile failure: kotlin.b unavailable; gm1.a(Throwable) absent
+a20.class | La20; | javac compile failure: incompatible types: ze0 cannot be converted to pn1
+a22.class | La22; | javac compile failure: cannot find symbol
+a24.class | La24; | javac compile failure: cannot find symbol constructor gw3(byte)
+a27.class | La27; | javac compile failure: constructor fs1 in class fs1 cannot be applied to given types;
+a29.class | La29; | javac compile failure: cannot find symbol
+a30.class | La30; | javac compile failure: depends on blocked version-49 class ws5
+a34.class | La34; | javac compile failure: self-reference in initializer
+a37.class | La37; | javac compile failure: cannot find symbol
+a48.class | La48; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+a4.class | La4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+a53.class | La53; | javac compile failure: cannot find symbol
+a54.class | La54; | javac compile failure: cannot find symbol
+a58.class | La58; | javac compile failure: cannot find symbol
+a61.class | La61; | JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor
+a65.class | La65; | javac compile failure: cannot find symbol
+a66.class | La66; | javac compile failure: cannot find symbol
+a67.class | La67; | JADX field q47.v is synthetic and unavailable to javac; retain frozen JAR implementation
+a68.class | La68; | javac compile failure: constructor z58 in class z58 cannot be applied to given types;
+a70.class | La70; | javac compile failure: call to super must be first statement in constructor
+a72.class | La72; | javac compile failure: cannot find symbol
+a73.class | La73; | javac compile failure: final fields c/d have incompatible constructor definite-assignment flow
+a74.class | La74; | javac compile failure: cannot find symbol
+a75.class | La75; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+a76.class | La76; | javac compile failure: final field q39 a is not initialized by the default constructor
+a78.class | La78; | javac compile failure: superclass p32 is blocked
+a79.class | La79; | javac compile failure: source ABI requires invalid firebase-auth-api package and generated classes
+a7.class | La7; | javac compile failure: cannot find symbol
+a80.class | La80; | javac compile failure: cannot find symbol
+a87.class | La87; | javac compile failure: cannot find symbol
+a8.class | La8; | javac compile failure: incompatible types: bad type in conditional expression
+a91.class | La91; | javac compile failure: cannot find symbol
+a94.class | La94; | javac compile failure: CoroutineSingletons.a unavailable
+a99.class | La99; | javac compile failure: no ca9(boolean,Object,Object,byte) constructor; lx3.q(Exception) absent
+a9.class | La9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+a.class | La; | javac compile failure: cannot find symbol constructor kw()
+aa0.class | Laa0; | javac compile failure: missing sj5(byte) constructor
+aa9.class | Laa9; | javac compile failure: cannot find symbol
+ac1.class | Lac1; | javac compile failure: incompatible types: FragmentActivity cannot be converted to MainActivity
+ac3.class | Lac3; | javac compile failure: cannot find symbol
+ad1.class | Lad1; | javac compile failure: eo2.b unavailable
+ae7.class | Lae7; | javac compile failure: missing je7(byte) constructor
+af5.class | Laf5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ag3.class | Lag3; | javac compile failure: cannot find symbol
+ah0.class | Lah0; | JADX default constructor no longer matches original ch0(sc0,sc0,int|sc0,sc0,sc0,float[]) ABI
+ah8.class | Lah8; | javac compile failure: missing do2.z(Object,float) and ni8() constructor
+ai6.class | Lai6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+aj7.class | Laj7; | javac compile failure: m47.v unavailable
+ak1.class | Lak1; | javac compile failure: missing kn6.Y(CharSequence) override
+ak3.class | Lak3; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+al0.class | Lal0; | javac compile failure: cannot find symbol
+al1.class | Lal1; | javac compile failure: missing sj5(byte) constructor
+al.class | Lal; | javac compile failure: incompatible types: em0 cannot be converted to ln
+am.class | Lam; | javac compile failure: cannot find symbol
+an6.class | Lan6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+an.class | Lan; | javac compile failure: cannot find symbol
 ao5.class | Lao5; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ao7.class | Lao7; | javac compile failure: missing Firebase internal package and n47/xx6 constructors
+aq0.class | Laq0; | javac compile failure: aq0 is not abstract and does not override abstract method B(BigDouble,Object) in iq0
+aq4.class | Laq4; | javac compile failure: cannot find symbol
+aq7.class | Laq7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+ar3.class | Lar3; | javac compile failure: superclass lk1 requires fv4
+ar.class | Lar; | javac compile failure: cannot find symbol
+as1.class | Las1; | javac compile failure: depends on blocked version-49 class ws5
+at3.class | Lat3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+au2.class | Lau2; | javac compile failure: constructor au2 cannot apply superclass ou2() or cu2()
+av3.class | Lav3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+av8.class | Lav8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+aw5.class | Law5; | javac compile failure: aw5 is not abstract and does not override abstract method z1(int) in fr5
+aw.class | Law; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+az3.class | Laz3; | javac compile failure: cannot find symbol constructor no1(byte)
+az4.class | Laz4; | javac compile failure: long[] incorrectly shadows required translation helper q(int,Object[])
+b48.class | Lb48; | javac/classfile or inherited dependency failure; see class-javac-8.log
+b7.class | Lb7; | javac compile failure: cannot find symbol
+b86.class | Lb86; | javac compile failure: s9 requires u9; v0.E(zzifx) and v0.F(zzifx) are absent
+ba0.class | Lba0; | javac compile failure: missing sj5(byte) constructor
+ba2.class | Lba2; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ba3.class | Lba3; | javac compile failure: missing ua3(int,int) and ba3(int,int,int) constructors
+ba6.class | Lba6; | original ag5 constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
+ba8.class | Lba8; | javac compile failure: missing hx7.d and u9.zza remains private
+ba9.class | Lba9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+bc4.class | Lbc4; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bc6.class | Lbc6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+bc7.class | Lbc7; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bd4.class | Lbd4; | javac compile failure: cannot find symbol constructor ad4(byte)
+be2.class | Lbe2; | javac compile failure: cannot find symbol constructor de2()
+bf1.class | Lbf1; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bg4.class | Lbg4; | javac compile failure: ki version-49 default method
+bh8.class | Lbh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+bh.class | Lbh; | ABI guard: JADX source omitted 19 original Android API methods; retain frozen JAR implementation
+bj.class | Lbj; | javac/classfile or inherited dependency failure; see class-javac-8.log
+bk1.class | Lbk1; | javac compile failure: missing kn6.Y(CharSequence) override
+bm6.class | Lbm6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+bm8.class | Lbm8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bq2.class | Lbq2; | javac compile failure: incompatible types: Context cannot be converted to Service
+bt0.class | Lbt0; | original h10 no-arg constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
+bt.class | Lbt; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bx.class | Lbx; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bz5.class | Lbz5; | source takeover ABI failure: compiled class is missing a(Ljava/lang/String;)V
+c01.class | Lc01; | javac compile failure: missing z40(int) and zz0(int) constructors
+c02.class | Lc02; | javac compile failure: superclass a constructor signature differs from JADX output
+c13.class | Lc13; | javac compile failure: cannot find symbol
 c25.class | Lc25; | javac/classfile or inherited dependency failure; see class-javac-1.log
+c2.class | Lc2; | source takeover ABI failure: compiled class is missing (Lrx8;Ljava/lang/Object;J)V constructor
+c38.class | Lc38; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+c47.class | Lc47; | javac compile failure: missing fr5.z1(int), n06/bl6 typed constructors, and vf5.U
+c48.class | Lc48; | javac compile failure: constructor mismatch with a48(String)
+c50.class | Lc50; | JADX omitted inherited e50() constructor
+c58.class | Lc58; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+c61.class | Lc61; | javac compile failure: cannot find symbol
+c64.class | Lc64; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+c76.class | Lc76; | javac compile failure: ag5 is abstract; cannot be instantiated
 c77.class | Lc77; | javac/classfile or inherited dependency failure; see class-javac-1.log
+c7.class | Lc7; | javac compile failure: cannot find symbol
+c85.class | Lc85; | javac compile failure: rg0 constructor mismatch and missing j73.w/lx3.q methods
+c99.class | Lc99; | javac compile failure: missing r69(int) constructor
+ca7.class | Lca7; | javac compile failure: implicit constructor cannot satisfy wb6(String)
+cc1.class | Lcc1; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+cd6.class | Lcd6; | javac compile failure: missing ag5() constructor
+cf6.class | Lcf6; | javac compile failure: v20 constructor signature differs from JADX output
 cj0.class | Lcj0; | javac/classfile or inherited dependency failure; see class-javac-1.log
+cj.class | Lcj; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ck6.class | Lck6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+cl3.class | Lcl3; | javac compile failure: missing n0() constructor
+cq0.class | Lcq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+cr0.class | Lcr0; | javac compile failure: missing dr0.b field
+ct3.class | Lct3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+cv4.class | Lcv4; | javac compile failure: superclass fv4 has no matching constructor
+cv5.class | Lcv5; | javac compile failure: cannot find symbol b.d(fv5)
+cv8.class | Lcv8; | javac compile failure: missing xu8() and cv8(int,String) constructors
+cy5.class | Lcy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+cy6.class | Lcy6; | javac compile failure: missing gc5 byte constructor, pf5(byte), and qf5(Object,Object,boolean,byte)
+cz3.class | Lcz3; | javac compile failure: ws5 version-49 default method, missing kj7 constructor and q(sx) override
+d02.class | Ld02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+d15.class | Ld15; | source takeover ABI failure: compiled class is missing 16 original JVM linkage methods
+d33.class | Ld33; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+d50.class | Ld50; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+d58.class | Ld58; | JADX omitted required zza() implementation inherited from k25
+d65.class | Ld65; | JADX omitted inherited f34(km1) constructor
+d73.class | Ld73; | javac compile failure: missing ok8.z(int) override
+d7.class | Ld7; | javac compile failure: cannot find symbol
+d80.class | Ld80; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+d82.class | Ld82; | javac compile failure: final field a is not initialized by the available constructor
+da6.class | Lda6; | javac compile failure: j1 constructor is not visible through JADX output
+da8.class | Lda8; | javac compile failure: missing mx7.f/j98.g and u9.zza remains private
+dc3.class | Ldc3; | JADX omitted inherited fc3() constructor
+de5.class | Lde5; | javac compile failure: i03 requires int
+dg1.class | Ldg1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+dh1.class | Ldh1; | javac compile failure: implicit constructor cannot satisfy FloatProperty
+di3.class | Ldi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+di.class | Ldi; | javac compile failure: missing w29(di) constructor and ne1.l(String)
+dj6.class | Ldj6; | source takeover ABI failure: compiled class is missing a(Z)Z
+dk1.class | Ldk1; | javac compile failure: missing z42.v(int,View) override and required constructor
+dl7.class | Ldl7; | javac compile failure: superclass cl7 requires unavailable constructor
+do7.class | Ldo7; | javac compile failure: missing ym7(do7,byte) constructor
+dp2.class | Ldp2; | javac compile failure: missing cp2(Context,ComponentName,o66) constructor
+dq0.class | Ldq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+dt.class | Ldt; | javac/classfile or inherited dependency failure; see class-javac-8.log
+du0.class | Ldu0; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+dv8.class | Ldv8; | javac compile failure: hs1/vw7 constructors and referenced symbol unavailable
+dw.class | Ldw; | javac compile failure: method does not override or implement a method from a supertype
 dx.class | Ldx; | javac/classfile or inherited dependency failure; see class-javac-1.log
+e02.class | Le02; | javac compile failure: superclass a constructor signature differs from JADX output
+e78.class | Le78; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+e7.class | Le7; | javac compile failure: cannot find symbol
+e83.class | Le83; | javac compile failure: missing q51(byte) constructor
+e87.class | Le87; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+ea3.class | Lea3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ea6.class | Lea6; | javac compile failure: cannot access xq6 malformed variable-arity method
+ea8.class | Lea8; | javac compile failure: missing mx7.e/j98.h and u9.zza remains private
+ec3.class | Lec3; | javac compile failure: missing fc3() constructor
+ee4.class | Lee4; | javac compile failure: missing he4() constructor
+eg1.class | Leg1; | javac compile failure: CoroutineSingletons.a unavailable
+eh2.class | Leh2; | javac compile failure: hidden android.media.LoudnessCodecController listener unavailable
+eh3.class | Leh3; | javac compile failure: superclass d requires the obfuscated 12-argument constructor
 ei0.class | Lei0; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ei3.class | Lei3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ei6.class | Lei6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ei7.class | Lei7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+ej7.class | Lej7; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ek1.class | Lek1; | javac compile failure: missing z42.v(int,View) override and required constructor
+en6.class | Len6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+ep7.class | Lep7; | javac/classfile or inherited dependency failure; see class-javac-8.log
+eq0.class | Leq0; | javac compile failure: eq0 does not override iq0.B(BigDouble,Object)
+et3.class | Let3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ew5.class | Lew5; | javac compile failure: cannot find symbol b.d(gw5)
+ex5.class | Lex5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ex8.class | Lex8; | javac compile failure: missing zs8(int) constructor
+ey7.class | Ley7; | javac compile failure: jm7 requires qu7; ey7,byte is not available
+ez7.class | Lez7; | javac compile failure: missing Firebase internal package and dy7/xx6 constructors
+f02.class | Lf02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 f21.class | Lf21; | javac/classfile or inherited dependency failure; see class-javac-1.log
+f32.class | Lf32; | javac compile failure: final field a is not initialized by the default constructor
+f33.class | Lf33; | javac compile failure: superclass gs2 requires Context; v23 constructor absent
+f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
+f47.class | Lf47; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+f52.class | Lf52; | JADX omitted inherited b62() constructor
+f57.class | Lf57; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+f66.class | Lf66; | javac compile failure: missing Iterator.next() override
 f83.class | Lf83; | javac/classfile or inherited dependency failure; see class-javac-1.log
 f98.class | Lf98; | javac/classfile or inherited dependency failure; see class-javac-1.log
-g26.class | Lg26; | javac/classfile or inherited dependency failure; see class-javac-1.log
-gf5.class | Lgf5; | javac/classfile or inherited dependency failure; see class-javac-1.log
-gp3.class | Lgp3; | javac/classfile or inherited dependency failure; see class-javac-1.log
-hg3.class | Lhg3; | javac/classfile or inherited dependency failure; see class-javac-1.log
-ho2.class | Lho2; | javac/classfile or inherited dependency failure; see class-javac-1.log
-ia.class | Lia; | javac/classfile or inherited dependency failure; see class-javac-1.log
-j94.class | Lj94; | javac/classfile or inherited dependency failure; see class-javac-1.log
-jx0.class | Ljx0; | javac/classfile or inherited dependency failure; see class-javac-1.log
-mm5.class | Lmm5; | javac/classfile or inherited dependency failure; see class-javac-1.log
-mp5.class | Lmp5; | javac/classfile or inherited dependency failure; see class-javac-1.log
-nk3.class | Lnk3; | javac/classfile or inherited dependency failure; see class-javac-1.log
-oh1.class | Loh1; | javac/classfile or inherited dependency failure; see class-javac-1.log
-oi8.class | Loi8; | javac/classfile or inherited dependency failure; see class-javac-1.log
-pw5.class | Lpw5; | javac/classfile or inherited dependency failure; see class-javac-1.log
-qa7.class | Lqa7; | javac/classfile or inherited dependency failure; see class-javac-1.log
-qt2.class | Lqt2; | javac/classfile or inherited dependency failure; see class-javac-1.log
-r91.class | Lr91; | javac/classfile or inherited dependency failure; see class-javac-1.log
-rf4.class | Lrf4; | javac/classfile or inherited dependency failure; see class-javac-1.log
-rg2.class | Lrg2; | javac/classfile or inherited dependency failure; see class-javac-1.log
-ry7.class | Lry7; | javac/classfile or inherited dependency failure; see class-javac-1.log
-sd1.class | Lsd1; | javac/classfile or inherited dependency failure; see class-javac-1.log
-tg2.class | Ltg2; | javac/classfile or inherited dependency failure; see class-javac-1.log
-xf3.class | Lxf3; | javac/classfile or inherited dependency failure; see class-javac-1.log
-y04.class | Ly04; | javac/classfile or inherited dependency failure; see class-javac-1.log
-ya8.class | Lya8; | javac/classfile or inherited dependency failure; see class-javac-1.log
-ye0.class | Lye0; | javac/classfile or inherited dependency failure; see class-javac-1.log
-zd8.class | Lzd8; | javac/classfile or inherited dependency failure; see class-javac-1.log
-zs.class | Lzs; | javac/classfile or inherited dependency failure; see class-javac-1.log
-b48.class | Lb48; | javac/classfile or inherited dependency failure; see class-javac-8.log
-bj.class | Lbj; | javac/classfile or inherited dependency failure; see class-javac-8.log
-bm6.class | Lbm6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-cj.class | Lcj; | javac/classfile or inherited dependency failure; see class-javac-8.log
-dt.class | Ldt; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ep7.class | Lep7; | javac/classfile or inherited dependency failure; see class-javac-8.log
+fa3.class | Lfa3; | JADX omitted inherited ua3(int,int) constructor and synthetic fa3(int,int,int) dispatch
+fb3.class | Lfb3; | source takeover ABI failure: compiled class is missing 28 original static-linkage methods
+fd0.class | Lfd0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 fd1.class | Lfd1; | javac/classfile or inherited dependency failure; see class-javac-8.log
+fe4.class | Lfe4; | javac compile failure: missing he4() constructor
+ff4.class | Lff4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+fi0.class | Lfi0; | javac compile failure: missing gi0() constructor
+fi1.class | Lfi1; | javac compile failure: final field a is not initialized by the default constructor
+fi3.class | Lfi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+fk1.class | Lfk1; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 fk7.class | Lfk7; | javac/classfile or inherited dependency failure; see class-javac-8.log
+fl5.class | Lfl5; | javac compile failure: cannot find symbol constructor kl5()
+fq0.class | Lfq0; | javac compile failure: fq0 does not override iq0.B(BigDouble,Object)
+fq5.class | Lfq5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+fq6.class | Lfq6; | javac compile failure: missing mf6(byte) constructor
+fr5.class | Lfr5; | javac compile failure: cannot find symbol
+ft0.class | Lft0; | javac compile failure: final field b is not initialized by the default constructor
+fu7.class | Lfu7; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+g00.class | Lg00; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+g01.class | Lg01; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+g02.class | Lg02; | javac compile failure: superclass a constructor signature differs from JADX output
+g06.class | Lg06; | dependency oj5(int) constructor missing from JADX source
+g11.class | Lg11; | JADX omitted inherited constructor b62() required by superclass ABI
+g23.class | Lg23; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+g26.class | Lg26; | javac/classfile or inherited dependency failure; see class-javac-1.log
+g2.class | Lg2; | javac compile failure: superclass f2 requires yg0
+g52.class | Lg52; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+g55.class | Lg55; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+g78.class | Lg78; | javac compile failure: ws5 version-49 default method and y42() constructor unavailable
+g93.class | Lg93; | javac compile failure: cannot find symbol constructor e42(long)
+ga3.class | Lga3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+gd0.class | Lgd0; | javac compile failure: superclass hd0 has no matching constructor
+ge4.class | Lge4; | JADX omitted inherited he4() constructor
+gf5.class | Lgf5; | javac/classfile or inherited dependency failure; see class-javac-1.log
+gh3.class | Lgh3; | JADX omitted inherited d(int,String,fm1,gm1,boolean,gm1,al2,al2,gm1,iq0,double,gm1) constructor and synthetic Player.PelleRift ABI
+gi3.class | Lgi3; | javac compile failure: missing bi3(int,BigDouble,BigDouble,fm1,fm1,gm1,int) constructor
 gj6.class | Lgj6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+gk1.class | Lgk1; | javac compile failure: gk1 is not abstract and does not override abstract method v(int,View) in z42
+gp3.class | Lgp3; | javac/classfile or inherited dependency failure; see class-javac-1.log
+gq0.class | Lgq0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+gq5.class | Lgq5; | dependencies fq5() constructor and lx3.o(Exception) missing from JADX source
+gr7.class | Lgr7; | source takeover ABI failure: compiled class is missing a()Lgr7; and clone()Ljava/lang/Object;
+gs1.class | Lgs1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 gx.class | Lgx; | javac/classfile or inherited dependency failure; see class-javac-8.log
+gz1.class | Lgz1; | javac compile failure: superclass fs1 requires Context,Looper,int,o66,ks1,ls1
+h01.class | Lh01; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+h02.class | Lh02; | javac compile failure: superclass a constructor signature differs from JADX output
 h21.class | Lh21; | javac/classfile or inherited dependency failure; see class-javac-8.log
+h22.class | Lh22; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+h24.class | Lh24; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+h26.class | Lh26; | javac compile failure: d46 field f is absent from recovered source ABI
+h32.class | Lh32; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+h43.class | Lh43; | javac compile failure: constructor a in class a cannot be applied to given types;
+h52.class | Lh52; | javac compile failure: local num may not be initialized before null check
+h62.class | Lh62; | JADX default constructor no longer matches original b62() ABI
+h79.class | Lh79; | javac compile failure: missing iy8.i0() override
+h82.class | Lh82; | javac compile failure: y70 lacks compareTo(y70)
+h8.class | Lh8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+h98.class | Lh98; | javac compile failure: missing dy7.b field
+h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior
+h.class | Lh; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ha3.class | Lha3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+hg1.class | Lhg1; | javac compile failure: relocated oreki.shadow Kotlin Ref type is unavailable
+hg3.class | Lhg3; | javac/classfile or inherited dependency failure; see class-javac-1.log
+hh2.class | Lhh2; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+hh6.class | Lhh6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+hj6.class | Lhj6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+hl5.class | Lhl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hl8.class | Lhl8; | javac compile failure: zzijx cannot be converted to oy8
 hm6.class | Lhm6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 hn6.class | Lhn6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-i94.class | Li94; | javac/classfile or inherited dependency failure; see class-javac-8.log
-im6.class | Lim6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ip3.class | Lip3; | javac/classfile or inherited dependency failure; see class-javac-8.log
-iq2.class | Liq2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-jx4.class | Ljx4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-kf2.class | Lkf2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-kn4.class | Lkn4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-kt1.class | Lkt1; | javac/classfile or inherited dependency failure; see class-javac-8.log
-kw6.class | Lkw6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-l44.class | Ll44; | javac/classfile or inherited dependency failure; see class-javac-8.log
-mf2.class | Lmf2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-mw1.class | Lmw1; | javac/classfile or inherited dependency failure; see class-javac-8.log
-n32.class | Ln32; | javac/classfile or inherited dependency failure; see class-javac-8.log
-n93.class | Ln93; | javac/classfile or inherited dependency failure; see class-javac-8.log
-nc5.class | Lnc5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-nf0.class | Lnf0; | javac/classfile or inherited dependency failure; see class-javac-8.log
-nl3.class | Lnl3; | javac/classfile or inherited dependency failure; see class-javac-8.log
-o47.class | Lo47; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ok4.class | Lok4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-pa8.class | Lpa8; | javac/classfile or inherited dependency failure; see class-javac-8.log
-pg5.class | Lpg5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-qi0.class | Lqi0; | javac/classfile or inherited dependency failure; see class-javac-8.log
-qs4.class | Lqs4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-r15.class | Lr15; | javac/classfile or inherited dependency failure; see class-javac-8.log
-rv3.class | Lrv3; | javac/classfile or inherited dependency failure; see class-javac-8.log
-sg2.class | Lsg2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-sr7.class | Lsr7; | javac/classfile or inherited dependency failure; see class-javac-8.log
-tg5.class | Ltg5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-tx4.class | Ltx4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-tz6.class | Ltz6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-w5.class | Lw5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-wa3.class | Lwa3; | javac/classfile or inherited dependency failure; see class-javac-8.log
-wf5.class | Lwf5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-y09.class | Ly09; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ye1.class | Lye1; | javac/classfile or inherited dependency failure; see class-javac-8.log
-yt8.class | Lyt8; | javac/classfile or inherited dependency failure; see class-javac-8.log
-z07.class | Lz07; | javac/classfile or inherited dependency failure; see class-javac-8.log
-zl6.class | Lzl6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ah0.class | Lah0; | JADX default constructor no longer matches original ch0(sc0,sc0,int|sc0,sc0,sc0,float[]) ABI
-h62.class | Lh62; | JADX default constructor no longer matches original b62() ABI
-kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
-l69.class | Ll69; | JADX omitted constructor initialization for final field a
-a67.class | La67; | JADX field q47.v is synthetic and unavailable to javac; retain frozen JAR implementation
-aw.class | Law; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-ba6.class | Lba6; | original ag5 constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
-bt0.class | Lbt0; | original h10 no-arg constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
-d33.class | Ld33; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-h01.class | Lh01; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-h32.class | Lh32; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-hh6.class | Lhh6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-ix7.class | Lix7; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-jb3.class | Ljb3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-kl5.class | Lkl5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-kr8.class | Lkr8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-kw2.class | Lkw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-lg1.class | Llg1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-lj0.class | Llj0; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-lz3.class | Llz3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-m94.class | Lm94; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-nh1.class | Lnh1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-oy6.class | Loy6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-p04.class | Lp04; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-p23.class | Lp23; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-pi.class | Lpi; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-q34.class | Lq34; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-qv5.class | Lqv5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-r47.class | Lr47; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-r57.class | Lr57; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-r67.class | Lr67; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-rm4.class | Lrm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-sm4.class | Lsm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-tw2.class | Ltw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-uq6.class | Luq6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-w13.class | Lw13; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-w37.class | Lw37; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-wm8.class | Lwm8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-z51.class | Lz51; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-a4.class | La4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-af5.class | Laf5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bc7.class | Lbc7; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bt.class | Lbt; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-c58.class | Lc58; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-fd0.class | Lfd0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-fk1.class | Lfk1; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-fq5.class | Lfq5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-g23.class | Lg23; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-g55.class | Lg55; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-i22.class | Li22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-i4.class | Li4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ib3.class | Lib3; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-if5.class | Lif5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-j01.class | Lj01; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-j22.class | Lj22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-k22.class | Lk22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-l22.class | Ll22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ni8.class | Lni8; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-pi0.class | Lpi0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-qh5.class | Lqh5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-qo4.class | Lqo4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-qz2.class | Lqz2; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-re5.class | Lre5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-t47.class | Lt47; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-vm0.class | Lvm0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-w00.class | Lw00; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-w61.class | Lw61; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xu7.class | Lxu7; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-y.class | Ly; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-y48.class | Ly48; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-z37.class | Lz37; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
-iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
-h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior
-a48.class | La48; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ak3.class | Lak3; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-av8.class | Lav8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bf1.class | Lbf1; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bm8.class | Lbm8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-c64.class | Lc64; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-d80.class | Ld80; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-du0.class | Ldu0; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ej7.class | Lej7; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-f47.class | Lf47; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-f57.class | Lf57; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-g00.class | Lg00; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-hj6.class | Lhj6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-j00.class | Lj00; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-j30.class | Lj30; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-j79.class | Lj79; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ja9.class | Lja9; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-k60.class | Lk60; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-kg1.class | Lkg1; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-l25.class | Ll25; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ml4.class | Lml4; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-n17.class | Ln17; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-n21.class | Ln21; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-n78.class | Ln78; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-u63.class | Lu63; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-v63.class | Lv63; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-vs8.class | Lvs8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-vu8.class | Lvu8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-w57.class | Lw57; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-wy.class | Lwy; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xb5.class | Lxb5; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xh5.class | Lxh5; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xm2.class | Lxm2; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xw6.class | Lxw6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-xy7.class | Lxy7; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-y29.class | Ly29; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ys8.class | Lys8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-yt6.class | Lyt6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-zt2.class | Lzt2; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bh.class | Lbh; | ABI guard: JADX source omitted 19 original Android API methods; retain frozen JAR implementation
-v1.class | Lv1; | ABI guard: JADX source omitted 15 original Android API methods; retain frozen JAR implementation
-ba2.class | Lba2; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bc4.class | Lbc4; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-bx.class | Lbx; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-cc1.class | Lcc1; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-fu7.class | Lfu7; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ga3.class | Lga3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-iy.class | Liy; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ka3.class | Lka3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-kp6.class | Lkp6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ma3.class | Lma3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-mv5.class | Lmv5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-oi3.class | Loi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-or5.class | Lor5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ow0.class | Low0; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-pa3.class | Lpa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ph6.class | Lph6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-pi3.class | Lpi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-qi3.class | Lqi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ri3.class | Lri3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-sa3.class | Lsa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-sk8.class | Lsk8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-t8.class | Lt8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-tu3.class | Ltu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ty8.class | Lty8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-u04.class | Lu04; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ud3.class | Lud3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-uu3.class | Luu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-v67.class | Lv67; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-v93.class | Lv93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-vu3.class | Lvu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-z93.class | Lz93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
-ai6.class | Lai6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-c38.class | Lc38; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-d50.class | Ld50; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-ei6.class | Lei6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-h22.class | Lh22; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-ha3.class | Lha3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-hh2.class | Lhh2; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ho2.class | Lho2; | javac/classfile or inherited dependency failure; see class-javac-1.log
 hp7.class | Lhp7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-io8.class | Lio8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-iz7.class | Liz7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-k5.class | Lk5; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-n84.class | Ln84; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-nf6.class | Lnf6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-np3.class | Lnp3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-p57.class | Lp57; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-rv7.class | Lrv7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-ui3.class | Lui3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-um6.class | Lum6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-x16.class | Lx16; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-x51.class | Lx51; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-y62.class | Ly62; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-yj8.class | Lyj8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-ym6.class | Lym6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
-h.class | Lh; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-hw5.class | Lhw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ja3.class | Lja3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-m69.class | Lm69; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-my5.class | Lmy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-na3.class | Lna3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-qy5.class | Lqy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-q65.class | Lq65; | ABI guard: JADX source omitted 17 original Android API methods; retain frozen JAR implementation
-u1.class | Lu1; | ABI guard: JADX source omitted 29 original Android API methods; retain frozen JAR implementation
-w4.class | Lw4; | ABI guard: JADX source omitted 30 original Android API methods; retain frozen JAR implementation
-ws5.class | Lws5; | dependency com/google/android/gms/internal/ads/m.class remains invalid version-49 classfile; retain frozen JAR implementation
-a75.class | La75; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-a9.class | La9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-at3.class | Lat3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-av3.class | Lav3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ba9.class | Lba9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-bc6.class | Lbc6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ck6.class | Lck6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ct3.class | Lct3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-cy5.class | Lcy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-d02.class | Ld02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-dg1.class | Ldg1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-di3.class | Ldi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-e78.class | Le78; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ea3.class | Lea3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ei3.class | Lei3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-et3.class | Let3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ex5.class | Lex5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-f02.class | Lf02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-ff4.class | Lff4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-fi3.class | Lfi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-g01.class | Lg01; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-gs1.class | Lgs1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-h24.class | Lh24; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-h8.class | Lh8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-hl5.class | Lhl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hp8.class | Lhp8; | javac compile failure: superclass e requires f; o0.G/H/J are absent
+hr1.class | Lhr1; | javac compile failure: missing e(gm1,gm1) constructor
+hr7.class | Lhr7; | javac compile failure: cannot find symbol constructor gr7()
 ht3.class | Lht3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hv2.class | Lhv2; | javac compile failure: final field a is not initialized by the available constructor
 hv5.class | Lhv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hw3.class | Lhw3; | javac compile failure: superclass constructor and pi1.f signature differ from JADX output
+hw5.class | Lhw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hx6.class | Lhx6; | JADX omitted synthetic bridge methods a()Let6; and zzb()Ljava/lang/Object; required by tm8 ABI
+hx8.class | Lhx8; | javac compile failure: missing ne1.l(String) method
 hy5.class | Lhy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 hy6.class | Lhy6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+i00.class | Li00; | javac compile failure: constructor d00 in class d00 cannot be applied to given types;
 i02.class | Li02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+i22.class | Li22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+i4.class | Li4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+i52.class | Li52; | javac compile failure: local num may not be initialized before null check
+i94.class | Li94; | javac/classfile or inherited dependency failure; see class-javac-8.log
+i98.class | Li98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+ia3.class | Lia3; | javac compile failure: missing ua3(int,int) constructor
+ia.class | Lia; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ib3.class | Lib3; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+if5.class | Lif5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ig1.class | Lig1; | javac compile failure: relocated oreki.shadow Kotlin Ref type is unavailable
+ih0.class | Lih0; | javac compile failure: missing ne1.l(String) method
+ih1.class | Lih1; | javac compile failure: rg0(byte) does not accept NavigationView fixture
+ih3.class | Lih3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+ik0.class | Lik0; | javac compile failure: missing tg(Iterator,byte) constructor
+ik6.class | Lik6; | JADX omitted inherited ag5() constructor
+im6.class | Lim6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+io8.class | Lio8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
 ip1.class | Lip1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ip3.class | Lip3; | javac/classfile or inherited dependency failure; see class-javac-8.log
+iq0.class | Liq0; | javac compile failure: cannot find symbol
+iq2.class | Liq2; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ir1.class | Lir1; | javac compile failure: missing e(gm1,gm1) constructor
+iu6.class | Liu6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+iw3.class | Liw3; | javac compile failure: superclass constructor and pi1.f signature differ from JADX output
+iw8.class | Liw8; | javac compile failure: cannot find symbol constructor b()
+ix7.class | Lix7; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ix.class | Lix; | javac compile failure: missing kx(int,BigDouble,double,fm1,fm1,gm1) and a() constructors
+iy.class | Liy; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
+iz7.class | Liz7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+j00.class | Lj00; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+j01.class | Lj01; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+j22.class | Lj22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+j30.class | Lj30; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+j58.class | Lj58; | JADX source omits inherited abstract zza() required by k25; retain frozen JAR implementation
+j79.class | Lj79; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+j7.class | Lj7; | javac compile failure: ArrayAdapter requires a non-default constructor
+j84.class | Lj84; | javac compile failure: no suitable f(String) constructor
+j85.class | Lj85; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+j94.class | Lj94; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ja2.class | Lja2; | javac compile failure: referenced symbol unavailable
+ja3.class | Lja3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ja9.class | Lja9; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+jb3.class | Ljb3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+jb8.class | Ljb8; | javac compile failure: abstract l1 ABI and hb8 constructor differ from JADX output
+jb9.class | Ljb9; | javac compile failure: missing h99(j1) constructor
 jd8.class | Ljd8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jh3.class | Ljh3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+jj5.class | Ljj5; | javac compile failure: missing x31.c() method
+jk0.class | Ljk0; | javac compile failure: class o requires dk0 and fg0(byte) is absent
 jk7.class | Ljk7; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jl7.class | Ljl7; | source takeover ABI failure: compiled class is missing a()Lcl7; and zzb()Ljava/lang/Object;
+jn2.class | Ljn2; | javac compile failure: implicit constructor cannot satisfy InsetDrawable
 jt3.class | Ljt3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jw3.class | Ljw3; | javac compile failure: Constants import, superclass constructor and JADX type inference differ from frozen ABI
+jx0.class | Ljx0; | javac/classfile or inherited dependency failure; see class-javac-1.log
+jx1.class | Ljx1; | javac compile failure: missing ag5() constructor
+jx4.class | Ljx4; | javac/classfile or inherited dependency failure; see class-javac-8.log
+k22.class | Lk22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+k4.class | Lk4; | javac compile failure: referenced symbol unavailable
 k57.class | Lk57; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+k58.class | Lk58; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+k5.class | Lk5; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+k60.class | Lk60; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+k86.class | Lk86; | javac compile failure: cannot find symbol constructor oj5(byte)
+k91.class | Lk91; | javac compile failure: missing lx3(byte) and kt0(Object,byte) constructors
+ka3.class | Lka3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 ka6.class | Lka6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
 ke6.class | Lke6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+kf2.class | Lkf2; | javac/classfile or inherited dependency failure; see class-javac-8.log
+kg1.class | Lkg1; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+kl5.class | Lkl5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kn4.class | Lkn4; | javac/classfile or inherited dependency failure; see class-javac-8.log
+kp0.class | Lkp0; | javac compile failure: missing r10(byte) constructor
+kp6.class | Lkp6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+kr1.class | Lkr1; | javac compile failure: missing e(gm1,gm1) constructor
+kr8.class | Lkr8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kt1.class | Lkt1; | javac/classfile or inherited dependency failure; see class-javac-8.log
+kt6.class | Lkt6; | javac compile failure: missing k25(byte), ne1.n() and zza() override
+kw2.class | Lkw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kw3.class | Lkw3; | javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent
+kw6.class | Lkw6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+kw.class | Lkw; | javac compile failure: abstract a cannot be instantiated; fields b/c and a.g are absent
+kx2.class | Lkx2; | javac compile failure: cannot access ws5 default method in version 49.0 classfile; kx2 also lacks is.t()
+l22.class | Ll22; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+l25.class | Ll25; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+l28.class | Ll28; | javac compile failure: missing Firebase internal package and xx6/hx7 byte constructors
+l40.class | Ll40; | javac compile failure: missing im4() constructor
+l44.class | Ll44; | javac/classfile or inherited dependency failure; see class-javac-8.log
+l58.class | Ll58; | javac compile failure: missing fi8(int,ArrayList,String,gi8) constructor
+l69.class | Ll69; | JADX omitted constructor initialization for final field a
+la1.class | Lla1; | javac compile failure: Os.dup and Os.lseek throw unreported ErrnoException
+la3.class | Lla3; | JADX omitted inherited ua3(int,int) and synthetic la3(int,int,int) constructors
+lg1.class | Llg1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+lg.class | Llg; | javac compile failure: ws5 version-49 default method
+lh3.class | Llh3; | JADX omitted inherited d(...) constructor and synthetic Player.PelleRift ABI
+lj0.class | Llj0; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ll7.class | Lll7; | javac compile failure: referenced symbol unavailable
+ln3.class | Lln3; | javac compile failure: final field a is not initialized by the available constructor
+ln7.class | Lln7; | javac compile failure: cannot find symbol constructor ik7(byte,boolean)
+lo1.class | Llo1; | javac compile failure: missing no1(byte) constructor
+lr1.class | Llr1; | javac compile failure: missing e(gm1,gm1) constructor
+lr6.class | Llr6; | javac compile failure: ag5 constructor signature differs from JADX output
+ls7.class | Lls7; | javac compile failure: missing je7(int) constructor
 lv5.class | Llv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 lw3.class | Llw3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+lw5.class | Llw5; | javac compile failure: cannot find symbol
+lx6.class | Llx6; | javac compile failure: referenced symbol unavailable
+lz2.class | Llz2; | javac compile failure: kotlin.a unavailable; iz2(int) and al2.m(String) absent
+lz3.class | Llz3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+m14.class | Lm14; | javac compile failure: cannot find symbol
 m51.class | Lm51; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+m69.class | Lm69; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+m90.class | Lm90; | javac compile failure: Property requires Class,String; no m90(Class,String) constructor
+m94.class | Lm94; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ma3.class | Lma3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+mb1.class | Lmb1; | depends on blocked ws5.class version-49 invalid classfile
+mb5.class | Lmb5; | javac compile failure: cannot find symbol
+mc1.class | Lmc1; | javac compile failure: cannot find symbol constructor lc1()
+md6.class | Lmd6; | javac compile failure: cannot find symbol
+me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
+me4.class | Lme4; | javac compile failure: missing h86.x(Intent,int) override
+me.class | Lme; | javac compile failure: ne field n0 is absent from recovered source ABI
+mf2.class | Lmf2; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ml1.class | Lml1; | javac compile failure: kotlin.collections.b is unavailable
+ml4.class | Lml4; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ml5.class | Lml5; | javac compile failure: missing kl5(), gl5(byte), and wa(byte) constructors
+mm2.class | Lmm2; | javac compile failure: cannot find symbol constructor fv4()
+mm5.class | Lmm5; | javac/classfile or inherited dependency failure; see class-javac-1.log
+mn4.class | Lmn4; | javac compile failure: EmptyList.a unavailable
+mo3.class | Lmo3; | dependencies xy0(int) and wy0(String,byte) constructors missing from JADX source
+mp2.class | Lmp2; | javac compile failure: lp2 requires Context,jf2; gp2.x is absent
+mp5.class | Lmp5; | javac/classfile or inherited dependency failure; see class-javac-1.log
+mr1.class | Lmr1; | javac compile failure: missing e(gm1,gm1) constructor
 mt3.class | Lmt3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+mv5.class | Lmv5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+mw1.class | Lmw1; | javac/classfile or inherited dependency failure; see class-javac-8.log
+mw3.class | Lmw3; | javac compile failure: constructor a cannot be applied to given types
+my5.class | Lmy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+mz3.class | Lmz3; | javac compile failure: hidden android.view.RenderNode unavailable
+n17.class | Ln17; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+n21.class | Ln21; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+n32.class | Ln32; | javac/classfile or inherited dependency failure; see class-javac-8.log
+n64.class | Ln64; | javac compile failure: missing mf3(byte) constructor
+n78.class | Ln78; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+n84.class | Ln84; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+n90.class | Ln90; | javac compile failure: Property constructor signature differs from JADX output
+n93.class | Ln93; | javac/classfile or inherited dependency failure; see class-javac-8.log
+na3.class | Lna3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+na4.class | Lna4; | javac compile failure: cannot find symbol
+nc5.class | Lnc5; | javac/classfile or inherited dependency failure; see class-javac-8.log
+nd8.class | Lnd8; | javac compile failure: zd8 constructor and do2 override differ from JADX output
+nf0.class | Lnf0; | javac/classfile or inherited dependency failure; see class-javac-8.log
+nf6.class | Lnf6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+nh1.class | Lnh1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ni8.class | Lni8; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+nk3.class | Lnk3; | javac/classfile or inherited dependency failure; see class-javac-1.log
+nl3.class | Lnl3; | javac/classfile or inherited dependency failure; see class-javac-8.log
+nl6.class | Lnl6; | source takeover ABI failure: compiled class is missing <clinit>()V
+nm5.class | Lnm5; | depends on blocked ws5.class version-49 invalid classfile
+np3.class | Lnp3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+nr1.class | Lnr1; | javac compile failure: missing e(gm1,gm1) constructor
 o32.class | Lo32; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+o42.class | Lo42; | javac compile failure: abstract jh5 Binder method and constructor visibility differ from JADX output
+o46.class | Lo46; | javac compile failure: cannot find symbol constructor a46(o46,Application)
+o47.class | Lo47; | javac/classfile or inherited dependency failure; see class-javac-8.log
+o9.class | Lo9; | javac compile failure: final field a is not initialized by the available constructor
+oa7.class | Loa7; | javac compile failure: cannot find symbol constructor ja7()
+oc3.class | Loc3; | JADX omitted inherited qc3() constructor
+od8.class | Lod8; | javac compile failure: missing hx7.T/mx7.V and u9.zza remains private
+oe.class | Loe; | javac compile failure: BaseSavedState no-arg constructor and sj5(byte) unavailable
+oh1.class | Loh1; | javac/classfile or inherited dependency failure; see class-javac-1.log
+oi3.class | Loi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+oi8.class | Loi8; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ok4.class | Lok4; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ok8.class | Lok8; | javac compile failure: source ABI requires invalid firebase-auth-api.zzanp type
+ol3.class | Lol3; | dependencies nl3() constructor and lx3.o(Exception) missing from JADX source
+ol5.class | Lol5; | javac compile failure: missing Firebase internal package and w16/c0 ABI
 on5.class | Lon5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+oq7.class | Loq7; | javac compile failure: missing zzfmq(Throwable) constructor
+or5.class | Lor5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+or8.class | Lor8; | javac compile failure: missing kn6.Y(CharSequence) override
+os2.class | Los2; | javac compile failure: final field a is not initialized by the available constructor
+ou2.class | Lou2; | javac compile failure: cannot find symbol
+ou4.class | Lou4; | javac compile failure: qu4.o and q13(byte) unavailable
+ou.class | Lou; | javac compile failure: final field a is not initialized by the default constructor
+ow0.class | Low0; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 ow3.class | Low3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ox7.class | Lox7; | JADX ConstructorVisitor and method generation errors prevented recovery of the original f() ABI
+oy6.class | Loy6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+oz8.class | Loz8; | javac compile failure: missing n47(byte) constructor
+p02.class | Lp02; | javac compile failure: superclass o02 requires int
+p04.class | Lp04; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+p23.class | Lp23; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+p32.class | Lp32; | javac compile failure: cannot find symbol
+p57.class | Lp57; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+p70.class | Lp70; | javac compile failure: missing cg4(int) constructor
+p93.class | Lp93; | javac compile failure: ua3 and uq2 constructor signatures differ from JADX output
+p98.class | Lp98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+pa3.class | Lpa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pa6.class | Lpa6; | javac compile failure: missing ne4.a(View,ViewGroup) override
+pa8.class | Lpa8; | javac/classfile or inherited dependency failure; see class-javac-8.log
+pb2.class | Lpb2; | JADX omitted inherited q71() constructor and referenced synthetic f04.b field
+pc3.class | Lpc3; | javac compile failure: missing qc3() constructor
+pg5.class | Lpg5; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ph6.class | Lph6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pi0.class | Lpi0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pi3.class | Lpi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pi.class | Lpi; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+pq8.class | Lpq8; | javac compile failure: missing e(f) constructor
+pr0.class | Lpr0; | javac compile failure: missing qr0(pr0) constructor
+ps6.class | Lps6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+pu3.class | Lpu3; | javac compile failure: c61 constructor signature differs from JADX output
+pv5.class | Lpv5; | javac compile failure: cannot find symbol b.d(rv5)
+pw3.class | Lpw3; | javac compile failure: superclass a requires obfuscated 16-argument constructor; BigDouble.a/O absent
+pw5.class | Lpw5; | javac/classfile or inherited dependency failure; see class-javac-1.log
+px5.class | Lpx5; | javac compile failure: cannot find symbol b.d(rx5)
+pz5.class | Lpz5; | javac compile failure: constructor ys5 in class ys5 cannot be applied to given types;
+q25.class | Lq25; | javac compile failure: missing s25() constructor and x31.e(String) method
+q34.class | Lq34; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+q39.class | Lq39; | javac compile failure: final field a is not initialized by the available constructor
+q58.class | Lq58; | javac compile failure: dependency ws5 is a blocked version-49 classfile
+q65.class | Lq65; | ABI guard: JADX source omitted 17 original Android API methods; retain frozen JAR implementation
+q84.class | Lq84; | javac compile failure: missing c.j(int,c) method
+q93.class | Lq93; | javac compile failure: ua3 constructor signature differs from JADX output
+q98.class | Lq98; | javac compile failure: missing mx7.e/j98.c and u9.zza remains private
+q.class | Lq; | javac compile failure: xd2.k(xd2) and g(b,boolean) unavailable
 qa3.class | Lqa3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qa7.class | Lqa7; | javac/classfile or inherited dependency failure; see class-javac-1.log
+qb5.class | Lqb5; | javac compile failure: WebView requires a Context constructor
+qe4.class | Lqe4; | javac compile failure: missing mf3(byte) constructor
+qh5.class | Lqh5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+qh8.class | Lqh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+qi0.class | Lqi0; | javac/classfile or inherited dependency failure; see class-javac-8.log
+qi3.class | Lqi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ql6.class | Lql6; | javac compile failure: Object cannot convert to na7; no suitable k96(Object,byte) constructor
+qo4.class | Lqo4; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+qs4.class | Lqs4; | javac/classfile or inherited dependency failure; see class-javac-8.log
+qt2.class | Lqt2; | javac/classfile or inherited dependency failure; see class-javac-1.log
+qv5.class | Lqv5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
 qw5.class | Lqw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qy1.class | Lqy1; | javac compile failure: ws5 version-49 default method and j86 constructor/override unavailable
+qy5.class | Lqy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qz2.class | Lqz2; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+r15.class | Lr15; | javac/classfile or inherited dependency failure; see class-javac-8.log
+r1.class | Lr1; | source takeover ABI failure: compiled class is missing 28 original static-linkage platform methods
+r43.class | Lr43; | javac compile failure: cannot find symbol constructor q43()
+r45.class | Lr45; | javac compile failure: missing ny6() constructor
+r47.class | Lr47; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+r57.class | Lr57; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+r5.class | Lr5; | javac compile failure: missing g36(byte) constructor
+r67.class | Lr67; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
 r68.class | Lr68; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+r74.class | Lr74; | JADX omitted inherited gr(long) constructor
+r8.class | Lr8; | source takeover ABI failure: compiled class is missing 27 original API bridge methods
+r91.class | Lr91; | javac/classfile or inherited dependency failure; see class-javac-1.log
+r93.class | Lr93; | javac compile failure: missing ua3(int,int), r93(int,int,int), and kt0.d()
+r9.class | Lr9; | javac compile failure: missing ou2() constructor
+ra3.class | Lra3; | JADX source omits original super constructor ua3(int,int,int); retain frozen JAR implementation
+ra9.class | Lra9; | javac compile failure: unavailable superclass and constructor; referenced symbol absent
+rb8.class | Lrb8; | javac compile failure: yx7.z, gx7.z, hx7.z, and mx7.T symbols are unavailable
+rd5.class | Lrd5; | javac compile failure: constructor qd5 in class qd5 cannot be applied to given types;
+re5.class | Lre5; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+rf4.class | Lrf4; | javac/classfile or inherited dependency failure; see class-javac-1.log
+rf7.class | Lrf7; | javac compile failure: cannot find symbol
+rg2.class | Lrg2; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ri3.class | Lri3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+rj4.class | Lrj4; | javac compile failure: inner a requires Object,pz4,Object
+rj.class | Lrj; | javac compile failure: missing ComplianceData.ProductIdOrigin.EVENT_OVERRIDE
+rm4.class | Lrm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+rp6.class | Lrp6; | javac compile failure: wb6/qp6 Binder constructor and local-interface ABI differ from JADX output
+rr4.class | Lrr4; | javac compile failure: xb0.i unavailable
+rv3.class | Lrv3; | javac/classfile or inherited dependency failure; see class-javac-8.log
+rv7.class | Lrv7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+rw7.class | Lrw7; | source takeover ABI failure: compiled class is missing uncaughtException(Thread,Throwable)
+rx4.class | Lrx4; | javac compile failure: PathMotion requires Context,AttributeSet
+ry1.class | Lry1; | javac compile failure: ws5 version-49 default method and j86 constructor/override unavailable
+ry3.class | Lry3; | javac compile failure: overridden methods declare unsupported IOException
+ry7.class | Lry7; | javac/classfile or inherited dependency failure; see class-javac-1.log
+s45.class | Ls45; | javac compile failure: cannot find symbol
+s98.class | Ls98; | javac compile failure: f98 constructor and do2 override differ from JADX output
 sa2.class | Lsa2; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+sa3.class | Lsa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 sb9.class | Lsb9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
-t.class | Lt; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+sd1.class | Lsd1; | javac/classfile or inherited dependency failure; see class-javac-1.log
+sd3.class | Lsd3; | javac compile failure: missing t63(byte) constructor
+sf7.class | Lsf7; | javac compile failure: overloaded frozen zza methods make JADX dispatch ambiguous
+sg2.class | Lsg2; | javac/classfile or inherited dependency failure; see class-javac-8.log
+sh3.class | Lsh3; | javac compile failure: constructor vw3 cannot be applied to given types
+sj1.class | Lsj1; | javac compile failure: missing kn6.Y(CharSequence) override
+sk8.class | Lsk8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+sm4.class | Lsm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+sp0.class | Lsp0; | javac compile failure: missing iq0.B(BigDouble,Object) override and Player.PelleRift
+sp5.class | Lsp5; | javac compile failure: missing wa(int) and x31.e(String)
+sr7.class | Lsr7; | javac/classfile or inherited dependency failure; see class-javac-8.log
+su7.class | Lsu7; | javac compile failure: frozen v61(byte) constructor is unavailable to javac
+su8.class | Lsu8; | depends on blocked ws5.class
+su.class | Lsu; | javac compile failure: final field a is not initialized by the available constructor
+sx5.class | Lsx5; | javac compile failure: cannot find symbol b.d(tx5)
+sx7.class | Lsx7; | javac compile failure: empty y6 constructor absent
+t20.class | Lt20; | javac compile failure: missing t0() constructor
+t23.class | Lt23; | javac compile failure: missing no1(byte) constructor
+t47.class | Lt47; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+t53.class | Lt53; | javac compile failure: EmptyCoroutineContext.a absent and return type is not ek0
+t60.class | Lt60; | javac compile failure: missing c(ag1,ek0,int,BufferOverflow) constructor
+t76.class | Lt76; | javac compile failure: s9 requires u9; s0.Q(zzazv) and s0.T0(long) are absent
+t8.class | Lt8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 t93.class | Lt93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+t.class | Lt; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+tb6.class | Ltb6; | javac compile failure: missing wa6(byte) constructor
+td5.class | Ltd5; | javac compile failure: superclass sd5(Window,qx7) constructor unavailable
+tg2.class | Ltg2; | javac/classfile or inherited dependency failure; see class-javac-1.log
+tg5.class | Ltg5; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ti3.class | Lti3; | JADX omitted inherited ii3(...) constructor and up0.z/BigDouble ABI differs
+tj1.class | Ltj1; | javac compile failure: missing kn6.Y(CharSequence) override
+tn5.class | Ltn5; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+tu3.class | Ltu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+tu5.class | Ltu5; | javac compile failure: missing ru5.b field, ss1(Context,byte) and j96 constructor dispatch
+tw2.class | Ltw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+tw.class | Ltw; | javac compile failure: cannot find symbol
+tx4.class | Ltx4; | javac/classfile or inherited dependency failure; see class-javac-8.log
+tx6.class | Ltx6; | javac compile failure: missing fd7(um8,byte) constructor
 ty5.class | Lty5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ty8.class | Lty8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+tz6.class | Ltz6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+u04.class | Lu04; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+u1.class | Lu1; | ABI guard: JADX source omitted 29 original Android API methods; retain frozen JAR implementation
+u31.class | Lu31; | javac compile failure: incompatible ir2 collection field and missing yo0(mi0,jr2,byte) constructor
+u39.class | Lu39; | javac compile failure: missing xx8() constructor
+u51.class | Lu51; | source takeover ABI failure: compiled class is missing 14 original API bridge methods
+u62.class | Lu62; | javac compile failure: cannot find symbol
+u63.class | Lu63; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
 u74.class | Lu74; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 u93.class | Lu93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ua8.class | Lua8; | javac compile failure: missing dy7.f and j98.j fields; i9.zza is private
+ub0.class | Lub0; | javac compile failure: cannot find symbol
+ub8.class | Lub8; | javac compile failure: missing wa(byte) and ne1.l(String)
+ud3.class | Lud3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ud8.class | Lud8; | javac compile failure: zd8 constructor and do2 override differ from JADX output
+uf.class | Luf; | javac compile failure: missing p32() and tf(byte) constructors
+ui3.class | Lui3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ui6.class | Lui6; | source takeover ABI failure: compiled class omits original static initializer
+uj1.class | Luj1; | javac compile failure: missing kn6.Y(CharSequence) override
+um6.class | Lum6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+um7.class | Lum7; | javac compile failure: missing cl7(y55,ht6) constructor
 up8.class | Lup8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+uq1.class | Luq1; | JADX omitted android.util.LruCache(int) constructor
+uq6.class | Luq6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ur6.class | Lur6; | javac compile failure: missing kh5(ur6,byte) constructor
+us8.class | Lus8; | javac compile failure: missing zs8(byte) constructor
+ut7.class | Lut7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+uu3.class | Luu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+uu.class | Luu; | javac compile failure: superclass w6 requires the obfuscated 10-argument constructor
 uw5.class | Luw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+uw6.class | Luw6; | JADX omitted synthetic bridge methods a()Lqn8; and zzb()Ljava/lang/Object; required by tm8 ABI
+uw.class | Luw; | javac compile failure: bt0() constructor absent
 v04.class | Lv04; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+v1.class | Lv1; | ABI guard: JADX source omitted 15 original Android API methods; retain frozen JAR implementation
+v37.class | Lv37; | javac compile failure: missing ag5() constructor
+v63.class | Lv63; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+v67.class | Lv67; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+v83.class | Lv83; | javac compile failure: missing b33(), ze1(x83,byte) and sx() constructors
+v93.class | Lv93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+v98.class | Lv98; | javac compile failure: f98 constructor and do2 override differ from JADX output
+va7.class | Lva7; | javac compile failure: missing k25(byte) and ne1.n() plus zza() override
+vc7.class | Lvc7; | javac compile failure: referenced symbol unavailable
+vd3.class | Lvd3; | javac compile failure: missing w39() constructor and V() override
+vg5.class | Lvg5; | javac compile failure: missing jg5(String) constructor
+vj1.class | Lvj1; | javac compile failure: missing kn6.Y(CharSequence) override
+vl2.class | Lvl2; | javac compile failure: no suitable fs6(Object,Object,Object,byte) constructor
+vm0.class | Lvm0; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+vn7.class | Lvn7; | javac compile failure: referenced symbol unavailable
+vs8.class | Lvs8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+vu3.class | Lvu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 vu5.class | Lvu5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+vu8.class | Lvu8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
 vv5.class | Lvv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+vv6.class | Lvv6; | javac compile failure: missing aw6.F and aw6.g0 methods
 vx5.class | Lvx5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w00.class | Lw00; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+w13.class | Lw13; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+w17.class | Lw17; | javac compile failure: PathClassLoader requires a non-default constructor
 w24.class | Lw24; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w29.class | Lw29; | javac compile failure: cannot find symbol
+w37.class | Lw37; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+w47.class | Lw47; | javac compile failure: missing fr5.z1(int) and v47.b
+w4.class | Lw4; | ABI guard: JADX source omitted 30 original Android API methods; retain frozen JAR implementation
+w57.class | Lw57; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+w5.class | Lw5; | javac/classfile or inherited dependency failure; see class-javac-8.log
+w61.class | Lw61; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 w82.class | Lw82; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 w93.class | Lw93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w98.class | Lw98; | javac compile failure: missing dy7.c and u9.zza remains private
+wa3.class | Lwa3; | javac/classfile or inherited dependency failure; see class-javac-8.log
+wa6.class | Lwa6; | javac compile failure: missing w39.p() override and constructor
+wb2.class | Lwb2; | javac compile failure: JADX resolved the wrong androidx.lifecycle Lifecycle type
+wb6.class | Lwb6; | javac compile failure: Binder onTransact override throws RemoteException incompatibly
+wb9.class | Lwb9; | javac compile failure: missing kl5() and gl5(byte) constructors
+wf3.class | Lwf3; | javac compile failure: cannot access ws5 default method in version 49.0 classfile
+wf5.class | Lwf5; | javac/classfile or inherited dependency failure; see class-javac-8.log
+wg5.class | Lwg5; | javac compile failure: missing jg5(String) constructor
+wh8.class | Lwh8; | javac compile failure: oi8 constructor and do2 override differ from JADX output
+wj1.class | Lwj1; | javac compile failure: missing kn6.Y(CharSequence) override
+wk4.class | Lwk4; | source takeover ABI failure: compiled class is missing 24 original static-linkage methods
+wm6.class | Lwm6; | javac compile failure: missing ag5(IBinder,String,byte) constructor
+wm8.class | Lwm8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+wn3.class | Lwn3; | javac compile failure: cannot find symbol constructor vn3()
+wo8.class | Lwo8; | javac compile failure: abstract l1 ABI and to8 constructor differ from JADX output
 wq6.class | Lwq6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 wq8.class | Lwq8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ws5.class | Lws5; | dependency com/google/android/gms/internal/ads/m.class remains invalid version-49 classfile; retain frozen JAR implementation
+wy.class | Lwy; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+wz6.class | Lwz6; | javac compile failure: cannot find symbol constructor vz6(wz6,byte)
+x13.class | Lx13; | javac compile failure: missing q13(byte) constructor
+x16.class | Lx16; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+x51.class | Lx51; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+x57.class | Lx57; | source takeover ABI failure: compiled class is missing m0(Ldq7;)V
+x69.class | Lx69; | javac compile failure: missing iy8.i0() override
+x84.class | Lx84; | javac compile failure: missing k51(String,byte) constructor
+x90.class | Lx90; | javac compile failure: missing sj5(byte) constructor
+x93.class | Lx93; | JADX omitted inherited ua3(int,int) and synthetic x93(int,int,int) constructors
 xb4.class | Lxb4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xb5.class | Lxb5; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
 xf0.class | Lxf0; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xf3.class | Lxf3; | javac/classfile or inherited dependency failure; see class-javac-1.log
+xg1.class | Lxg1; | javac compile failure: missing ou2() constructor
+xh5.class | Lxh5; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+xj1.class | Lxj1; | javac compile failure: missing kn6.Y(CharSequence) override
+xk4.class | Lxk4; | javac compile failure: final field a is not initialized by the available constructor
+xl2.class | Lxl2; | javac compile failure: cannot find symbol constructor wl2()
+xm2.class | Lxm2; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
 xn6.class | Lxn6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xq7.class | Lxq7; | source takeover ABI failure: compiled class is missing a()Lxq7; and clone()Ljava/lang/Object;
 xt4.class | Lxt4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xu7.class | Lxu7; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+xv0.class | Lxv0; | javac compile failure: cannot find symbol
+xw6.class | Lxw6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+xy7.class | Lxy7; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+xz5.class | Lxz5; | javac compile failure: missing oj5(byte) constructor
+y00.class | Ly00; | javac compile failure: cannot access x00 default method in version 49.0 classfile; override validation also fails
+y04.class | Ly04; | javac/classfile or inherited dependency failure; see class-javac-1.log
+y08.class | Ly08; | javac compile failure: missing Firebase internal package and dy7/xx6 constructors
+y09.class | Ly09; | javac/classfile or inherited dependency failure; see class-javac-8.log
+y29.class | Ly29; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+y48.class | Ly48; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+y51.class | Ly51; | JADX omitted inherited w51(int,BigDouble,fm1,fm1,int) constructor
+y54.class | Ly54; | javac compile failure: eh0(byte) absent; JADX emitted five-Map constructor
+y62.class | Ly62; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+y63.class | Ly63; | source takeover ABI failure: missing method e(Ly63;Lkajfosz/antimatterdimensions/BigDouble;I)Ljava/lang/String;
+y92.class | Ly92; | javac compile failure: cannot access androidx.compose.ui.node.f version 49 classfile; bi0(long) absent
+y93.class | Ly93; | JADX source omits original ua3/y93 constructor ABI; retain frozen JAR implementation
+y.class | Ly; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ya8.class | Lya8; | javac/classfile or inherited dependency failure; see class-javac-1.log
 yc1.class | Lyc1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ye0.class | Lye0; | javac/classfile or inherited dependency failure; see class-javac-1.log
+ye1.class | Lye1; | javac/classfile or inherited dependency failure; see class-javac-8.log
+ye.class | Lye; | javac compile failure: private AppCompatTextView.g method is not Java-accessible
+yg4.class | Lyg4; | javac compile failure: missing rh(byte) constructor
 yh6.class | Lyh6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+yj1.class | Lyj1; | javac compile failure: missing kn6.Y(CharSequence) override
+yj8.class | Lyj8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+yj.class | Lyj; | javac compile failure: final field a is not initialized by the available constructor
+yl4.class | Lyl4; | javac compile failure: constructor b requires pa,a21
+ym6.class | Lym6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+yr.class | Lyr; | source takeover ABI failure: compiled class omits MutablePropertyReference1 constructor and field d
+ys8.class | Lys8; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+yt6.class | Lyt6; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+yt8.class | Lyt8; | javac/classfile or inherited dependency failure; see class-javac-8.log
+yu2.class | Lyu2; | javac compile failure: missing t() constructor
+yu4.class | Lyu4; | javac compile failure: constructor vu4 requires BigDouble,BigDouble,dw
 yw.class | Lyw; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+yy0.class | Lyy0; | javac compile failure: missing xy0(byte) and wy0(String,byte) constructors
+yy3.class | Lyy3; | javac compile failure: cannot find symbol constructor no1(byte)
+z07.class | Lz07; | javac/classfile or inherited dependency failure; see class-javac-8.log
 z0.class | Lz0; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+z21.class | Lz21; | javac compile failure: Property constructor signature differs from JADX output
+z37.class | Lz37; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
+z48.class | Lz48; | javac compile failure: superclass a58 has no matching constructor
+z51.class | Lz51; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+z67.class | Lz67; | javac compile failure: missing fr5.z1(int), fl6 typed constructor, and v47.x/q47.y symbols
+z70.class | Lz70; | javac compile failure: cannot find symbol constructor y40(byte)
+z86.class | Lz86; | javac compile failure: referenced symbol unavailable
+z90.class | Lz90; | javac compile failure: cannot find symbol constructor sj5(byte)
+z93.class | Lz93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+zd8.class | Lzd8; | javac/classfile or inherited dependency failure; see class-javac-1.log
 zf8.class | Lzf8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zh7.class | Lzh7; | synthetic th7() constructor is absent from source and unavailable to javac
+zh8.class | Lzh8; | javac compile failure: final field a is not initialized by the available constructor
+zi7.class | Lzi7; | javac compile failure: m47.v unavailable
+zj1.class | Lzj1; | javac compile failure: missing kn6.Y(CharSequence) override
+zj4.class | Lzj4; | javac compile failure: missing AtomicInt(int) constructor
+zj8.class | Lzj8; | javac compile failure: missing xj8() constructor
 zl5.class | Lzl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zl6.class | Lzl6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+zm7.class | Lzm7; | javac compile failure: inherited kn6 Y(CharSequence) override is absent
+zp0.class | Lzp0; | javac compile failure: missing iq0.B(BigDouble,Object) override
+zq4.class | Lzq4; | javac compile failure: EmptyList.a and di0.b(int,int,int) absent
+zs.class | Lzs; | javac/classfile or inherited dependency failure; see class-javac-1.log
+zt2.class | Lzt2; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
+zu3.class | Lzu3; | javac compile failure: c61 constructor signature differs from JADX output
 zv5.class | Lzv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zv7.class | Lzv7; | javac compile failure: missing Firebase internal package
 zw5.class | Lzw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zy3.class | Lzy3; | javac compile failure: cannot find symbol constructor no1(byte)
