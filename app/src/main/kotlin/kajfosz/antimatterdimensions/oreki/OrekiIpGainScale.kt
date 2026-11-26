@@ -39,9 +39,15 @@ object OrekiIpGainScale {
     /** 阶段判定缓存有效期（纳秒）。 */
     private const val CACHE_NANOS = 1_000_000_000L
 
+    /** [R130] 诊断日志节流（纳秒）。 */
+    private const val CALL_LOG_NANOS = 1_000_000_000L
+
     private var cachedBootstrap = true
     private var cachedAtNanos = 0L
     private var loggedOnce = false
+    /** [R130] 诊断计数：确认收益函数是否真的每帧调用本方法。 */
+    private var calls = 0
+    private var lastLoggedBootstrap: Boolean? = null
 
     /**
      * 返回本帧应使用的除数。
@@ -53,24 +59,33 @@ object OrekiIpGainScale {
     @JvmStatic
     fun apply(originalDivisor: Double): Double {
         return try {
-            if (isBootstrapRun()) {
-                if (!loggedOnce) {
-                    loggedOnce = true
-                    Log.i(
-                        TAG,
-                        "IP_DIVISOR bootstrap original=" + originalDivisor +
-                            " effective=" + PRE_REALITY_DIVISOR,
-                    )
-                }
-                PRE_REALITY_DIVISOR
-            } else {
-                originalDivisor
-            }
+            val bootstrap = isBootstrapRun()
+            val effective = if (bootstrap) PRE_REALITY_DIVISOR else originalDivisor
+            noteCall(originalDivisor, bootstrap, effective)
+            effective
         } catch (t: Throwable) {
             // 读不到阶段就退回原版尺度：宁可慢，也不制造错误数值。
             originalDivisor
         }
     }
+
+    /** [R130] 只读诊断：收益函数每秒调用本方法的次数与当前判据（用于定位除数是否生效）。 */
+    private fun noteCall(originalDivisor: Double, bootstrap: Boolean, effective: Double) {
+        calls++
+        val now = System.nanoTime()
+        val changed = lastLoggedBootstrap != bootstrap
+        if (!changed && now - lastCallLogAtNanos < CALL_LOG_NANOS) return
+        lastLoggedBootstrap = bootstrap
+        lastCallLogAtNanos = now
+        Log.i(
+            TAG,
+            "IP_DIVISOR call n=" + calls + " original=" + originalDivisor +
+                " bootstrap=" + bootstrap + " effective=" + effective,
+        )
+    }
+
+    @Volatile
+    private var lastCallLogAtNanos: Long = 0L
 
     private fun isBootstrapRun(): Boolean {
         val now = System.nanoTime()
