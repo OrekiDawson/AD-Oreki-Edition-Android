@@ -31,15 +31,32 @@ object OrekiEternity {
     @JvmField
     var sEcHoldTtl: Int = 0
 
+    /**
+     * [R131-P0] 重入闩锁。`GameApi.eternityTick()` 解析到的 `tick()` 就是本对象的
+     * `OrekiEternity.tick()`，而 `tryEternity()` 一旦回调 `GameApi.eternityTick()`
+     * 就会 tick → tryEternity → tick 无限递归（Kody 在 PR #324 上判为 critical）。
+     * 这里加一层深度闩锁：嵌套进入直接返回，绝不重复执行永恒层经济动作。
+     */
+    @JvmField
+    var sTickDepth: Int = 0
+
     private var stageAutoHoldCrunchMethod: Method? = null
     private var stageAutoHoldCrunchResolved: Boolean = false
 
     @JvmStatic
     fun tick() {
-        buyTimeTheorems()
-        buyTimeDimensions()
-        buyNormalStudies()
-        tryEternity()
+        if (sTickDepth != 0) {
+            return
+        }
+        sTickDepth++
+        try {
+            buyTimeTheorems()
+            buyTimeDimensions()
+            buyNormalStudies()
+            tryEternity()
+        } finally {
+            sTickDepth = 0
+        }
     }
 
     @JvmStatic
@@ -165,26 +182,20 @@ object OrekiEternity {
             // superclass 被改写到 `oreki/shadow/kotlin/...SuspendLambda`，而构造器
             // 调用仍绑定原 `kotlin/...SuspendLambda` ⇒ ART 校验失败
             // （VerifyError: 'this' 不是 SuspendLambda 实例），永恒永远结算不了。
-            // 因此优先走原版**非协程**路径：打开原版 autoEternity 后由 `Eternity.tick()`
-            // 自行结算；只有该路径没有换来 eternities 增长时才回退旧启动器。
+            // 原方案「先开 autoEternity 再调 Eternity.tick()」已废弃：
+            // `GameApi.eternityTick()` 解析到的 tick 正是 `OrekiEternity.tick()` 本身，
+            // tryEternity → eternityTick → tick 会无限递归（Kody PR #324 critical）。
+            // VerifyError 已由 ShadowCtorFix 在字节码层修好，直接走原版 confirmEternity
+            // 启动器完成真实扣费与结算。
             val etBefore = GameApi.eternities()
             if (GameApi.autoEternityIsActive() != true) {
                 GameApi.setAutoEternityActive(true)
-            }
-            GameApi.eternityTick()
-            val etAfter = GameApi.eternities()
-            if (etAfter != null && etAfter != etBefore) {
-                sEtPending = 1
-                sEtTtl = 600
-                sEtBefore = Player.a.x().log10()
-                Log.i("OREKI_ET", "settled via Eternity.tick before=" + etBefore + " after=" + etAfter)
-                return
             }
             OrekiEternityLaunch.run()
             sEtPending = 1
             sEtTtl = 600
             sEtBefore = Player.a.x().log10()
-            Log.i("OREKI_ET", "launch via OrekiEternityLaunch (original no-confirm path)")
+            Log.i("OREKI_ET", "launch via OrekiEternityLaunch before=" + etBefore + " after=" + GameApi.eternities())
         } catch (error: Throwable) {
             Log.i("OREKI_ET_EXC", error.message ?: error.javaClass.name)
         }
