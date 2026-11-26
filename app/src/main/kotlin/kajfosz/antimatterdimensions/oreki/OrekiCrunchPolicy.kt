@@ -202,6 +202,16 @@ object OrekiCrunchPolicy {
     fun preBreakHoldActive(holdUntilNs: Long, nowNs: Long): Boolean =
         holdUntilNs > 0L && nowNs < holdUntilNs
 
+    /**
+     * [R130 P0 六修 / Kody·medium] 供 `OrekiStageAuto` 接管分支使用的 pre-break 窗口毫秒数。
+     *
+     * 之前接管分支写死 `PRE_BREAK_CRUNCH_SECONDS = 60.0` 并在策略评估前 `return`，
+     * 本文件的 `preBreakWindowNs` 在生产路径上从未生效（Kody 指出，实测吻合：
+     * 坍缩恒约 50~60 秒一次）。现在两端共用同一窗口，策略窗口才是真正生效的那一个。
+     */
+    @JvmStatic
+    fun preBreakWindowMs(): Long = (preBreakWindowNs / 1_000_000L).coerceAtLeast(60_000L)
+
     @JvmStatic
     fun decide(): Decision {
         val decision = try {
@@ -314,6 +324,15 @@ object OrekiCrunchPolicy {
                     preBreakLastAllowAt = nowNs
                     preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
                     return Decision(true, riseReason)
+                }
+                // [R130 P0 六修 / Kody·medium] 硬超时：投影读不到（gainLog==null）时收益判据恒为
+                // null，而相对判据在 IP 量级接近上限后永不满足 ⇒ 会永久 deny、再无真实坍缩。
+                // 窗口到期且确实读不到收益时先放行一次真实结算，并把窗口回到起点，避免无限放大。
+                if (gainLog == null) {
+                    preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                    preBreakWindowNs = PRE_BREAK_WAIT_START_NS
+                    return Decision(true, "pre-break-grow-timeout")
                 }
                 // 窗口到期且收益确有提升（>2 倍）时接受一次，避免长期零结算；
                 // 完全没有提升则延长窗口，让反物质继续长。

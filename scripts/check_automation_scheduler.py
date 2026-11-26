@@ -452,7 +452,22 @@ if _beat_runner.is_file():
             # XML 事实，不预先删除、不伪造结果；XML 缺失即 0/0/0/0 判 FAIL。
             if _os.name == "nt":
                 _rows = _read_rows(classes)
-                return _rows_pass(_rows), ["windows-xml-only"] + _rows_detail(mode, _rows)
+                # [R130 P0 六修 / Kody·high] 防陈旧 XML：Windows 下不执行 bash runner，
+                # 所以必须要求对应 XML 比全部测试源文件都新，否则可能把上一次
+                # `--tests` 过滤运行的旧结果当成当前证据（旧实现会误判 PASS）。
+                _src_newest = 0.0
+                _test_src = ROOT / "app" / "src" / "test"
+                if _test_src.is_dir():
+                    for _src in _test_src.rglob("*"):
+                        if _src.is_file():
+                            _src_newest = max(_src_newest, _src.stat().st_mtime)
+                _xmls = []
+                if _test_results.is_dir():
+                    _xmls = [_x for _x in _test_results.glob("TEST-*.xml")
+                             if _x.stem.rsplit(".", 1)[-1] in classes]
+                _fresh = bool(_xmls) and all(_x.stat().st_mtime >= _src_newest for _x in _xmls)
+                return (_rows_pass(_rows) and _fresh,
+                        ["windows-xml-only fresh=" + str(_fresh)] + _rows_detail(mode, _rows))
             for _xml in _test_results.glob("TEST-*.xml"):
                 if _xml.stem.rsplit(".", 1)[-1] in classes:
                     _xml.unlink()
@@ -799,12 +814,14 @@ check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
       _ec_kt.count("cachedNextTargetId()") >= 3)
 check("R126 旧 build_mod 已退出生产路径",
       not (ROOT / "scripts/build_mod.py").exists())
+# [R130 六修 / Kody·medium] 只截取豁免函数本体做断言：整文件里 `targetEcId == 4`
+# 有别的合法用途（EC 解锁判断），拿全文做子串断言既会误报、也钉不住豁免本身。
+_ec_exempt = _ec_kt.split("shouldExemptEntryEternityGainGate(targetEcId: Int", 1)[-1]
+_ec_exempt = _ec_exempt.split("\n\n", 1)[0]
 check("R126 EC4 不再复用“允许更频繁永恒”的收益门槛豁免",
-      # [R130 契约对齐] PR #319 把 EC11 一并纳入「入口目标已达成即豁免」，
-      # 生产事实为 (targetEcId == 1 || targetEcId == 11) && entryGoalMet == false；
-      # 仍禁止把 EC4 加入该豁免。
-      "&& entryGoalMet == false" in _ec_kt
-      and "targetEcId == 1 || targetEcId == 4" not in _ec_kt)
+      # 生产事实必须逐字为 (1 || 11) && entryGoalMet == false；EC4 不得进入该豁免。
+      "(targetEcId == 1 || targetEcId == 11) && entryGoalMet == false" in _ec_exempt
+      and "== 4" not in _ec_exempt)
 check("R126 EC4 业务仍由 Kotlin 门禁实现",
       "shouldHoldEternityForEcEntry" in _ec_kt)
 check("R126 可完成的当前永恒挑战不被额外 EP 收益门槛阻断",

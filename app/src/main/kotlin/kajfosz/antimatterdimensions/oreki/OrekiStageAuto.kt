@@ -2919,9 +2919,10 @@ object OrekiStageAuto {
                 }
                 if (modOwnsCrunch) {
                     val nowOwn = System.currentTimeMillis()
-                    // [R117-01-02c P0-5] pre-break 不允许长窗口：与主窗口同口径用 60s。
+                    // [R130 P0 六修 / Kody·medium] pre-break 改为使用策略的自适应窗口，
+                    // 不再写死 60s；且只有在策略同意（decision.allow）时才允许兜底结算。
                     val windowOwnMs = if (isPreBreakPhase()) {
-                        (PRE_BREAK_CRUNCH_SECONDS * 1000.0).toLong()
+                        OrekiCrunchPolicy.preBreakWindowMs()
                     } else {
                         (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
                     }
@@ -2930,7 +2931,8 @@ object OrekiStageAuto {
                         Log.i(TAG_AU4C, "managed crunch: baseline re-established (ownership fallback)")
                     } else if (nowOwn - lastManagedCrunchAtMs >=
                         windowOwnMs + MANAGED_CRUNCH_FALLBACK_GRACE_MS &&
-                        GameApi.canBigCrunch()
+                        GameApi.canBigCrunch() &&
+                        (!isPreBreakPhase() || decision.allow)
                     ) {
                         if (settleCrunch("managed-ownership-fallback")) {
                             lastManagedCrunchAtMs = nowOwn
@@ -2944,9 +2946,10 @@ object OrekiStageAuto {
                     return
                 }
                 // [R117-01-02c P0-5] 长窗口只允许在 break 之后或永恒层使用；
-                // pre-break（首无限后、break 前）保持 60s，避免 AM 到上限后正文被原版隐藏。
+                // pre-break 使用策略的自适应窗口（60s 起、无收益翻倍，上限 900s），
+                // 且只有策略同意时才结算（[R130 P0 六修] 之前写死 60s 且绕过策略）。
                 val windowMs = if (isPreBreakPhase()) {
-                    (PRE_BREAK_CRUNCH_SECONDS * 1000.0).toLong()
+                    OrekiCrunchPolicy.preBreakWindowMs()
                 } else {
                     (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
                 }
@@ -2957,7 +2960,9 @@ object OrekiStageAuto {
                 if (lastManagedCrunchAtMs <= 0L) {
                     lastManagedCrunchAtMs = nowMs
                     Log.i(TAG_AU4C, "managed crunch: window baseline established")
-                } else if (nowMs - lastManagedCrunchAtMs >= windowMs && GameApi.canBigCrunch()) {
+                } else if (nowMs - lastManagedCrunchAtMs >= windowMs && GameApi.canBigCrunch() &&
+                    (!isPreBreakPhase() || decision.allow)
+                ) {
                     // [R116-03-01 Kody] 未达门槛时原版 bigCrunchReset() 是 no-op 却仍返回成功，
                     // 会白白消耗本窗口并打出误导性的 fired 日志。先判 canBigCrunch 再结算。
                     if (settleCrunch("managed-window")) {
