@@ -161,6 +161,25 @@ object OrekiEternity {
             if (gained.compareTo(threshold) < 0) {
                 return
             }
+            // [R130-P0] 3.21 的 `Eternity$confirmEternity$4` 在本构建的合并 DEX 中
+            // superclass 被改写到 `oreki/shadow/kotlin/...SuspendLambda`，而构造器
+            // 调用仍绑定原 `kotlin/...SuspendLambda` ⇒ ART 校验失败
+            // （VerifyError: 'this' 不是 SuspendLambda 实例），永恒永远结算不了。
+            // 因此优先走原版**非协程**路径：打开原版 autoEternity 后由 `Eternity.tick()`
+            // 自行结算；只有该路径没有换来 eternities 增长时才回退旧启动器。
+            val etBefore = GameApi.eternities()
+            if (GameApi.autoEternityIsActive() != true) {
+                GameApi.setAutoEternityActive(true)
+            }
+            GameApi.eternityTick()
+            val etAfter = GameApi.eternities()
+            if (etAfter != null && etAfter != etBefore) {
+                sEtPending = 1
+                sEtTtl = 600
+                sEtBefore = Player.a.x().log10()
+                Log.i("OREKI_ET", "settled via Eternity.tick before=" + etBefore + " after=" + etAfter)
+                return
+            }
             OrekiEternityLaunch.run()
             sEtPending = 1
             sEtTtl = 600
