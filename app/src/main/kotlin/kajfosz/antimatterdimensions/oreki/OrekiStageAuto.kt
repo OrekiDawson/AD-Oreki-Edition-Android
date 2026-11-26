@@ -733,7 +733,20 @@ object OrekiStageAuto {
             // 原版早期的最优解就是**每拍都买 IP 倍率升级**（成本 ×2、收益 ×2，指数增长），
             // 因此未 Break 时固定把它放在紧迫名额；它没有可买项时会 noop，本拍回落到
             // crunchInterval/sacrifice/bulk，不会造成空转。
-            "infinityUpgrades"
+            //
+            // [R130] 但“优先给 infinityUpgrades”不能无条件：实测（干净新档 18:42-18:49）
+            // 每拍都是 `act bulk` 独占唯一动作名额，`idBuy` 一次都没跑（无 `OREKI_ID_BUY`），
+            // IP 在 tick 时恒为 0（`iup-diag one-time-buy-failed ip=0.0e0`），
+            // `inf` 停在 1、maxAMlog 只在 221~281 间摆动 ⇒ 无限升级拿不到钱、ID 又永远
+            // 买不到，AM 乘数链彻底不启动。因此这里加**可买性门禁**：只有当前真的买得起
+            // ipMult 时才把名额给 infinityUpgrades，否则让给 idBuy（ID 乘数才是 AM 主动力）。
+            if (canBuyInfinityUpgradeNow()) {
+                "infinityUpgrades"
+            } else if (!allInfinityDimensionsUnlocked()) {
+                "idBuy"
+            } else {
+                "infinityUpgrades"
+            }
         } else if (!eternitiesZero()) {
             // [R96 第十二轮] 永恒层里 ID 每次永恒都会被重置，ID1 满足门槛必须优先解锁。
             //
@@ -1458,6 +1471,22 @@ object OrekiStageAuto {
         }
     }
 
+    /**
+     * [R130] 当前是否真的买得起一次可重复的 ipMult。
+     *
+     * 只做「成本 ≤ 余额」的纯算术，不扣费、不写等级；用于决定本拍紧迫名额该给
+     * `infinityUpgrades` 还是 `idBuy`（见 [resolveUrgentTask]）。读不到任何一项时
+     * 一律返回 false，宁可让名额给 ID，也不让一个注定 noop 的任务白占节拍。
+     */
+    private fun canBuyInfinityUpgradeNow(): Boolean = try {
+        val ipMult = GameApi.ipMultUpgrade() ?: return false
+        val cost = GameApi.ipMultCost(ipMult) ?: return false
+        val ip = GameApi.currencyValue(GameApi.ipCurrency()) ?: return false
+        (GameApi.compareBigDoubles(ip, cost) ?: -1) >= 0
+    } catch (_: Throwable) {
+        false
+    }
+
     @JvmStatic
     fun buyInfinityUpgrades(): Boolean {
         return try {
@@ -1478,24 +1507,32 @@ object OrekiStageAuto {
         // （见 OrekiBreakShop.id1ReserveActive），本处不写任何字段、不改价格、不改结算。
         // 与 Web 的差异：Web 按单条升级 cost 精算「买完仍够门槛」，这里直接暂停，
         // 代价是该窗口内便宜升级也一并暂停；差异已记入 tasks/R92 记录。
-        if (OrekiBreakShop.id1ReserveActive()) {
-            logIupDiag("reserve-active")
-            return false
-        }
+        // [R130] 这里原来是一刀切 `return false`：只要 ID1 预留窗口成立，连 ipMult
+        // 也一起停买。实测干净新档因此 ipMult 只到 2 级就冻结，单次坍缩收益恒定
+        // 82 IP，Break 门槛不可达。真正的保留必须按**算术**做（见下方 ipmult 段），
+        // 不能因为要保住 IP 门槛就把指数增长本身停掉。
+        // 现在：窗口成立时只跳过「一次性升级」（成本不可控、可能吃穿门槛），
+        // ipMult 仍然在扣费后余额 ≥ 门槛的前提下继续买。
+        val id1ReserveActive = OrekiBreakShop.id1ReserveActive()
+        if (id1ReserveActive) logIupDiag("reserve-active")
 
         // ---- 1) 一次性升级：只买第一个「未买且买得起」的 ----
-        val list = GameApi.infinityUpgrades()
-        if (list == null) {
-            logIupDiag("upgrade-list-null")
+        if (id1ReserveActive) {
+            // 预留窗口内不动一次性升级
         } else {
-            var sawUnbought = false
-            for (up in list) {
-                if (GameApi.upgradeBought(up)) continue
-                sawUnbought = true
-                if (GameApi.upgradeBuy(up)) return true
+            val list = GameApi.infinityUpgrades()
+            if (list == null) {
+                logIupDiag("upgrade-list-null")
+            } else {
+                var sawUnbought = false
+                for (up in list) {
+                    if (GameApi.upgradeBought(up)) continue
+                    sawUnbought = true
+                    if (GameApi.upgradeBuy(up)) return true
+                }
+                if (!sawUnbought) logIupDiag("all-one-time-bought")
+                else logIupDiag("one-time-buy-failed")
             }
-            if (!sawUnbought) logIupDiag("all-one-time-bought")
-            else logIupDiag("one-time-buy-failed")
         }
 
         // ---- 2) 可重复的 ipMult ----
@@ -1507,26 +1544,31 @@ object OrekiStageAuto {
         // 32767 IP 的 Break 门槛在指数断链后不可达 —— 这就是 pre-break 长跑的
         // 真实死锁点。
         //
-        // 现在改为**预留式购买**：只要扣掉本次 ipMult 成本后余额仍不低于 ID1 的
-        // 原版 IP 门槛（`idIpRequirement`），就照常买；门槛不被破坏时没有理由
-        // 冻结指数增长。首次永恒之后不再预留（届时 ID 已可自由购买）。
+        // 现在改为**预留式购买**：仅在 ID1 攒门槛窗口内、且扣掉本次 ipMult 成本后余额
+        // 仍不低于 ID1 的 IP 门槛（`idIpRequirement`）时才照常买；窗口外没有理由冻结
+        // 指数增长（ID1 已解锁或余额远低于门槛时一律不预留）。
+        // [R130] 预留只在**真正处于 ID1 攒门槛窗口**时生效（与 OrekiBreakShop 同一判据：
+        // `eternities==0` 且 ID1 未解锁 且 当前 IP 已达到 `ipRequirement`）。
+        // 早期 IP 只有十几点、远低于门槛时若也强行预留，会把每一次 ipMult 购买都判成
+        // `ipmult-reserve` 并永久冻结指数增长（实测：`fail ipmult-reserve cost=1.0e1`
+        // 每拍复现、IP 恒 0、单次坍缩收益恒 10 IP）。
         val id1 = GameApi.infinityDimension(1) ?: return false
         val id1IpReserve: Any? =
-            if (cmp(GameApi.eternities(), 0.0) == 0) GameApi.idIpRequirement(id1) else null
+            if (OrekiBreakShop.id1ReserveActive()) GameApi.idIpRequirement(id1) else null
 
         val ipMult = GameApi.ipMultUpgrade()
         if (ipMult == null) {
-            logIupDiag("ipmult-obj-null")
+            Log.i(TAG_IPM_LV, "fail ipmult-obj-null")
             return false
         }
         val cost = GameApi.ipMultCost(ipMult)
         if (cost == null) {
-            logIupDiag("ipmult-cost-null")
+            Log.i(TAG_IPM_LV, "fail ipmult-cost-null")
             return false
         }
         val currency = GameApi.ipMultCurrency(ipMult)
         if (currency == null) {
-            logIupDiag("ipmult-currency-null")
+            Log.i(TAG_IPM_LV, "fail ipmult-currency-null")
             return false
         }
         // R82：真实扣费必须先成功，才允许涨级。
@@ -1540,12 +1582,12 @@ object OrekiStageAuto {
             val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
             val remaining = GameApi.subtractBigDouble(ipNow, cost)
             if (remaining == null || (GameApi.compareBigDoubles(remaining, id1IpReserve) ?: -1) < 0) {
-                logIupDiag("ipmult-reserve", " cost=" + cost)
+                Log.i(TAG_IPM_LV, "fail ipmult-reserve cost=" + cost)
                 return false
             }
         }
         if (!GameApi.currencyBuy(currency, cost)) {
-            logIupDiag("currency-buy-failed", " cost=" + cost)
+            Log.i(TAG_IPM_LV, "fail currency-buy-failed cost=" + cost)
             return false
         }
         // 真涨级（仅在上面的真实扣减成功之后）
@@ -1704,6 +1746,14 @@ object OrekiStageAuto {
             } else {
                 // 已解锁：先确保买到第 1 个，再交给 buyMax 正常扩张。
                 Log.i("OREKI_ID_BUY", "enter tier=" + tier)
+                // [R130] 首次永恒之前，IP 只在坍缩后才出现一笔，而 `idBuyMax` 会把
+                // 余额一次性花光 —— 实测新档每拍 `one-time-buy-failed ip=0.0e0`
+                // 与 `fail ipmult-reserve cost=1.0e1`，ipMult 一级都买不到，单次坍缩
+                // 收益恒定 10 IP，Break 门槛不可达。这里在花光之前先让 ipMult 拿到
+                // 机会（内部仍带「扣完仍保住 ID1 门槛」的算术），ID 用剩余余额买。
+                if (cmp(GameApi.eternities(), 0.0) == 0) {
+                    buyInfinityUpgrades()
+                }
                 val before = GameApi.idPurchases(id)
                 if (before == 0L) {
                     GameApi.idBuySingle(id)
