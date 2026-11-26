@@ -4,7 +4,7 @@
 
 check_publish_rules.py 只做源码静态断言；本文件补上**真实执行**的行为契约：
   1. atomic_copy 逐字节一致、替换后无残留临时文件；
-  2. local_publish 同时刷新 latest/反物质维度.apk、同名 .sha256 与根 SHA256SUMS；
+  2. local_publish 同时刷新 latest/AD-Oreki-Edition-Stable.apk、同名 .sha256 与根 SHA256SUMS；
   3. release-info.json 的 version_name/version_code 能从真实清单的 build 段取值；
   4. verify_manifest 拒绝未 installToRelease 的候选、SHA 不符、verify 报告失败/缺失；
   5. 云盘/GitHub 上传源必须是本次 --apk，而不是本地 latest 的旧包（源码级断言）。

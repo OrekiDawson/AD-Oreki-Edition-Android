@@ -52,7 +52,14 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOCAL_DIR = Path.home() / "Releases" / "AD-Oreki-Edition"
-DEFAULT_APK_NAME = "反物质维度.apk"
+# 构建输入的源 APK 文件名（AGP 产物），仅用于校验清洗清单指向真实候选。
+SOURCE_APK_NAME = "反物质维度.apk"
+# 滚动替换固定文件名（docs/DELIVERY_RULES.md「滚动替换发布」）：稳定与预发布各一份，
+# 只覆盖同名文件，不创建按版本追加的目录或 APK。
+STABLE_APK_NAME = "AD-Oreki-Edition-Stable.apk"
+PRE_RELEASE_APK_NAME = "AD-Oreki-Edition-PreRelease.apk"
+# 兼容旧引用：DEFAULT_APK_NAME 现在指稳定渠道的固定交付名，不再指构建源文件名。
+DEFAULT_APK_NAME = STABLE_APK_NAME
 # 固定交付目录（RELEASE.md R96）：可用 AD_* 环境变量覆盖，默认值即正式位置。
 DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
@@ -330,9 +337,9 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object],
         # The immutable gate already verifies the manifest checksum and candidate SHA.
         if portable_verify_report is None:
             raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
-        if (expected_apk.name != DEFAULT_APK_NAME
+        if (expected_apk.name != SOURCE_APK_NAME
                 or "/release/" not in expected_apk.as_posix()
-                or not PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
+                or not PurePosixPath(str(build.get("source_apk", ""))).name == SOURCE_APK_NAME):
             raise RuntimeError("移植发布：清单没有指向预期 release/stage 的真实候选文件")
     registered_sha = release.get("sha256") or build.get("source_sha256")
     if registered_sha != apk_info["sha256"]:
@@ -399,7 +406,7 @@ def archive_cloud_copy(channel: str, apk: Path, apk_info: dict[str, object],
         raise RuntimeError(f"{channel}: archive remote/directory unavailable")
     if sha256_file(apk) != apk_info["sha256"]:
         raise RuntimeError("Archive source APK digest changed")
-    relpath = f"archive/{version}-{str(apk_info['sha256'])[:8]}/{DEFAULT_APK_NAME}"
+    relpath = f"archive/{version}-{str(apk_info['sha256'])[:8]}/{SOURCE_APK_NAME}"
     target = remote_spec(remote, directory, relpath)
     run(["rclone", "copyto", str(apk), target, "--immutable",
          "--retries", "2", "--low-level-retries", "3"], check=True)
@@ -459,8 +466,12 @@ def prerelease_release_id(version: str, sha256: str) -> str:
 
 
 def prerelease_directory(base: str, release_id: str) -> str:
-    """把任意稳定交付目录映射到独立 Pre-release 子目录。"""
-    return f"{base.rstrip('/')}/Pre-release/{release_id}"
+    """把任意稳定交付目录映射到固定的预发布子目录（滚动替换，不按 release id 追加）。
+
+    `release_id` 只用于 GitHub Tag 与 `release-info.json` 记录，不进入交付路径；
+    固定路径与 `docs/DELIVERY_RULES.md` 的 `pre-release/AD-Oreki-Edition-PreRelease.apk` 一致。
+    """
+    return f"{base.rstrip('/')}/Pre-release"
 
 
 def validate_prerelease_target(no_promote: bool, github_target: str) -> None:
@@ -679,15 +690,15 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     """[R96/R105-04] 本地发布目录只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
-    只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
+    只覆盖固定目录中的同名文件 `AD-Oreki-Edition-Stable.apk`；本地用临时文件写入、校验后原子替换。
     """
     if prerelease_id:
-        destination_root = root / "pre-release" / prerelease_id
-        destination = destination_root / DEFAULT_APK_NAME
-        say(f"本地：写入独立预发布目录 {destination}；稳定 latest 不变")
+        destination_root = root / "pre-release"
+        destination = destination_root / PRE_RELEASE_APK_NAME
+        say(f"本地：滚动替换固定预发布文件 {destination}；稳定 latest 不变")
     else:
         destination_root = root
-        destination = root / "latest" / DEFAULT_APK_NAME
+        destination = root / "latest" / STABLE_APK_NAME
         say(f"本地：原子覆盖 {destination}（不创建版本归档）")
     if dry_run:
         return
@@ -698,13 +709,103 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
         raise RuntimeError(f"本地交付后校验失败：{actual} != {apk_info['sha256']}")
     # 同步更新同名 .sha256；稳定路径才刷新根 SHA256SUMS。
     atomic_write(destination.with_name(destination.name + ".sha256"),
-                 f"{actual}  {DEFAULT_APK_NAME}\n")
+                 f"{actual}  {destination.name}\n")
     if prerelease_id:
-        atomic_write(destination_root / "SHA256SUMS", f"{actual}  {DEFAULT_APK_NAME}\n")
+        atomic_write(destination_root / "SHA256SUMS", f"{actual}  {destination.name}\n")
     else:
+        # 旧固定名只做归档保留，不在此处删除；写 checksums 时会按真实文件重建索引。
+        legacy_result = retire_legacy_stable(root, actual)
+        if legacy_result is not None:
+            # 只在真的有旧包处置结果时写回，避免重复发布把上一次的归档位置清空。
+            state["legacy_stable"] = legacy_result
         write_checksums(root)
     set_channel(state, "local", "success", f"{destination}; sha256={actual}")
     save_state(destination_root, state)
+
+
+def retire_legacy_stable(root: Path, current_sha: str) -> dict[str, object] | None:
+    """稳定交付改名后把旧固定名 `latest/反物质维度.apk` 移入 `archive/`，不再直接删除。
+
+    local 渠道先于云盘/GitHub 执行，若在这里 unlink，旧稳定包会在远端上传成功前
+    成为唯一副本并消失；若该旧包从未进入 GitHub Releases，就再无恢复路径。
+    因此先校验 `.sha256`/`.idsig` 与 APK 配对完整，再整组移动到
+    `archive/legacy-<sha12>/` 保留可回滚副本，`write_checksums` 随后按真实文件重建索引，
+    不会留下指向已删文件的陈旧条目。任何 OSError（Windows 云盘客户端/杀毒占用）
+    只记录并保留原文件，不中断已完成的交付。
+    """
+    legacy = root / "latest" / SOURCE_APK_NAME
+    if not legacy.is_file():
+        return None
+    legacy_sha = sha256_file(legacy)
+    say(f"本地：旧固定稳定名 {legacy} sha256={legacy_sha}（新交付 {current_sha}）")
+    sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
+    moved: list[Path] = []
+    if legacy_sha == current_sha:
+        # 同包迁移：旧名与新名字节一致，`.idsig` 是同一份 APK 的 V4 签名侧文件，
+        # 必须先补写到新固定名，再清理旧副本，否则本地稳定包会只剩 APK、丢 idsig 配对。
+        legacy_idsig = legacy.with_name(legacy.name + ".idsig")
+        new_idsig = root / "latest" / (STABLE_APK_NAME + ".idsig")
+        try:
+            if legacy_idsig.is_file():
+                # [R130 KODY-FIX] 不能只在「目标不存在」时补写：local_publish 不刷新
+                # `latest/AD-Oreki-Edition-Stable.apk.idsig`，目标一旦存在就可能是旧构建的
+                # 内容；中断留下的截断目标也会被误判为已迁移。这里按内容哈希判定，
+                # 不一致就原子覆盖，覆盖后再次核验，未通过则保留旧文件、不进入 unlink。
+                legacy_idsig_sha = sha256_file(legacy_idsig)
+                need_copy = True
+                if new_idsig.is_file():
+                    try:
+                        need_copy = sha256_file(new_idsig) != legacy_idsig_sha
+                    except OSError:
+                        need_copy = True
+                if need_copy:
+                    atomic_copy(legacy_idsig, new_idsig)
+                    say(f"本地：旧名 idsig 已原子刷新为新固定名 {new_idsig}")
+                if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
+                    say("本地：新固定名 idsig 校验不一致，保留旧文件")
+                    return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
+        except (OSError, RuntimeError) as exc:
+            # atomic_copy 在临时文件与源哈希不一致时抛 RuntimeError（云盘客户端实时同步
+            # latest/ 时源 idsig 可能被改写）；一律降级为 kept-*，保留旧文件，
+            # 不阻断已完成的 APK 原子替换与后续 write_checksums。
+            say(f"本地：旧名 idsig 补写受阻，保留原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
+        disposition = "duplicate-removed"
+    else:
+        archive_dir = root / "archive" / f"legacy-{legacy_sha[:12]}"
+        target = archive_dir / SOURCE_APK_NAME
+        try:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            for attempt in (1, 2):
+                if not target.is_file() or sha256_file(target) == legacy_sha:
+                    break
+                # 上次中断留下的截断副本：先移除再重拷一次，避免 kept-verify-failed 永久自锁。
+                say(f"本地：归档副本哈希不一致，删除重拷（第 {attempt} 次）{target}")
+                target.unlink()
+            if not target.is_file():
+                shutil.copy2(legacy, target)
+            if sha256_file(target) != legacy_sha:
+                say("本地：旧稳定包归档副本哈希仍不一致，保留 latest 原文件")
+                return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
+            for sidecar in sidecars:
+                if sidecar.is_file():
+                    shutil.copy2(sidecar, archive_dir / sidecar.name)
+        except OSError as exc:
+            say(f"本地：旧稳定包归档受阻，保留 latest 原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-archive-failed"}
+        disposition = "archive-kept"
+        moved = [target]
+    for path in [legacy, *[p for p in sidecars if p.is_file()]]:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            say(f"本地：旧固定稳定名清理受阻，保留原文件：{path} {exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-unlink-failed"}
+    say(f"本地：旧固定稳定名处置 {disposition} {moved}")
+    return {"legacy_sha256": legacy_sha, "disposition": disposition,
+            "archive_path": str(moved[0]) if moved else None}
 
 
 def rclone_onedrive_singlepart_supported() -> bool:
@@ -722,7 +823,7 @@ def rclone_onedrive_singlepart_supported() -> bool:
     return result.returncode == 0 and "onedrive-upload-cutoff" in result.stdout
 
 
-def rclone_publish(channel: str, remote: str | None, directory: str | None, apk: Path, apk_info: dict[str, object], dry_run: bool) -> None:
+def rclone_publish(channel: str, remote: str | None, directory: str | None, apk: Path, apk_info: dict[str, object], dry_run: bool, apk_name: str = DEFAULT_APK_NAME) -> None:
     """[R97] 云盘必须上传本次 **--apk 指向的同一份已验证 APK**。
 
     旧实现从本地 `latest/反物质维度.apk` 取源：一旦只跑 `--only onedrive` /
@@ -734,7 +835,7 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, apk:
     source = apk
     if sha256_file(source) != apk_info["sha256"]:
         raise RuntimeError(f"{channel}: 待上传 APK 与已验证摘要不一致，拒绝上传")
-    target = remote_spec(remote, directory, DEFAULT_APK_NAME)
+    target = remote_spec(remote, directory, apk_name)
     command = ["rclone", "copyto", str(source), target, "--retries", "3", "--low-level-retries", "10"]
     if channel == "OneDrive" and rclone_onedrive_singlepart_supported():
         # Work around the 2026-11-12 OneDrive chunked-upload 401 incident by
@@ -1069,7 +1170,8 @@ def graph_onedrive_delete(drive_id: str, remote_path: str, access: str) -> None:
 
 
 def onedrive_graph_fallback(remote: str, directory: str, apk: Path,
-                            apk_info: dict[str, object], probe: bool = False) -> str:
+                            apk_info: dict[str, object], probe: bool = False,
+                            apk_name: str = DEFAULT_APK_NAME) -> str:
     """rclone upload-session 401 fallback: rclone refreshes OAuth, Graph uploads.
 
     rclone owns refresh-token rotation and writes the refreshed token back to the
@@ -1098,7 +1200,7 @@ def onedrive_graph_fallback(remote: str, directory: str, apk: Path,
         return f"graph-simple-upload probe ok ({remote})"
     if sha256_file(apk) != apk_info["sha256"]:
         raise RuntimeError("OneDrive Graph fallback: APK digest differs from verified candidate")
-    remote_path = f"{directory.strip('/')}/{DEFAULT_APK_NAME}"
+    remote_path = f"{directory.strip('/')}/{apk_name}"
     data = graph_onedrive_put(drive_id, remote_path, apk, access)
     return f"graph-simple-upload {remote}:{remote_path} size={data.get('size')}"
 
@@ -1136,7 +1238,9 @@ def main() -> int:
         return archive_only(root, apk, apk_info, args.version, args.only or [])
 
     release_id = prerelease_release_id(args.version, str(apk_info["sha256"]))
-    state_root = root / "pre-release" / release_id if args.no_promote else root
+    # 交付文件滚动覆盖固定 pre-release/<固定名>，状态必须按候选隔离：
+    # 共用同一 release-info.json 会让新候选覆盖上一候选的失败渠道，--retry-failed 假绿。
+    state_root = root / "pre-release" / "state" / release_id if args.no_promote else root
     state = load_or_create_state(state_root, args.version, apk_info, manifest)
     if args.retry_failed:
         selected = [channel for channel in CHANNELS if (state.get("channels", {}).get(channel) or {}).get("status") == "failed"]
@@ -1158,6 +1262,8 @@ def main() -> int:
             say(f"github: 记录发布前 Latest={before}")
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
+    # 预发布使用固定滚动文件名，与 docs/DELIVERY_RULES.md 的路径一一对应。
+    channel_apk_name = PRE_RELEASE_APK_NAME if args.no_promote else STABLE_APK_NAME
 
     for channel in selected:
         try:
@@ -1174,13 +1280,13 @@ def main() -> int:
                 if remote_src == "auto":
                     say(f"OneDrive remote 未显式配置，按唯一 onedrive 类型 remote 解析为 {remote}")
                 try:
-                    rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run)
-                    detail = f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}"
+                    rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run, apk_name=channel_apk_name)
+                    detail = f"rclone copyto {remote}:{directory}/{channel_apk_name}"
                 except RuntimeError as exc:
                     if args.dry_run or "401" not in str(exc):
                         raise
                     say("OneDrive: rclone upload-session 401；改用 Graph simple upload 回退（元数据尺寸校验）")
-                    detail = onedrive_graph_fallback(remote, directory, apk, apk_info)
+                    detail = onedrive_graph_fallback(remote, directory, apk, apk_info, apk_name=channel_apk_name)
                 set_channel(state, channel, "success", detail)
             elif channel == "gdrive":
                 remote, remote_src = resolve_remote("AD_GDRIVE_REMOTE", "drive")
@@ -1189,8 +1295,8 @@ def main() -> int:
                     directory = prerelease_directory(directory, release_id)
                 if remote_src == "auto":
                     say(f"Google Drive remote 未显式配置，按唯一 drive 类型 remote 解析为 {remote}")
-                rclone_publish("Google Drive", remote, directory, apk, apk_info, args.dry_run)
-                set_channel(state, channel, "success", f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}")
+                rclone_publish("Google Drive", remote, directory, apk, apk_info, args.dry_run, apk_name=channel_apk_name)
+                set_channel(state, channel, "success", f"rclone copyto {remote}:{directory}/{channel_apk_name}")
             elif channel == "github":
                 notes_file = Path(args.release_notes_file).expanduser().resolve() if args.release_notes_file else None
                 if notes_file and not notes_file.is_file():

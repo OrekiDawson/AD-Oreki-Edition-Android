@@ -30,7 +30,9 @@ from pathlib import Path
 
 DEFAULT_REPO = "OrekiDawson/AD-Oreki-Edition-Android"
 DEFAULT_DEST = Path.home() / "Releases" / "AD-Oreki-Edition"
-DEFAULT_APK_NAME = "反物质维度.apk"
+DEFAULT_APK_NAME = "AD-Oreki-Edition-Stable.apk"
+# 改名前的旧固定稳定名：迁移时需回收，避免 latest/ 同时留两份稳定包。
+LEGACY_APK_NAME = "反物质维度.apk"
 # 发布身份从受审查的 release policy 派生，避免 policy bump 后第四渠道拉取仍按旧
 # versionCode 拒绝新稳定版（Codex P1：EXPECTED_VERSION_CODE 硬编码 30210000）。
 # policy 与脚本同仓（scripts/release-gate-policy.json），开发机 checkout 即可读取。
@@ -253,7 +255,94 @@ def current_latest_sha(dest: Path) -> str | None:
     return sha256_file(apk)
 
 
+def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | None:
+    """改名前的旧固定稳定名 `latest/反物质维度.apk` 移入 `archive/`, 不直接删除。
+
+    改名后 `latest/` 若同时留着新旧两个 APK，`SHA256SUMS` 会登记两份稳定包，
+    `current_latest_sha` 也会因找不到新名而失去幂等。但直接 unlink 会让唯一旧副本
+    在新包尚未完成远端校验前就消失；这里先校验 `.sha256`/`.idsig` 与 APK 配对完整，
+    再把整组移动到 `archive/legacy-<sha12>/`，随后由 `rebuild_checksums` 重新扫描索引。
+    任何 OSError（Windows 上被云盘客户端/杀毒占用等）都只记录并保留原文件，不中断已完成的交付。
+    """
+    legacy = dest / "latest" / LEGACY_APK_NAME
+    if not legacy.is_file():
+        return None
+    legacy_sha = sha256_file(legacy)
+    log(f"回收旧固定稳定名：{legacy} sha256={legacy_sha}（新交付 {current_sha}）")
+    sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
+    if legacy_sha == current_sha:
+        # 同包迁移：`.idsig` 属于同一份 APK 的 V4 侧文件，先补写到新固定名再清理旧副本。
+        legacy_idsig = legacy.with_name(legacy.name + ".idsig")
+        new_idsig = dest / "latest" / (DEFAULT_APK_NAME + ".idsig")
+        try:
+            if legacy_idsig.is_file():
+                # [R130 KODY-FIX] 与 publish_four_channels.retire_legacy_stable 同源：
+                # 目标已存在不代表内容正确，必须按哈希比对并原子刷新，否则旧/截断 idsig
+                # 会与当前 APK 错配，且旧名副本随后被删掉无法自愈。
+                legacy_idsig_sha = sha256_file(legacy_idsig)
+                need_copy = True
+                if new_idsig.is_file():
+                    try:
+                        need_copy = sha256_file(new_idsig) != legacy_idsig_sha
+                    except OSError:
+                        need_copy = True
+                if need_copy:
+                    atomic_replace_bytes(legacy_idsig, new_idsig)
+                    log(f"已把旧名 idsig 原子刷新为新固定名：{new_idsig}")
+                if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
+                    log("WARN: 新固定名 idsig 校验不一致，保留旧文件")
+                    return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
+        except OSError as exc:
+            # 只降级真实 I/O 失败（云盘客户端占用等）。PullError 表示
+            # atomic_replace_bytes 复核到源/目标 idsig 哈希不一致，属于完整性
+            # fail-closed 路径：必须向上抛出终止本次拉取，不能写成 PASS 回执。
+            log(f"WARN: 旧名 idsig 补写受阻，保留原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
+        disposition = "duplicate-removed"
+        moved: list[Path] = []
+    else:
+        archive_dir = dest / "archive" / f"legacy-{legacy_sha[:12]}"
+        target = archive_dir / LEGACY_APK_NAME
+        try:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            for attempt in (1, 2):
+                if not target.is_file() or sha256_file(target) == legacy_sha:
+                    break
+                # 上次中断留下的截断副本：先移除再重拷一次，避免 kept-verify-failed 永久自锁。
+                log(f"WARN: 归档副本哈希不一致，删除重拷（第 {attempt} 次）：{target}")
+                target.unlink()
+            if not target.is_file():
+                shutil.copy2(legacy, target)
+            if sha256_file(target) != legacy_sha:
+                log("FAIL: 旧稳定包归档副本哈希仍不一致，保留 latest 原文件")
+                return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
+            for sidecar in sidecars:
+                if sidecar.is_file():
+                    shutil.copy2(sidecar, archive_dir / sidecar.name)
+        except OSError as exc:
+            log(f"WARN: 旧稳定包归档受阻，保留 latest 原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-archive-failed"}
+        disposition = "archive-kept"
+        moved = [archive_dir / LEGACY_APK_NAME]
+    for path in [legacy, *[p for p in sidecars if p.is_file()]]:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            log(f"WARN: 旧固定稳定名清理受阻，保留原文件：{path} {exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-unlink-failed"}
+    log(f"旧固定稳定名处置：{disposition} {moved}")
+    return {"legacy_sha256": legacy_sha, "disposition": disposition,
+            "archive_path": str(moved[0]) if moved else None}
+
+
 def update_checksums(dest: Path, sha256: str) -> None:
+    """刷新 `latest` 同名 `.sha256` 并重建根 `SHA256SUMS`。
+
+    索引只登记真实存在的文件（`latest/*.apk` 与 `archive/**/*.apk`），
+    因此旧名被归档或清理后不会留下指向已删文件的陈旧行。
+    """
     latest = dest / "latest" / DEFAULT_APK_NAME
     display = DEFAULT_APK_NAME
     sha_file = latest.with_name(latest.name + ".sha256")
@@ -262,21 +351,34 @@ def update_checksums(dest: Path, sha256: str) -> None:
         if len(existing) >= 2 and SHA_RE.fullmatch(existing[0].lower()):
             display = " ".join(existing[1:])
     atomic_write_text(sha_file, f"{sha256}  {display}\n")
+    rebuild_checksums(dest, sha256)
+
+
+def rebuild_checksums(dest: Path, sha256: str | None = None) -> Path:
+    """按真实文件重建索引；单个文件读取失败只降级跳过，不打断已完成的交付。"""
+    entries: list[str] = []
+    for candidate in sorted((dest / "latest").glob("*.apk")):
+        try:
+            digest = sha256 if sha256 and candidate.name == DEFAULT_APK_NAME else sha256_file(candidate)
+        except OSError as exc:
+            log(f"WARN: 读取 {candidate} 失败，索引暂不登记：{exc}")
+            continue
+        entries.append(f"{digest}  {candidate.relative_to(dest).as_posix()}")
+    try:
+        archived = sorted((dest / "archive").rglob("*.apk"))
+    except OSError as exc:
+        log(f"WARN: 遍历归档目录失败，索引仅登记 latest：{exc}")
+        archived = []
+    for candidate in archived:
+        try:
+            digest = sha256_file(candidate)
+        except OSError as exc:
+            log(f"WARN: 读取归档 {candidate} 失败，索引暂不登记：{exc}")
+            continue
+        entries.append(f"{digest}  {candidate.relative_to(dest).as_posix()}")
     index = dest / "SHA256SUMS"
-    lines: list[str] = []
-    if index.is_file():
-        lines = [line.rstrip("\n") for line in index.read_text(encoding="utf-8", errors="replace").splitlines()]
-    relative = f"latest/{DEFAULT_APK_NAME}"
-    updated = False
-    for position, line in enumerate(lines):
-        parts = line.split()
-        if len(parts) >= 2 and parts[-1].endswith("/" + relative):
-            lines[position] = f"{sha256}  {parts[-1]}"
-            updated = True
-            break
-    if not updated:
-        lines.insert(0, f"{sha256}  {relative}")
-    atomic_write_text(index, "\n".join(lines) + "\n")
+    atomic_write_text(index, ("\n".join(entries) + "\n") if entries else "")
+    return index
 
 
 def write_receipt(dest: Path, receipt: dict) -> Path:
@@ -380,6 +482,11 @@ def main() -> int:
             if (package, version_name, version_code) != (args.expected_package, version, EXPECTED_VERSION_CODE):
                 raise PullError(f"下载 APK 身份不一致：{package}/{version_name}/{version_code}")
             target = dest / "latest" / DEFAULT_APK_NAME
+            # [R130 KODY-FIX] 旧名处置必须在替换新 APK 之前完成：retire_legacy_stable 内
+            # atomic_replace_bytes 的 PullError 属完整性 fail-closed，若发生在 APK 已替换
+            # 之后逃逸，会跳过 update_checksums/回执，使 SUMS 与回执和 latest 实际状态不符。
+            # 前置后失败时本地仍是上一稳定版，与“失败保留上一稳定版”的约定一致。
+            retire_legacy_stable(dest, remote_sha)
             atomic_replace_bytes(apk_path, target)
             if sha256_file(target) != remote_sha:
                 raise PullError("原子替换后本地 APK 哈希不一致")

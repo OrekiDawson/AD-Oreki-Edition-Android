@@ -19,7 +19,8 @@ def exit_stack(patchers):
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 import pull_stable_release as pull
 
-APK_NAME = "反物质维度.apk"
+# 本地稳定渠道固定交付名（docs/DELIVERY_RULES.md「滚动替换发布」）。
+APK_NAME = pull.DEFAULT_APK_NAME
 
 
 class PullHelpersTests(unittest.TestCase):
@@ -88,18 +89,123 @@ class PullHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             dest = pathlib.Path(tmp)
             (dest / "latest").mkdir()
+            (dest / "archive").mkdir()
             source = dest / "source.apk"
             source.write_bytes(b"payload")
             digest = hashlib.sha256(b"payload").hexdigest()
             target = dest / "latest" / APK_NAME
             pull.atomic_replace_bytes(source, target)
             self.assertEqual(pull.sha256_file(target), digest)
-            (dest / "SHA256SUMS").write_text(
-                "aaaa  archive/old.apk\nbbbb  latest/" + APK_NAME + "\n", encoding="utf-8")
+            archived = dest / "archive" / "old.apk"
+            archived.write_bytes(b"older-build")
+            archived_digest = hashlib.sha256(b"older-build").hexdigest()
             pull.update_checksums(dest, digest)
-            self.assertIn(f"{digest}  latest/{APK_NAME}", (dest / "SHA256SUMS").read_text(encoding="utf-8"))
-            self.assertIn("aaaa  archive/old.apk", (dest / "SHA256SUMS").read_text(encoding="utf-8"))
+            sums = (dest / "SHA256SUMS").read_text(encoding="utf-8")
+            self.assertIn(f"{digest}  latest/{APK_NAME}", sums)
+            self.assertIn(f"{archived_digest}  archive/old.apk", sums)
             self.assertEqual((dest / "latest" / (APK_NAME + ".sha256")).read_text(encoding="utf-8").split()[0], digest)
+
+    def test_legacy_stable_name_is_archived_and_sum_has_no_latest_legacy_entry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(b"old-stable")
+            legacy_sha = hashlib.sha256(b"old-stable").hexdigest()
+            legacy.with_name(legacy.name + ".sha256").write_text(f"{legacy_sha}  old\n", encoding="utf-8")
+            legacy.with_name(legacy.name + ".idsig").write_bytes(b"idsig")
+            current = dest / "latest" / APK_NAME
+            current.write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            result = pull.retire_legacy_stable(dest, digest)
+            pull.update_checksums(dest, digest)
+            self.assertEqual(result["disposition"], "archive-kept")
+            self.assertFalse(legacy.exists())
+            self.assertFalse(legacy.with_name(legacy.name + ".sha256").exists())
+            self.assertFalse(legacy.with_name(legacy.name + ".idsig").exists())
+            archived = dest / "archive" / f"legacy-{legacy_sha[:12]}" / pull.LEGACY_APK_NAME
+            self.assertTrue(archived.is_file())
+            self.assertEqual(hashlib.sha256(archived.read_bytes()).hexdigest(), legacy_sha)
+            self.assertTrue(archived.with_name(archived.name + ".idsig").is_file())
+            sums = (dest / "SHA256SUMS").read_text(encoding="utf-8")
+            self.assertIn(f"latest/{APK_NAME}", sums)
+            self.assertIn(f"{legacy_sha}  archive/legacy-{legacy_sha[:12]}/{pull.LEGACY_APK_NAME}", sums)
+            self.assertNotIn(f"latest/{pull.LEGACY_APK_NAME}", sums)
+
+    def test_legacy_unlink_oserror_keeps_file_instead_of_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(b"old-stable")
+            current = dest / "latest" / APK_NAME
+            current.write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            with mock.patch.object(pull.Path, "unlink",
+                                   side_effect=PermissionError("locked by cloud client")):
+                result = pull.retire_legacy_stable(dest, digest)
+            self.assertEqual(result["disposition"], "kept-unlink-failed")
+            self.assertTrue(legacy.is_file())
+
+    def test_same_sha_legacy_idsig_is_promoted_to_new_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            payload = b"identical-stable"
+            digest = hashlib.sha256(payload).hexdigest()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(payload)
+            legacy.with_name(legacy.name + ".idsig").write_bytes(b"v4-idsig")
+            (dest / "latest" / APK_NAME).write_bytes(payload)
+            result = pull.retire_legacy_stable(dest, digest)
+            self.assertEqual(result["disposition"], "duplicate-removed")
+            self.assertFalse(legacy.exists())
+            new_idsig = dest / "latest" / (APK_NAME + ".idsig")
+            self.assertTrue(new_idsig.is_file())
+            self.assertEqual(new_idsig.read_bytes(), b"v4-idsig")
+
+    def test_truncated_archive_copy_is_recopied_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(b"old-stable-full")
+            legacy_sha = hashlib.sha256(b"old-stable-full").hexdigest()
+            archive_dir = dest / "archive" / f"legacy-{legacy_sha[:12]}"
+            archive_dir.mkdir(parents=True)
+            (archive_dir / pull.LEGACY_APK_NAME).write_bytes(b"trunc")
+            (dest / "latest" / APK_NAME).write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            result = pull.retire_legacy_stable(dest, digest)
+            self.assertEqual(result["disposition"], "archive-kept")
+            archived = archive_dir / pull.LEGACY_APK_NAME
+            self.assertEqual(hashlib.sha256(archived.read_bytes()).hexdigest(), legacy_sha)
+            self.assertFalse(legacy.exists())
+
+    def test_rebuild_checksums_degrades_on_oserror(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            (dest / "archive").mkdir()
+            (dest / "latest" / APK_NAME).write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            archived = dest / "archive" / "locked.apk"
+            archived.write_bytes(b"locked")
+            real = pull.sha256_file
+            calls = {"archived": 0}
+
+            def flaky(path):
+                if pathlib.Path(path).name == "locked.apk":
+                    calls["archived"] += 1
+                    raise PermissionError("locked by antivirus")
+                return real(path)
+
+            with mock.patch.object(pull, "sha256_file", side_effect=flaky):
+                index = pull.rebuild_checksums(dest, digest)
+            self.assertEqual(calls["archived"], 1)
+            sums = index.read_text(encoding="utf-8")
+            self.assertIn(f"{digest}  latest/{APK_NAME}", sums)
+            self.assertNotIn("locked.apk", sums)
 
 
 class PullEndToEndTests(unittest.TestCase):
