@@ -1,72 +1,58 @@
 # 反物质维度 · Oreki Edition（Android）
 
-《反物质维度》（Antimatter Dimensions）的 Android MOD。项目以官方 Android 3.21.0 为兼容基线，使用 Kotlin 扩展玩法、自动化与移动端界面，并与 Web 版维持玩家可见行为一致。
+**把无限装进口袋。**
 
-- **发布与下载**：[GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)（请核对所选版本的发行说明和 SHA-256；开发候选 APK 不等于稳定版）
-- **Web 版本**：[AD-Oreki-Edition-Web](https://github.com/OrekiDawson/AD-Oreki-Edition-Web) · [在线体验](https://oreki.net)
-- **中文知识库**：[wiki.oreki.net](https://wiki.oreki.net)
-- **当前工作进展**：[Pull Requests](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pulls) · [Issues](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues) · [事实索引](docs/FACTS.md)
+[下载 Android 版](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases) · [浏览器版](https://oreki.net/) · [中文 Wiki](https://wiki.oreki.net/)
 
-> 本 README 是项目入口，不是实时构建/审查仪表盘。某次 APK 是否通过真实新档验收、当前 Kody 是否启用、使用哪一版工具链，均以对应的源码、工作流、任务和验证证据为准。
+第一次大坍缩之后，反物质消失了，新的成长空间却打开了。《反物质维度》的有趣之处，就在于一次次看似倒退的重置会带来更强的增长。
 
-**[中文目录导览与文件归档约定](docs/目录与中文命名约定.md)**：源码、构建入口仍使用工具要求的英文路径；任务、技术说明、运行证据和历史归档分别归入 `tasks/`、`docs/`、`reports/`、`archive/`。旧项目暂停记录已移至 [历史归档](archive/项目暂停记录.md)，R100 构建日志收于 `reports/历史构建日志/`。
+Oreki Edition 是基于官方 Android 3.21.0 的 MOD。它用 Kotlin 扩展自动化、玩法节奏与移动端界面，让重复操作少一点，让发现新机制的时刻多一点。
 
-## 主要特点
+## 有什么不同？
 
-- 在原版合法进度与挑战结算基础上，优化 Android 玩法节奏和自动化体验。
-- MOD 调度器支持 **1–60 秒**的可设置 tick，默认 10 秒；受管自动购买器配置由调度器按当前合法阶段策略管理，手动修改将在下一 tick 校正。
-- 保持原版自动购买器与 MOD 调度节拍独立；界面及教程尽可能用简体中文呈现，减少无意义等待和切页。
-- **新档真实墙钟 ≤180 分钟完成原版终局**是长期验收目标，不代表每个候选 APK 已达到该目标。
-- 长期体验目标按五阶段自然展开：0～30 分钟建立玩法理解，30～75 分钟展开无限/永恒，75～130 分钟进入现实与主要天神，130～165 分钟推进后期与 Pelle，165～180 分钟完成真实结算与收尾。详见 [长期 Agent 规则](AGENTS.md)。
+- **智能自动化**：调度器负责受管自动购买器的配置，玩家手动修改后会在下一次 tick 恢复策略设置。间隔可设为 1～60 秒，默认 10 秒，与原版自动购买器的节拍相互独立。
+- **成长节奏**：从新档、无限、永恒一路走向现实与天神，保留原版合法的重置、解锁和挑战结算。
+- **移动端体验**：简体中文教程与 MOD 设置，尽量减少无意义的切页与等待。
+- **诚实的数字**：不凭空发放资源、成就或通关记录。约 180 分钟合法通关是新档验收目标，而非每个版本、设备或存档的保证。
 
-资源、进度、成就、存档、挑战结算及终局不得伪造；首次大坍缩后也不能非法跳过无限阶段。
+## 开始游玩
 
-## 开发与构建
+前往 [GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)，按发行说明选择合适版本。预发布版用于体验新功能和测试，不能视作稳定版；下载后可对照发布的 SHA-256。
 
-需要 JDK、Android SDK / Build Tools、Gradle Wrapper 和 adb。工具链的具体版本、基线资源及 ABI 要求以当前配置和 [构建交付规则](docs/DELIVERY_RULES.md) 为准，不使用旧报告中的固定版本代替实时检查。
+换版本或迁移设备之前，请先导出并妥善保存游戏存档。玩法、操作与存档说明见 [玩家专区](https://wiki.oreki.net/player/)。
 
-**AGP 9.5.2 是唯一正式构建入口。** 根 Groovy 工程、`scripts/build_mod.py` 与 Python 补丁树生产链已于 R126 物理退役；历史报告只作追溯。完整游戏现在是 `:app` 的默认构建对象，缺少过渡输入时必须 fail-closed：
+## APK 是怎样长出来的？
 
-```bash
-./gradlew :app:assembleRelease --offline --no-daemon --console=plain
-```
+原版游戏的兼容基线与 MOD 的 Kotlin 代码经过标准 Android Gradle Plugin 构建，形成可安装的 APK。源码恢复与兼容迁移仍在持续，不能把反编译结果直接等同于可运行源码。
 
-尚未完全源码化的官方过渡输入默认从工程相对的 `build/inputs/` 读取：
-
-```bash
-./gradlew :app:compileDebugJavaWithJavac --offline
-./gradlew assembleDebug --offline
-```
-
-机器专属路径只能写入被忽略的 `local.properties`（`oreki.gameJar`、`oreki.officialTree`、`oreki.splitTree`）。不使用项目专用环境变量、Gradle `-P` 参数或包装命令；输入缺失时直接失败，不降级为桥接包。正式候选还须按 [.github/workflows/candidate-unified.yml](.github/workflows/candidate-unified.yml) 和 [交付规则](docs/DELIVERY_RULES.md) 完成基线输入、AGP-only、签名、安装与真实运行门禁；构建成功不等于功能通过。
-
-正式交付必须对应同一条可核查证据链：**源码 Commit → 构建配置与产物 → APK SHA-256 → 签名 → 设备安装 → 真实运行 → 结论**。不同 APK 的里程碑不可混用，正式发布还需满足平台审批与发布门禁。
-
-## 项目结构
-
-| 路径 | 用途 |
+| 路径 | 内容 |
 | --- | --- |
-| `app/src/main/kotlin/` | Android MOD 的生产 Kotlin 业务与适配代码 |
-| `app/` | 唯一 Android 应用模块与生产 Source Sets |
-| `build-logic/` | 完整游戏输入、商店策略、元数据与构建守卫 |
-| `baseline/` | 上游 APK 基线与版本资料 |
-| `scripts/` | 构建、检查、辅助工具及定向验证 |
-| `docs/` | 规则、事实索引、构建与交付说明 |
-| `reports/` | 历史构建、KVM/AVD、运行和故障证据 |
-| `tasks/` | 轮次任务、当前工作与验收口径 |
+| `app/src/main/kotlin/` | MOD 业务与原版接口适配 |
+| `app/` | Android 应用模块 |
+| `build-logic/` | 构建输入、资源与工程检查 |
+| `baseline/` | 官方基线资料 |
+| `scripts/` | 辅助工具与定向验证 |
+| `docs/` | 技术与交付资料 |
 
-根目录不再保留旧 Gradle 构建入口。`scripts/payload/smali/` 仅作为历史 ABI/回填证据，不属于正式生产输入；生产构建只读取经过 SHA-256 钉住的游戏 JAR、官方只读基线与 AGP 资源/Kotlin。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)。
+本地构建需要 JDK、Android SDK、Build Tools 及相应的官方过渡输入，具体要求见 [构建与交付说明](docs/DELIVERY_RULES.md)。
 
-## 验证与反馈
+在仓库根目录的 Windows PowerShell 7 中：
 
-按改动选择 Kotlin/JVM 测试、调度契约检查、构建和签名验证，以及必要的 KVM、AVD 或真机测试。涉及阶段门禁、自动购买器、存档和 GUI 的改动，应检查真实游戏状态及玩家可见结果。
+```powershell
+.\gradlew.bat :app:assembleRelease --no-daemon
+```
 
-`PASS`、`FAIL`、`BLOCKED`、`NOT RUN` 必须对应实际证据；CI 绿色不等于从新档通关。问题反馈请附版本、设备/Android 版本、复现步骤和脱敏日志，不要提交私钥或私人存档。
+Linux/macOS 可使用 `./gradlew :app:assembleRelease --no-daemon`。机器专属输入路径见交付说明和 `local.properties` 配置；缺少正式输入时构建应失败，而不是产出替代游戏的桥接包。构建成功也不等于已经完成游戏行为与发布验收。
 
-## 规则与许可
+## 一起研究游戏
 
-- [长期 Agent 规则](AGENTS.md) · [构建与发布门禁](docs/DELIVERY_RULES.md) · [Kodus 审查说明](docs/KODUS_REVIEW_SETUP.md)
-- [事实索引](docs/FACTS.md) · [Android/Web 差异](WEB_ANDROID_DIFFERENCES.md)
-- 原版许可与第三方归属请核对 [官方上游仓库](https://github.com/IvarK/AntimatterDimensionsSourceCode) 及原版发行资料；MOD 各版本的发行说明请见 [GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)。本仓当前没有可直接引用的根级 `LICENSE` / `MOD-LICENSE`，不得据此推断 MOD 代码或第三方素材已获额外授权。
+- [开发者 Wiki](https://wiki.oreki.net/developer/)：从 Android 架构到构建、签名与源码恢复。
+- [Web 实现](https://github.com/OrekiDawson/AD-Oreki-Edition-Web) · [双端差异](WEB_ANDROID_DIFFERENCES.md)
+- [事实索引](docs/FACTS.md) · [协作与开发规则](AGENTS.md)
+- [提交问题](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues)：请附版本、设备、复现步骤和脱敏日志。
 
-Kodus 配置和任务启停状态可能随授权变化，不在 README 中维护过期的实时快照。
+## 原版与许可
+
+感谢 [Antimatter Dimensions 上游](https://github.com/IvarK/AntimatterDimensionsSourceCode) 的作者及贡献者。Android 原版、MOD 代码与第三方素材的权利边界以各自的原始许可、发行资料和 [版本说明](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases) 为准；本仓库没有统一的根级 MOD 许可证可供推定额外授权。
+
+下一次重置，或许就是下一次发现。
