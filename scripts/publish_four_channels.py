@@ -713,30 +713,61 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     if prerelease_id:
         atomic_write(destination_root / "SHA256SUMS", f"{actual}  {destination.name}\n")
     else:
-        retire_legacy_stable(root, actual)
+        # 旧固定名只做归档保留，不在此处删除；写 checksums 时会按真实文件重建索引。
+        state["legacy_stable"] = retire_legacy_stable(root, actual)
         write_checksums(root)
     set_channel(state, "local", "success", f"{destination}; sha256={actual}")
     save_state(destination_root, state)
 
 
-def retire_legacy_stable(root: Path, current_sha: str) -> None:
-    """稳定交付改名后回收旧固定名 `latest/反物质维度.apk`，避免 latest/ 与 SHA256SUMS 出现两份稳定包。
+def retire_legacy_stable(root: Path, current_sha: str) -> dict[str, object] | None:
+    """稳定交付改名后把旧固定名 `latest/反物质维度.apk` 移入 `archive/`，不再直接删除。
 
-    - 旧 APK 仍在 `latest/` 时先算出它的 SHA-256 记入日志（旧版本可从 GitHub Releases 恢复），
-      再删除旧 APK、同名 `.sha256` 与 `.idsig`；
-    - 若旧名与当前交付 SHA 相同（迁移后同包），同样只保留新名一份；
-    - `SHA256SUMS` 由调用方紧接着用 `write_checksums` 重算，不手改条目。
+    local 渠道先于云盘/GitHub 执行，若在这里 unlink，旧稳定包会在远端上传成功前
+    成为唯一副本并消失；若该旧包从未进入 GitHub Releases，就再无恢复路径。
+    因此先校验 `.sha256`/`.idsig` 与 APK 配对完整，再整组移动到
+    `archive/legacy-<sha12>/` 保留可回滚副本，`write_checksums` 随后按真实文件重建索引，
+    不会留下指向已删文件的陈旧条目。任何 OSError（Windows 云盘客户端/杀毒占用）
+    只记录并保留原文件，不中断已完成的交付。
     """
     legacy = root / "latest" / SOURCE_APK_NAME
-    if not legacy.exists():
-        return
+    if not legacy.is_file():
+        return None
     legacy_sha = sha256_file(legacy)
-    say(f"本地：回收旧固定稳定名 {legacy} sha256={legacy_sha}（新交付 {current_sha}，旧包可从 GitHub Releases 恢复）")
-    for path in (legacy, legacy.with_name(legacy.name + ".sha256"), legacy.with_name(legacy.name + ".idsig")):
+    say(f"本地：旧固定稳定名 {legacy} sha256={legacy_sha}（新交付 {current_sha}）")
+    sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
+    moved: list[Path] = []
+    if legacy_sha == current_sha:
+        disposition = "duplicate-removed"
+    else:
+        archive_dir = root / "archive" / f"legacy-{legacy_sha[:12]}"
+        target = archive_dir / SOURCE_APK_NAME
+        try:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            if not target.is_file():
+                shutil.copy2(legacy, target)
+            if sha256_file(target) != legacy_sha:
+                say("本地：旧稳定包归档副本哈希不一致，保留 latest 原文件")
+                return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
+            for sidecar in sidecars:
+                if sidecar.is_file():
+                    shutil.copy2(sidecar, archive_dir / sidecar.name)
+        except OSError as exc:
+            say(f"本地：旧稳定包归档受阻，保留 latest 原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-archive-failed"}
+        disposition = "archive-kept"
+        moved = [target]
+    for path in [legacy, *[p for p in sidecars if p.is_file()]]:
         try:
             path.unlink()
         except FileNotFoundError:
             continue
+        except OSError as exc:
+            say(f"本地：旧固定稳定名清理受阻，保留原文件：{path} {exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-unlink-failed"}
+    say(f"本地：旧固定稳定名处置 {disposition} {moved}")
+    return {"legacy_sha256": legacy_sha, "disposition": disposition,
+            "archive_path": str(moved[0]) if moved else None}
 
 
 def rclone_onedrive_singlepart_supported() -> bool:

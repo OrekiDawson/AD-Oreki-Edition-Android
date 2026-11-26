@@ -255,27 +255,61 @@ def current_latest_sha(dest: Path) -> str | None:
     return sha256_file(apk)
 
 
-def retire_legacy_stable(dest: Path, current_sha: str) -> None:
-    """回收改名前的旧固定稳定名 `latest/反物质维度.apk` 及其校验/idsig 副本。
+def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | None:
+    """改名前的旧固定稳定名 `latest/反物质维度.apk` 移入 `archive/`, 不直接删除。
 
     改名后 `latest/` 若同时留着新旧两个 APK，`SHA256SUMS` 会登记两份稳定包，
-    `current_latest_sha` 也会因找不到新名而失去幂等。这里先记录旧包 SHA-256
-    （旧版本可从 GitHub Releases 恢复），再删除旧名文件，随后由 `update_checksums` 重算索引。
+    `current_latest_sha` 也会因找不到新名而失去幂等。但直接 unlink 会让唯一旧副本
+    在新包尚未完成远端校验前就消失；这里先校验 `.sha256`/`.idsig` 与 APK 配对完整，
+    再把整组移动到 `archive/legacy-<sha12>/`，随后由 `rebuild_checksums` 重新扫描索引。
+    任何 OSError（Windows 上被云盘客户端/杀毒占用等）都只记录并保留原文件，不中断已完成的交付。
     """
     legacy = dest / "latest" / LEGACY_APK_NAME
     if not legacy.is_file():
-        return
-    log(f"回收旧固定稳定名：{legacy} sha256={sha256_file(legacy)}（新交付 {current_sha}）")
-    for path in (legacy,
-                 legacy.with_name(legacy.name + ".sha256"),
-                 legacy.with_name(legacy.name + ".idsig")):
+        return None
+    legacy_sha = sha256_file(legacy)
+    log(f"回收旧固定稳定名：{legacy} sha256={legacy_sha}（新交付 {current_sha}）")
+    sidecars = [legacy.with_name(legacy.name + suffix) for suffix in (".sha256", ".idsig")]
+    if legacy_sha == current_sha:
+        disposition = "duplicate-removed"
+        moved: list[Path] = []
+    else:
+        archive_dir = dest / "archive" / f"legacy-{legacy_sha[:12]}"
+        target = archive_dir / LEGACY_APK_NAME
+        try:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            if not target.is_file():
+                shutil.copy2(legacy, target)
+            if sha256_file(target) != legacy_sha:
+                log("FAIL: 旧稳定包归档副本哈希不一致，保留 latest 原文件")
+                return {"legacy_sha256": legacy_sha, "disposition": "kept-verify-failed"}
+            for sidecar in sidecars:
+                if sidecar.is_file():
+                    shutil.copy2(sidecar, archive_dir / sidecar.name)
+        except OSError as exc:
+            log(f"WARN: 旧稳定包归档受阻，保留 latest 原文件：{exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-archive-failed"}
+        disposition = "archive-kept"
+        moved = [archive_dir / LEGACY_APK_NAME]
+    for path in [legacy, *[p for p in sidecars if p.is_file()]]:
         try:
             path.unlink()
         except FileNotFoundError:
             continue
+        except OSError as exc:
+            log(f"WARN: 旧固定稳定名清理受阻，保留原文件：{path} {exc}")
+            return {"legacy_sha256": legacy_sha, "disposition": "kept-unlink-failed"}
+    log(f"旧固定稳定名处置：{disposition} {moved}")
+    return {"legacy_sha256": legacy_sha, "disposition": disposition,
+            "archive_path": str(moved[0]) if moved else None}
 
 
 def update_checksums(dest: Path, sha256: str) -> None:
+    """刷新 `latest` 同名 `.sha256` 并重建根 `SHA256SUMS`。
+
+    索引只登记真实存在的文件（`latest/*.apk` 与 `archive/**/*.apk`），
+    因此旧名被归档或清理后不会留下指向已删文件的陈旧行。
+    """
     latest = dest / "latest" / DEFAULT_APK_NAME
     display = DEFAULT_APK_NAME
     sha_file = latest.with_name(latest.name + ".sha256")
@@ -284,21 +318,19 @@ def update_checksums(dest: Path, sha256: str) -> None:
         if len(existing) >= 2 and SHA_RE.fullmatch(existing[0].lower()):
             display = " ".join(existing[1:])
     atomic_write_text(sha_file, f"{sha256}  {display}\n")
+    rebuild_checksums(dest, sha256)
+
+
+def rebuild_checksums(dest: Path, sha256: str | None = None) -> Path:
+    entries: list[str] = []
+    for candidate in sorted((dest / "latest").glob("*.apk")):
+        digest = sha256 if sha256 and candidate.name == DEFAULT_APK_NAME else sha256_file(candidate)
+        entries.append(f"{digest}  {candidate.relative_to(dest).as_posix()}")
+    for candidate in sorted((dest / "archive").rglob("*.apk")):
+        entries.append(f"{sha256_file(candidate)}  {candidate.relative_to(dest).as_posix()}")
     index = dest / "SHA256SUMS"
-    lines: list[str] = []
-    if index.is_file():
-        lines = [line.rstrip("\n") for line in index.read_text(encoding="utf-8", errors="replace").splitlines()]
-    relative = f"latest/{DEFAULT_APK_NAME}"
-    updated = False
-    for position, line in enumerate(lines):
-        parts = line.split()
-        if len(parts) >= 2 and parts[-1].endswith("/" + relative):
-            lines[position] = f"{sha256}  {parts[-1]}"
-            updated = True
-            break
-    if not updated:
-        lines.insert(0, f"{sha256}  {relative}")
-    atomic_write_text(index, "\n".join(lines) + "\n")
+    atomic_write_text(index, ("\n".join(entries) + "\n") if entries else "")
+    return index
 
 
 def write_receipt(dest: Path, receipt: dict) -> Path:
