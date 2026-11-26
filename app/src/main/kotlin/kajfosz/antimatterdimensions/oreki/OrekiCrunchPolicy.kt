@@ -145,6 +145,91 @@ object OrekiCrunchPolicy {
 
     data class Decision(val allow: Boolean, val reason: String)
 
+    /**
+     * [R130 P0 五修] pre-break 单次坍缩的收益门槛。
+     *
+     * 旧判据只要求「≥10 IP」（`gainLog >= 1.0`）：16:11/16:14 实测两次真实坍缩都恰好给
+     * 10 IP（`crunch detected … ip=1.0e1`），说明只要一达到 10 IP 就立刻清空维度，
+     * 反物质永远长不到能产出更大收益的量级 ⇒ 每个循环收益都是最小值，
+     * 32767 IP 的 Break 门槛依然不可达（换了形式的同一个死锁）。
+     *
+     * 现在要求每次坍缩至少比**历史最佳单次收益**再高一个数量级
+     * （`max(10 IP, best + 1.0)`），让反物质在每个循环内继续成长，
+     * 收益按 10 → 100 → 1000 … 递增，Break 只需数次坍缩。
+     */
+    @JvmStatic
+    fun preBreakRiseReason(gainLog: Double?, bestGainLog: Double?): String? {
+        if (gainLog == null || gainLog.isNaN() || gainLog.isInfinite()) return null
+        val floor = PRE_BREAK_MIN_GAIN_LOG10
+        val target = if (bestGainLog == null || bestGainLog.isNaN() ||
+            bestGainLog == Double.NEGATIVE_INFINITY || bestGainLog == Double.POSITIVE_INFINITY
+        ) {
+            floor
+        } else {
+            // [R130 P0 七修] 门槛从「+1.0 dex（10 倍）」降到「+0.3 dex（约 2 倍）」：
+            // 反物质上限 1.8e308，单次收益由 IP 乘数升级决定，10 IP 只能买到约 8 倍增益，
+            // 要求 10 倍会在上限处永久 deny。2 倍既保证每次坍缩都有真实提升，又能按
+            // 10→20→40… 的节奏推进到 32767 IP。
+            kotlin.math.max(floor, bestGainLog + PRE_BREAK_RISE_STEP_LOG10)
+        }
+        return if (gainLog >= target) "pre-break-rise" else null
+    }
+
+    /** pre-break 单次坍缩的绝对收益下限：log10(IP) ≥ 1 即至少 10 IP。 */
+    private const val PRE_BREAK_MIN_GAIN_LOG10: Double = 1.0
+
+    /** pre-break 单次收益相对历史最佳的提升步长（0.3 dex ≈ 2 倍）。 */
+    private const val PRE_BREAK_RISE_STEP_LOG10: Double = 0.3
+
+    /** 反物质上限 log10(1.8e308)；到顶后收益已最大，继续等待没有意义。 */
+    private const val AM_CAP_LOG10: Double = 308.2
+
+    /** 历史最佳单次坍缩收益（log10 IP）；0 = 尚未坍缩。 */
+    @Volatile private var preBreakBestGainLog: Double = 0.0
+
+    /** pre-break 零收益自适应窗口：起始 60 秒，上限 900 秒。 */
+    private const val PRE_BREAK_WAIT_START_NS: Long = 60_000_000_000L
+    private const val PRE_BREAK_WAIT_MAX_NS: Long = 900_000_000_000L
+
+    /** [R130 P0 四修] 放行保持窗口：一次放行后至少保持这么久，避免同一帧的第二次
+     *  评估立刻改判等待，把 autobuyer 又按回暂停、放行永远换不来真实结算。
+     *  取 8 秒 ≥ 原版「时间」模式 5 秒间隔，保证放行后 autobuyer 至少有一次触发机会。 */
+    private const val PRE_BREAK_ALLOW_HOLD_NS: Long = 8_000_000_000L
+
+    @Volatile private var preBreakWindowNs: Long = PRE_BREAK_WAIT_START_NS
+
+    /** 上次放行时的 IP 量级；用于识别「放行但零收益」并延长窗口。 */
+    private var preBreakLastIpLog: Double? = null
+
+    /** 上次放行时刻（nanoTime）；0 = 尚未放行。 */
+    private var preBreakLastAllowAt: Long = 0L
+
+    /** 放行保持截止时刻（nanoTime）；此期间重复评估仍返回放行。 */
+    @Volatile private var preBreakHoldUntilNs: Long = 0L
+
+    /** 放行保持是否仍有效；纯函数便于单测固定。 */
+    @JvmStatic
+    fun preBreakHoldActive(holdUntilNs: Long, nowNs: Long): Boolean =
+        holdUntilNs > 0L && nowNs < holdUntilNs
+
+    /**
+     * [R130 P0 六修 / Kody·medium] pre-break 硬超时判据：窗口已到期且投影仍读不到时放行一次，
+     * 防止 `gainLog == null` 造成永久 deny（永远不再有真实坍缩）。纯函数便于单测。
+     */
+    @JvmStatic
+    fun preBreakTimeoutAllow(gainLog: Double?, elapsedNs: Long, windowNs: Long): Boolean =
+        (gainLog == null || gainLog.isNaN()) && elapsedNs >= windowNs
+
+    /**
+     * [R130 P0 六修 / Kody·medium] 供 `OrekiStageAuto` 接管分支使用的 pre-break 窗口毫秒数。
+     *
+     * 之前接管分支写死 `PRE_BREAK_CRUNCH_SECONDS = 60.0` 并在策略评估前 `return`，
+     * 本文件的 `preBreakWindowNs` 在生产路径上从未生效（Kody 指出，实测吻合：
+     * 坍缩恒约 50~60 秒一次）。现在两端共用同一窗口，策略窗口才是真正生效的那一个。
+     */
+    @JvmStatic
+    fun preBreakWindowMs(): Long = (preBreakWindowNs / 1_000_000L).coerceAtLeast(60_000L)
+
     @JvmStatic
     fun decide(): Decision {
         val decision = try {
@@ -211,8 +296,87 @@ object OrekiCrunchPolicy {
             return Decision(true, "pre-infinity")
         }
         if (!inEternityLayer && !GameApi.isBroken()) {
-            // 首次 Break 之前（且未进入永恒层）：坍缩是攒 IP / 买满间隔的唯一入口
-            return Decision(true, "pre-break-ip")
+            // [R130 P0 真新档实测修复] 原为无条件放行（pre-break-ip）。
+            // 14:33 新档实测：坍缩每约 30 秒触发一次，反物质峰值只长到 e183，
+            // 单次 gainedInfinityPoints 投影 ≈ 1（IP 停在 1.0e0，infinities 1→4），
+            // 而 Break 需要 32767 IP（BREAK_RECOVERY_IP_LOG10=6.0 对应门槛）。
+            // 坍缩按「攒 IP 的唯一入口」放行 ⇒ 每次都在峰值远未长起来时清空维度，
+            // maxAM 永远停在同一量级 ⇒ IP 不可能涨到 Break 门槛，形成 pre-break 死锁。
+            // 改为与后续分支一致的收益驱动：一次坍缩至少让 IP 涨一个数量级才放行；
+            // 否则按住让反物质成长，并保留 60 秒上限，保证任意窗口内至少一次真实结算。
+            // [R130 P0 二修] IP 为 0 时 `log10(IP)=-inf` 会让 gainVersusIp() 恒为 +inf，
+            // 实测 15:00:14 仍放行一次却在 15:01 保持 ip=0.0e0（投影高估、真实收益 0）。
+            // 因此 pre-break 用绝对下限：投影必须 ≥10 IP（gainLog≥1.0），
+            // 且已有 IP 时仍要求相对涨一个数量级，避免回到“每拍清空”的老路径。
+            val gainLog = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
+            val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
+            val ipLog = if (ipNow == null) null else GameApi.log10BigDouble(ipNow)
+            // [R130 P0 三修] 投影仍可能高估：15:19:49 放行 `pre-break-ip-jump` 后，
+            // 15:20:55 EDP_FRAME 仍 `inf=1.0e0 ip=0.0e0`（实际收益 0）。
+            // 因此加入「实测零收益自适应窗口」：每次放行记录当时的 IP 量级，
+            // 若窗口结束后 IP 没有增加，就把窗口翻倍（60s → 120s → … → 900s），
+            // 直到反物质真正长到能产出 IP 的量级；一旦观察到 IP 增长即回到 60s。
+            // 判据本身仍为纯函数，可在单测中固定。
+            val nowNs = System.nanoTime()
+            // [R130 P0 四修] 放行保持：同一帧/相邻 tick 的重复评估不得把刚给出的放行改判等待，
+            // 否则 OrekiStageAuto 立刻重新暂停 autobuyer，放行永远换不来真实结算。
+            // 实测 15:57:11 allow=true 后 30ms 内 allow=false，IP 仍为 0.0e0。
+            if (preBreakHoldActive(preBreakHoldUntilNs, nowNs)) {
+                return Decision(true, "pre-break-hold")
+            }
+            if (preBreakLastIpLog != null && ipLog != null &&
+                ipLog > preBreakLastIpLog!!
+            ) {
+                // 上一轮放行确实带来了 IP 增长 → 回到起始窗口
+                preBreakWindowNs = PRE_BREAK_WAIT_START_NS
+            }
+            preBreakLastIpLog = ipLog
+            // [R130 P0 七修] 反物质到顶即放行：上限 1.8e308 之后收益已经最大，
+            // 再等下去既不会更长、也会让原版在 `amAtCap && break=false` 时隐藏正文。
+            // 六修真机（17:15:06）就出现过 maxAMlog≈268 仍 deny、只能靠兜底结算的形态。
+            val maxAMLog = GameApi.log10BigDouble(GameApi.thisInfinityMaxAM())
+            if (maxAMLog != null && maxAMLog >= AM_CAP_LOG10) {
+                preBreakLastAllowAt = nowNs
+                preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                return Decision(true, "pre-break-am-cap")
+            }
+            val riseReason = preBreakRiseReason(gainLog, preBreakBestGainLog)
+            val elapsed = if (preBreakLastAllowAt == 0L) Long.MAX_VALUE else nowNs - preBreakLastAllowAt
+            if (elapsed >= preBreakWindowNs) {
+                if (riseReason != null) {
+                    preBreakBestGainLog = gainLog!!
+                    preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                    return Decision(true, riseReason)
+                }
+                // [R130 P0 六修 / Kody·medium] 硬超时：投影读不到（gainLog==null）时收益判据恒为
+                // null，而相对判据在 IP 量级接近上限后永不满足 ⇒ 会永久 deny、再无真实坍缩。
+                // 窗口到期且确实读不到收益时先放行一次真实结算，并把窗口回到起点，避免无限放大。
+                if (preBreakTimeoutAllow(gainLog, elapsed, preBreakWindowNs)) {
+                    preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                    preBreakWindowNs = PRE_BREAK_WAIT_START_NS
+                    return Decision(true, "pre-break-grow-timeout")
+                }
+                // 窗口到期且收益确有提升（>2 倍）时接受一次，避免长期零结算；
+                // 完全没有提升则延长窗口，让反物质继续长。
+                if (preBreakLastAllowAt != 0L && gainLog != null &&
+                    gainLog > preBreakBestGainLog + 0.3
+                ) {
+                    preBreakBestGainLog = gainLog
+                    preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                    return Decision(true, "pre-break-window-rise")
+                }
+                if (preBreakLastAllowAt != 0L) {
+                    preBreakWindowNs = kotlin.math.min(
+                        preBreakWindowNs * 2L,
+                        PRE_BREAK_WAIT_MAX_NS
+                    )
+                    preBreakLastAllowAt = nowNs
+                }
+            }
+            return Decision(false, "pre-break-grow")
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
         //

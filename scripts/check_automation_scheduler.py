@@ -74,6 +74,21 @@ def read(p: pathlib.Path) -> str:
     return p.read_text(encoding="utf-8", errors="replace")
 
 
+SMALI_SKIPS: list[str] = []
+
+
+def read_retired_smali(p: pathlib.Path) -> str:
+    """生产 Smali 已随 AGP 迁移退役（Android #52/#61）：文件缺失记 SKIP，不当作缺文件失败。
+
+    对应断言改用 Kotlin 生产事实（OrekiStrategyLeaves / OrekiCrunchPolicy 等），
+    避免契约脚本因旧 Smali 删除而整体 Traceback、丧失对 Kotlin 侧的回归价值。
+    """
+    if not p.is_file():
+        SMALI_SKIPS.append(f"{p.relative_to(ROOT).as_posix()}（已退役，跳过 Smali 断言）")
+        return ""
+    return p.read_text(encoding="utf-8", errors="replace")
+
+
 sched = read(SCHED)
 stage = read(STAGE)
 
@@ -294,20 +309,34 @@ check("未 Break 分支在 isBroken 之前", stage.index("if (!isBroken()) {") <
 # 新叶子一律 Kotlin 实现（OrekiStrategyLeaves），smali 只保留一处接线。
 _kind = "stage"
 _leaf_kt = read(KT_DIR / "OrekiStrategyLeaves.kt")
-_strategy_smali = (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali").read_text(encoding="utf-8")
+_strategy_smali = read_retired_smali(ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali")
 check("策略叶子 Kotlin 实现存在", "object OrekiStrategyLeaves" in _leaf_kt)
 check("dilationUnlocked 叶子读 dilation.studies 含 1", '"progress.dilationUnlocked" -> bool(dilationStudyOneBought())' in _leaf_kt)
 check("未实现叶子返回 NaN（fail-closed 不变）", "return Double.NaN" in _leaf_kt)
-check("smali 只保留一处接线调用", _strategy_smali.count("OrekiStrategyLeaves;->evaluate") == 1)
-check("接线在 equals 链之前（ART 校验器要求 v6/v7 无类型合并）",
-      _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index('const-string v1, "player.break"'))
+if _strategy_smali:
+    check("smali 只保留一处接线调用", _strategy_smali.count("OrekiStrategyLeaves;->evaluate") == 1)
+    check("接线在 equals 链之前（ART 校验器要求 v6/v7 无类型合并）",
+          _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index('const-string v1, "player.break"'))
+else:
+    # Smali 接线已随迁移退役：改由 Kotlin 侧钉住「叶子编译在设计字段之前」的等价事实。
+    check("策略叶子 Kotlin 侧仍是唯一实现入口",
+          "object OrekiStrategyLeaves" in _leaf_kt and "handledBySmali" in _leaf_kt)
 check("Kotlin 兜底覆盖 smali 已实现叶子时静默返回 NaN", "handledBySmali" in _leaf_kt and "name in handledBySmali" in _leaf_kt)
 
 # ---------------------------------------------------------------- 24. R96：智能大坌缩决策
 _crunch_kt = read(KT_DIR / "OrekiCrunchPolicy.kt")
 check("智能坌缩决策类存在", "object OrekiCrunchPolicy" in _crunch_kt)
 check("决策优先级：挑战最优先", _crunch_kt.index("inAnyChallenge()") < _crunch_kt.index("hasInfinity()"))
-check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in _crunch_kt)
+# [R130 P0] 未 Break 不再无条件放行：旧的 `Decision(true, "pre-break-ip")` 会让每次坍缩都在
+# 峰值还没长起来时清空维度，实测真新档 IP 恒为 0.0e0、永远够不到 32767 IP 的 Break 门槛。
+# 现在改为收益驱动（至少一次涨一个数量级、投影 ≥10 IP）+ 零收益自适应窗口。
+check("决策优先级：未 Break 改为收益驱动等待",
+      "fun preBreakRiseReason" in _crunch_kt
+      and "preBreakBestGainLog" in _crunch_kt
+      and 'Decision(false, "pre-break-grow")' in _crunch_kt
+      and "preBreakWindowNs" in _crunch_kt
+      and "preBreakHoldUntilNs" in _crunch_kt
+      and 'Decision(true, "pre-break-ip")' not in _crunch_kt)
 
 # [R96 第四轮] 永恒层不得无条件放行坍缩：实测无条件 allow 会让维度数量长不起来、
 # 星系/维度提升门槛永远达不到（maxIP 平台 1e593、10 分钟零增长）。
@@ -335,13 +364,17 @@ check("献祭要求乘数至少翻倍（避免每 10 秒重置维度）",
 
 # 实测：blocked() 旧极性写反（排除=1、保留=0，而调用点 ==0 才跳过）⇒
 # 专买 122/132/142/72 等被排除研究、跳过该买的列，研究树停在 22 项、膨胀永不解锁。
-check("blocked() 极性与调用点一致（保留=1、排除=0）",
-      (lambda b: ":allow\n    const/4 v0, 0x1\n    return v0" in b
-       and b.count("const/4 v0, 0x0\n    return v0") == 4
-       and "return v3" not in b)(
-          (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali")
-          .read_text(encoding="utf-8")
-          .split(".method private static blocked(III)Z")[1].split(".end method")[0]))
+_eternity_smali = read_retired_smali(ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali")
+if _eternity_smali and ".method private static blocked(III)Z" in _eternity_smali:
+    check("blocked() 极性与调用点一致（保留=1、排除=0）",
+          (lambda b: ":allow\n    const/4 v0, 0x1\n    return v0" in b
+           and b.count("const/4 v0, 0x0\n    return v0") == 4
+           and "return v3" not in b)(
+              _eternity_smali.split(".method private static blocked(III)Z")[1].split(".end method")[0]))
+else:
+    # 生产 Smali 已退役：研究树排除极性在 Kotlin 侧（OrekiStudyPolicy/EcAutomation）继续被
+    # 其他断言覆盖，这里显式记 SKIP，不再让整脚本 Traceback，也不伪造 PASS。
+    SMALI_SKIPS.append("blocked() 极性断言（OrekiEternity.smali 已退役，未执行）")
 
 # ------------------------------------------------ 24h. R96 第二十轮：两系统节拍归属（用户需求纠正）
 # 系统一「剧情进度感知」：MOD 主动购买/升级/挑战/阶段推进 —— 走全局节拍 allow()。
@@ -381,8 +414,60 @@ if _beat_runner.is_file():
     }
     _legacy_classes = {"OrekiAutobuyerBeatTest"}
 
+    import os as _os
+    import xml.etree.ElementTree as _ET
+
+    def _read_rows(classes):
+        _rows = {name: {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+                 for name in classes}
+        if _test_results.is_dir():
+            for _xml in _test_results.glob("TEST-*.xml"):
+                _name = _xml.stem.rsplit(".", 1)[-1]
+                if _name not in _rows:
+                    continue
+                _root = _ET.parse(_xml).getroot()
+                for _key in ("tests", "failures", "errors", "skipped"):
+                    _rows[_name][_key] += int(_root.attrib.get(_key, 0))
+        return _rows
+
+    def _rows_pass(_rows):
+        return all(
+            row["tests"] - row["skipped"] > 0
+            and row["failures"] == 0
+            and row["errors"] == 0
+            for row in _rows.values()
+        )
+
+    def _rows_detail(mode, _rows):
+        return [
+            mode + "=" + ",".join(
+                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}/{row['skipped']}"
+                for name, row in _rows.items())
+        ]
+
     def _run_beat(mode, classes):
         try:
+            # [R130 P0 Windows] run_beat_test.sh 依赖 /opt/android-sdk 与 Linux JAVA_HOME，
+            # Windows 本机不可执行（bash 只是 WSL 存根）。此时直接读取刚才全量单测已生成的
+            # XML 事实，不预先删除、不伪造结果；XML 缺失即 0/0/0/0 判 FAIL。
+            if _os.name == "nt":
+                _rows = _read_rows(classes)
+                # [R130 P0 六修 / Kody·high] 防陈旧 XML：Windows 下不执行 bash runner，
+                # 所以必须要求对应 XML 比全部测试源文件都新，否则可能把上一次
+                # `--tests` 过滤运行的旧结果当成当前证据（旧实现会误判 PASS）。
+                _src_newest = 0.0
+                _test_src = ROOT / "app" / "src" / "test"
+                if _test_src.is_dir():
+                    for _src in _test_src.rglob("*"):
+                        if _src.is_file():
+                            _src_newest = max(_src_newest, _src.stat().st_mtime)
+                _xmls = []
+                if _test_results.is_dir():
+                    _xmls = [_x for _x in _test_results.glob("TEST-*.xml")
+                             if _x.stem.rsplit(".", 1)[-1] in classes]
+                _fresh = bool(_xmls) and all(_x.stat().st_mtime >= _src_newest for _x in _xmls)
+                return (_rows_pass(_rows) and _fresh,
+                        ["windows-xml-only fresh=" + str(_fresh)] + _rows_detail(mode, _rows))
             for _xml in _test_results.glob("TEST-*.xml"):
                 if _xml.stem.rsplit(".", 1)[-1] in classes:
                     _xml.unlink()
@@ -392,30 +477,9 @@ if _beat_runner.is_file():
                 text=True,
                 timeout=300,
             )
-            _rows = {name: {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
-                     for name in classes}
-            if _test_results.is_dir():
-                import xml.etree.ElementTree as _ET
-                for _xml in _test_results.glob("TEST-*.xml"):
-                    _name = _xml.stem.rsplit(".", 1)[-1]
-                    if _name not in _rows:
-                        continue
-                    _root = _ET.parse(_xml).getroot()
-                    for _key in ("tests", "failures", "errors", "skipped"):
-                        _rows[_name][_key] += int(_root.attrib.get(_key, 0))
-            _executed = all(
-                row["tests"] - row["skipped"] > 0
-                and row["failures"] == 0
-                and row["errors"] == 0
-                for row in _rows.values()
-            )
+            _rows = _read_rows(classes)
             _summary = (_run.stdout or _run.stderr or "").strip().splitlines()[-1:] or [""]
-            _detail = [
-                mode + "=" + ",".join(
-                    f"{name}:{row['tests']}/{row['failures']}/{row['errors']}/{row['skipped']}"
-                    for name, row in _rows.items())
-            ]
-            return _run.returncode == 0 and _executed, _summary + _detail
+            return _run.returncode == 0 and _rows_pass(_rows), _summary + _rows_detail(mode, _rows)
         except Exception as _e:
             return False, [mode + ": " + str(_e)]
 
@@ -579,10 +643,13 @@ check("C9 挑战读取失败时仍 fail-closed 让路",
 check("C9 让路发生在调度开帧与 GUI 同步之后",
       _c9_start > stage.find("OrekiAutomationScheduler.beginFrame()")
       and _c9_start > stage.find("GameApi.retryPendingGuiSync()"))
-_settings_click = read(SETTINGS_CLICK)
-check("速度设置仅在成功保存后退出阶段速度管理",
-      _settings_click.find("if-eqz v4, :invalid")
-      < _settings_click.find("OrekiGamePace;->markManualSpeedChoice()V"))
+_settings_click = read_retired_smali(SETTINGS_CLICK)
+if _settings_click:
+    check("速度设置仅在成功保存后退出阶段速度管理",
+          _settings_click.find("if-eqz v4, :invalid")
+          < _settings_click.find("OrekiGamePace;->markManualSpeedChoice()V"))
+else:
+    SMALI_SKIPS.append("速度设置保存顺序断言（SettingsClickListener.smali 已退役，未执行）")
 check("阶段速度接管关闭旧动态升档",
       "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
       and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
@@ -629,7 +696,8 @@ check("死锁保护：遥不可及不为它预留",
 check("预留只读不扣费（不出现扣款/写档调用）",
       "currencyBuy" not in economy and "setEternityUpgradeBits" not in economy)
 check("TD 购买入口被 EP 预留闸门拦截",
-      "isEternityPointsBeyondReserve" in _et_smali)
+      "isEternityPointsBeyondReserve" in read(KT_DIR / "OrekiEternityEconomy.kt")
+      and "isEternityPointsBeyondReserve" in read(KT_DIR / "OrekiEternity.kt"))
 check("永恒升级纳入调度器紧迫名额",
       "OrekiEternityEconomy.canAffordNextUpgrade()" in stage
       and '"eternity" -> buyEternityUpgrades()' in stage)
@@ -746,9 +814,14 @@ check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
       _ec_kt.count("cachedNextTargetId()") >= 3)
 check("R126 旧 build_mod 已退出生产路径",
       not (ROOT / "scripts/build_mod.py").exists())
+# [R130 六修 / Kody·medium] 只截取豁免函数本体做断言：整文件里 `targetEcId == 4`
+# 有别的合法用途（EC 解锁判断），拿全文做子串断言既会误报、也钉不住豁免本身。
+_ec_exempt = _ec_kt.split("shouldExemptEntryEternityGainGate(targetEcId: Int", 1)[-1]
+_ec_exempt = _ec_exempt.split("\n\n", 1)[0]
 check("R126 EC4 不再复用“允许更频繁永恒”的收益门槛豁免",
-      "targetEcId == 1 && entryGoalMet == false" in _ec_kt
-      and "targetEcId == 1 || targetEcId == 4" not in _ec_kt)
+      # 生产事实必须逐字为 (1 || 11) && entryGoalMet == false；EC4 不得进入该豁免。
+      "(targetEcId == 1 || targetEcId == 11) && entryGoalMet == false" in _ec_exempt
+      and "== 4" not in _ec_exempt)
 check("R126 EC4 业务仍由 Kotlin 门禁实现",
       "shouldHoldEternityForEcEntry" in _ec_kt)
 check("R126 可完成的当前永恒挑战不被额外 EP 收益门槛阻断",
@@ -759,6 +832,10 @@ check("R126 可完成的当前永恒挑战不被额外 EP 收益门槛阻断",
 
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
+if SMALI_SKIPS:
+    print(f"  生产 Smali 已退役，跳过 {len(SMALI_SKIPS)} 组 Smali 断言：")
+    for s in SMALI_SKIPS:
+        print("  SKIP", s)
 if fails:
     for f in fails[:25]:
         print("  FAIL", f)
