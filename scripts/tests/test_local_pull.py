@@ -19,7 +19,8 @@ def exit_stack(patchers):
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 import pull_stable_release as pull
 
-APK_NAME = "反物质维度.apk"
+# 本地稳定渠道固定交付名（docs/DELIVERY_RULES.md「滚动替换发布」）。
+APK_NAME = pull.DEFAULT_APK_NAME
 
 
 class PullHelpersTests(unittest.TestCase):
