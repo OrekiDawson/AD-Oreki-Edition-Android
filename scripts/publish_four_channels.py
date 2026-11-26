@@ -713,9 +713,30 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     if prerelease_id:
         atomic_write(destination_root / "SHA256SUMS", f"{actual}  {destination.name}\n")
     else:
+        retire_legacy_stable(root, actual)
         write_checksums(root)
     set_channel(state, "local", "success", f"{destination}; sha256={actual}")
     save_state(destination_root, state)
+
+
+def retire_legacy_stable(root: Path, current_sha: str) -> None:
+    """稳定交付改名后回收旧固定名 `latest/反物质维度.apk`，避免 latest/ 与 SHA256SUMS 出现两份稳定包。
+
+    - 旧 APK 仍在 `latest/` 时先算出它的 SHA-256 记入日志（旧版本可从 GitHub Releases 恢复），
+      再删除旧 APK、同名 `.sha256` 与 `.idsig`；
+    - 若旧名与当前交付 SHA 相同（迁移后同包），同样只保留新名一份；
+    - `SHA256SUMS` 由调用方紧接着用 `write_checksums` 重算，不手改条目。
+    """
+    legacy = root / "latest" / SOURCE_APK_NAME
+    if not legacy.exists():
+        return
+    legacy_sha = sha256_file(legacy)
+    say(f"本地：回收旧固定稳定名 {legacy} sha256={legacy_sha}（新交付 {current_sha}，旧包可从 GitHub Releases 恢复）")
+    for path in (legacy, legacy.with_name(legacy.name + ".sha256"), legacy.with_name(legacy.name + ".idsig")):
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
 
 
 def rclone_onedrive_singlepart_supported() -> bool:

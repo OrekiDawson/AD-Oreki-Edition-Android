@@ -31,6 +31,8 @@ from pathlib import Path
 DEFAULT_REPO = "OrekiDawson/AD-Oreki-Edition-Android"
 DEFAULT_DEST = Path.home() / "Releases" / "AD-Oreki-Edition"
 DEFAULT_APK_NAME = "AD-Oreki-Edition-Stable.apk"
+# 改名前的旧固定稳定名：迁移时需回收，避免 latest/ 同时留两份稳定包。
+LEGACY_APK_NAME = "反物质维度.apk"
 # 发布身份从受审查的 release policy 派生，避免 policy bump 后第四渠道拉取仍按旧
 # versionCode 拒绝新稳定版（Codex P1：EXPECTED_VERSION_CODE 硬编码 30210000）。
 # policy 与脚本同仓（scripts/release-gate-policy.json），开发机 checkout 即可读取。
@@ -253,6 +255,26 @@ def current_latest_sha(dest: Path) -> str | None:
     return sha256_file(apk)
 
 
+def retire_legacy_stable(dest: Path, current_sha: str) -> None:
+    """回收改名前的旧固定稳定名 `latest/反物质维度.apk` 及其校验/idsig 副本。
+
+    改名后 `latest/` 若同时留着新旧两个 APK，`SHA256SUMS` 会登记两份稳定包，
+    `current_latest_sha` 也会因找不到新名而失去幂等。这里先记录旧包 SHA-256
+    （旧版本可从 GitHub Releases 恢复），再删除旧名文件，随后由 `update_checksums` 重算索引。
+    """
+    legacy = dest / "latest" / LEGACY_APK_NAME
+    if not legacy.is_file():
+        return
+    log(f"回收旧固定稳定名：{legacy} sha256={sha256_file(legacy)}（新交付 {current_sha}）")
+    for path in (legacy,
+                 legacy.with_name(legacy.name + ".sha256"),
+                 legacy.with_name(legacy.name + ".idsig")):
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+
+
 def update_checksums(dest: Path, sha256: str) -> None:
     latest = dest / "latest" / DEFAULT_APK_NAME
     display = DEFAULT_APK_NAME
@@ -383,6 +405,7 @@ def main() -> int:
             atomic_replace_bytes(apk_path, target)
             if sha256_file(target) != remote_sha:
                 raise PullError("原子替换后本地 APK 哈希不一致")
+            retire_legacy_stable(dest, remote_sha)
             update_checksums(dest, remote_sha)
             receipt = build_receipt(status="PASS", mode="download", tag=tag, version=version,
                                     sha256=remote_sha, source_commit=source_commit,

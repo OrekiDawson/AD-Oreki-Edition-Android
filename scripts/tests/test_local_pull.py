@@ -102,6 +102,26 @@ class PullHelpersTests(unittest.TestCase):
             self.assertIn("aaaa  archive/old.apk", (dest / "SHA256SUMS").read_text(encoding="utf-8"))
             self.assertEqual((dest / "latest" / (APK_NAME + ".sha256")).read_text(encoding="utf-8").split()[0], digest)
 
+    def test_legacy_stable_name_is_retired_and_sum_loses_old_entry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = pathlib.Path(tmp)
+            (dest / "latest").mkdir()
+            legacy = dest / "latest" / pull.LEGACY_APK_NAME
+            legacy.write_bytes(b"old-stable")
+            legacy.with_name(legacy.name + ".sha256").write_text("ffff  old\n", encoding="utf-8")
+            legacy.with_name(legacy.name + ".idsig").write_bytes(b"idsig")
+            current = dest / "latest" / APK_NAME
+            current.write_bytes(b"payload")
+            digest = hashlib.sha256(b"payload").hexdigest()
+            pull.retire_legacy_stable(dest, digest)
+            pull.update_checksums(dest, digest)
+            self.assertFalse(legacy.exists())
+            self.assertFalse(legacy.with_name(legacy.name + ".sha256").exists())
+            self.assertFalse(legacy.with_name(legacy.name + ".idsig").exists())
+            sums = (dest / "SHA256SUMS").read_text(encoding="utf-8")
+            self.assertIn(f"latest/{APK_NAME}", sums)
+            self.assertNotIn(pull.LEGACY_APK_NAME, sums)
+
 
 class PullEndToEndTests(unittest.TestCase):
     def setUp(self):
