@@ -231,6 +231,27 @@ object OrekiEcAutomation {
 
 
     /**
+     * [R130 EC4-DEADLOCK] 目标关前置不成立、且当前解锁关与目标不一致时的受控 respec：
+     * 调用原版 `studies/d.c(false)V`（[Abi.respecTimeStudies]）退还普通研究并清空研究树，
+     * 使 `purchaseUntil`/`paveTimeStudy` 能按目标关所需列重新铺路。同一目标 3 秒内最多一次。
+     *
+     * 只走原版入口，不写完成位、不改 `completed`，也不退已结算的 EC 奖励。
+     *
+     * @return true = 本拍执行了 respec（调用方应 return true 占一拍）。
+     */
+    private fun respecIfTargetPrereqBlocked(target: Int, unlocked: Int, intervalMs: Long = 3000L): Boolean {
+        if (target !in 1..EC_COUNT || unlocked !in 0..EC_COUNT) return false
+        val nowMs = android.os.SystemClock.elapsedRealtime()
+        if (lastEcRespecKey == -target && nowMs - lastEcRespecAt < intervalMs) return false
+        lastEcRespecKey = -target
+        lastEcRespecAt = nowMs
+        val ret = Abi.respecTimeStudies()
+        note("RESPEC prereq-blocked target=" + target + " unlockedBefore=" + unlocked +
+            " ret=" + ret + " unlockedAfter=" + Abi.unlocked() + " tt=" + Abi.theorem())
+        return ret == true
+    }
+
+    /**
      * [R107-01 EC4-FIX] 当前已解锁的 EC 已满级时，调用**原版** `studies/d.c(false)V`（respecTimeStudies）：
      *   - 退还全部普通时间研究 TT、清空 player.timestudy.studies；
      *   - 当前 EC 研究 `b.E(false)` → `PlayerEternityChallenges.unlocked = 0`；
@@ -260,11 +281,34 @@ object OrekiEcAutomation {
         return true
     }
 
-    /** 最小未满级关号（1..12）；全部满级返回 0。 */
+    /**
+     * EC 目标顺序始终保持 1→12，保留原版研究解锁链与奖励顺序；阶段差异只体现在
+     * [ecRequiredCompletions] 的目标次数。纯判据函数，不读写游戏状态。
+     */
+    @JvmStatic
+    fun ecTargetOrder(afterFirstReality: Boolean): IntArray =
+        IntArray(EC_COUNT) { it + 1 }
+
+    /**
+     * 当前阶段实际需要完成的挑战次数：首次 Reality 之后 EC1..EC8 只需完成 1 次
+     * 即可推进解锁链，其余（含 EC9..EC12）仍按原版满级要求。纯判据函数。
+     */
+    @JvmStatic
+    fun ecRequiredCompletions(id: Int, maxCompletions: Int, afterFirstReality: Boolean): Int =
+        if (afterFirstReality && id in 1..8) minOf(1, maxCompletions) else maxCompletions
+
+    /** 首次 Reality 之后为真；读不到 realities 时按未 Reality 处理（从严）。 */
+    private fun afterFirstReality(): Boolean =
+        GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)?.let { it > 0 } ?: false
+
+    /** 按阶段目标顺序取最小未满足关号（1..12）；全部满足返回 0。 */
     private fun nextTargetId(): Int {
-        for (id in 1..EC_COUNT) {
+        val afterReality = afterFirstReality()
+        for (id in ecTargetOrder(afterReality)) {
             val challengeObj = Abi.challenge(id) ?: continue
-            if (Abi.isMaxedChallenge(challengeObj) != true) return id
+            val completions = Abi.completions(challengeObj) ?: return id
+            val max = Abi.maxCompletions(challengeObj) ?: return id
+            if (completions < ecRequiredCompletions(id, max, afterReality)) return id
         }
         return 0
     }
@@ -336,32 +380,34 @@ object OrekiEcAutomation {
     ): Boolean = inChallenge && canBeCompleted == true
 
     /**
-     * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
+     * [R120-01 / Android #184 / Web #69 parity] EC1/EC11 入口未达成时，是否应越过
      * EP 收益门槛继续真实永恒。
      *
-     * EC1 的入口资源是永恒次数；当前 `gainedEP < EP` 门槛会在 `et<100`、
-     * 自动永恒尚未解锁的读档场景中压住入口资源增长。EC4 的资源会在永恒时清零，
-     * 因此不再复用该豁免，而由 [shouldHoldEternityForEc4Entry] 暂停真实永恒。
+     * EC1 的入口资源是永恒次数；EC11 的 TT 支付也依赖 Reality 后重新增长 EP。
+     * 当前 `gainedEP < EP` 门槛会在 `et<100`、自动永恒尚未解锁的读档场景中压住入口
+     * 资源增长。EC4 的资源会在永恒时清零，因此不复用该豁免，而由
+     * [shouldHoldEternityForEc4Entry] 暂停真实永恒；EC12 的入口资源同样是 IP（永恒清零它），
+     * 放行真实永恒会让入口目标永远达不成，同理不得豁免。
      *
      * 本方法只读官方对象，不写 `unlocked`、完成位、资源或存档。
      */
     @JvmStatic
     fun entryEternityGainGateExempt(): Boolean {
-        // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
+        // 挑战进行中不得因 EC1/EC11/EC12 入口未达成而放宽收益门槛，否则可能在中途
         // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
         if (GameApi.inAnyChallenge()) return false
         val target = cachedNextTargetId()
-        if (target != 1 && target != 4) return false
+        if (target != 1 && target != 11) return false
         // 目标达成状态会在完成次数、永恒或无限次数变化时立即改变，不能缓存布尔结果。
         val study = Abi.study(target) ?: return false
         val entryGoalMet = Abi.entryGoalMet(study) ?: return false
         return shouldExemptEntryEternityGainGate(target, entryGoalMet)
     }
 
-    /** 纯判据：只认下一目标 EC1 且入口目标尚未达成。 */
+    /** 纯判据：只认下一目标 EC1/11 且入口目标尚未达成（EC12 入口资源是会被永恒清零的 IP，不豁免）。 */
     @JvmStatic
     fun shouldExemptEntryEternityGainGate(targetEcId: Int, entryGoalMet: Boolean?): Boolean =
-        targetEcId == 1 && entryGoalMet == false
+        (targetEcId == 1 || targetEcId == 11) && entryGoalMet == false
 
     // ------------------------------------------------------------ 阶段 B：真实进入
 
@@ -413,6 +459,14 @@ object OrekiEcAutomation {
             note("study-null id=" + target + " unlocked=" + unlocked)
             return false
         }
+        // [R130 EC4-DEADLOCK] Reality 会清空 challenge.eternity.unlocked：目标已推进到 EC4 时
+        // unlocked 仍为 0，[respecIfCurrentEcMaxed] 因「当前关未进入」永不触发，而 EC4 需要的
+        // 123 列与已买的 121 列互斥（A(143) 在 V<2 时恒 false），[paveTimeStudy] 也补不通
+        // ⇒ EC 链在 EC4 永久卡死，与消除 Reality 后死循环的原意相反。
+        //
+        // 受控 respec 只在该关**铺路确实失败之后**才尝试（见 ① 的尾声），不能在进入 settle 时
+        // 先做：`prereqOk != true` 是「本模块还没买下前置研究」的常态，提前 respec 会每 3 秒
+        // 清空一次刚铺好的研究树，反而让前置永远铺不完。
         // ① A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
         //
         // [R97 真机 EC4 卡点] 这一项**必须排在 z() 之前**：铺前置研究本身不消耗 EC 的价格，
@@ -464,6 +518,28 @@ object OrekiEcAutomation {
             val pu: Any? = null
             note("PREPARE id=" + target + " prereq=missing k=" + k + " purchaseUntil=" + pu +
                 " pave=none tt=" + Abi.theorem() + " " + Abi.tsChain(k))
+            // 铺路已完整失败（原版 D() 与递归 pave 都无法买下前置），此时才允许一次受控
+            // respec：Reality 后 unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
+            // 只能靠清空旧研究树重铺。闸门用 30 秒，避免与 EC 单拍周期抖动互相覆盖。
+            //
+            // [R130 KODY-FIX] 只对「Reality 后需要 123 列的目标」生效：EC4/EC8 共用 123/133/143
+            // 族（OrekiEternity 的 targetEc == 4 || targetEc == 8 选 123 列），其余目标不受
+            // 此分支影响，避免对无关目标整树 respec；闸门仍为同一目标 30 秒一次。
+            if ((target == 4 || target == 8) && afterFirstReality() && unlocked != target &&
+                respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
+                // respec 只清空研究树，若当拍直接退出，兄弟模块（OrekiEternity.buyNormalStudies）
+                // 会按 challenge.y() 的旧值选 121 列重新填满，导致目标列 123 仍被互斥挡住、
+                // 下一拍再次 respec 的周期性清树。这里在 respec 后立即按目标列自行补买，
+                // 抢占本拍，避免其它模块用错误列填树。
+                paveVisited.clear()
+                for (id in k) {
+                    if (paveTimeStudy(id, 0)) {
+                        note("RESPEC-REPAVE id=" + target + " ts=" + id + " -> unlocked=" + Abi.unlocked())
+                        break
+                    }
+                }
+                return true
+            }
             return false
         }
 
