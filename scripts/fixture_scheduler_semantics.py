@@ -189,7 +189,8 @@ REQUIRED_KOTLIN = [
     (r"private const val INTERVAL_DEFAULT = 10", "默认值 10"),
     (r"fun effectiveIntervalSec\(\): Int = intervalSec", "配置值即实际周期"),
     (r"val effectiveMs = effectiveIntervalSec\(\) \* 1000L", "闸门使用配置周期"),
-    (r"beat != 0L && now - beat < effectiveMs", "全局周期闸门存在"),
+    (r"isGlobalBeatReady\(beat, now, effectiveMs\)", "全局闸门调用存在"),
+    (r"lastBeatAtMs == 0L \|\| nowMs - lastBeatAtMs >= intervalMs", "全局周期闸门满周期语义"),
     (r"sp\.getInt\(KEY_INTERVAL, INTERVAL_DEFAULT\)", "旧档缺省读取 10 秒"),
 ]
 

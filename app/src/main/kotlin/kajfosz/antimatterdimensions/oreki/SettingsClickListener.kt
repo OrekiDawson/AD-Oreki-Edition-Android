@@ -45,8 +45,8 @@ class SettingsClickListener @JvmOverloads constructor(
             }
             3 -> toast("该入口默认关闭，原因见下方「阶段辅助」说明")
             4 -> AlertDialog.Builder(act)
-                .setTitle(StageAssist.dialogTitle(stage))
-                .setMessage(StageAssist.dialogMessage(stage))
+                .setTitle(StageAssist.dialogTitle(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒"))
+                .setMessage(StageAssist.dialogMessage(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒"))
                 .setPositiveButton("强制点亮", StageConfirmListener(act, stage))
                 .setNegativeButton("取消", null as DialogInterface.OnClickListener?)
                 .show()
