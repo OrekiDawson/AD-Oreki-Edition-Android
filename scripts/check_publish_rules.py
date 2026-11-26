@@ -33,9 +33,12 @@ def main() -> int:
     check("SHA 不同时禁止覆盖并提示新标签", "不得覆盖历史 Release" in src and "必须用新的更新标签" in src)
     check("本地渠道不创建版本归档", '"archive"' not in src.split("def local_publish")[1].split("def ")[0])
     check("稳定版本地使用原子覆盖 latest",
-          'destination = root / "latest" / DEFAULT_APK_NAME' in src
+          'destination = root / "latest" / STABLE_APK_NAME' in src
           and "atomic_copy(apk, destination)" in src)
-    check("云盘只 copyto 固定文件名", "rclone" in src and "copyto" in src and "DEFAULT_APK_NAME" in src)
+    check("云盘只 copyto 固定文件名",
+          "rclone" in src and "copyto" in src and "channel_apk_name = PRE_RELEASE_APK_NAME if args.no_promote else STABLE_APK_NAME" in src)
+    check("预发布状态按候选隔离",
+          'root / "pre-release" / "state" / release_id' in src)
     for section in ("修改内容", "修复内容", "验证内容", "APK 文件名", "APK SHA-256", "构建 / 验证时间"):
         check(f"Release 正文包含「{section}」", section in src)
     check("单次校验的同一 APK 交付四渠道", "apk_info" in src and "manifest" in src and "不重新构建" in src)

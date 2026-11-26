@@ -30,7 +30,7 @@ from pathlib import Path
 
 DEFAULT_REPO = "OrekiDawson/AD-Oreki-Edition-Android"
 DEFAULT_DEST = Path.home() / "Releases" / "AD-Oreki-Edition"
-DEFAULT_APK_NAME = "反物质维度.apk"
+DEFAULT_APK_NAME = "AD-Oreki-Edition-Stable.apk"
 # 发布身份从受审查的 release policy 派生，避免 policy bump 后第四渠道拉取仍按旧
 # versionCode 拒绝新稳定版（Codex P1：EXPECTED_VERSION_CODE 硬编码 30210000）。
 # policy 与脚本同仓（scripts/release-gate-policy.json），开发机 checkout 即可读取。

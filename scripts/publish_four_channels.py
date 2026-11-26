@@ -52,11 +52,14 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOCAL_DIR = Path.home() / "Releases" / "AD-Oreki-Edition"
-DEFAULT_APK_NAME = "反物质维度.apk"
+# 构建输入的源 APK 文件名（AGP 产物），仅用于校验清洗清单指向真实候选。
+SOURCE_APK_NAME = "反物质维度.apk"
 # 滚动替换固定文件名（docs/DELIVERY_RULES.md「滚动替换发布」）：稳定与预发布各一份，
 # 只覆盖同名文件，不创建按版本追加的目录或 APK。
 STABLE_APK_NAME = "AD-Oreki-Edition-Stable.apk"
 PRE_RELEASE_APK_NAME = "AD-Oreki-Edition-PreRelease.apk"
+# 兼容旧引用：DEFAULT_APK_NAME 现在指稳定渠道的固定交付名，不再指构建源文件名。
+DEFAULT_APK_NAME = STABLE_APK_NAME
 # 固定交付目录（RELEASE.md R96）：可用 AD_* 环境变量覆盖，默认值即正式位置。
 DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
@@ -334,9 +337,9 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object],
         # The immutable gate already verifies the manifest checksum and candidate SHA.
         if portable_verify_report is None:
             raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
-        if (expected_apk.name != DEFAULT_APK_NAME
+        if (expected_apk.name != SOURCE_APK_NAME
                 or "/release/" not in expected_apk.as_posix()
-                or not PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
+                or not PurePosixPath(str(build.get("source_apk", ""))).name == SOURCE_APK_NAME):
             raise RuntimeError("移植发布：清单没有指向预期 release/stage 的真实候选文件")
     registered_sha = release.get("sha256") or build.get("source_sha256")
     if registered_sha != apk_info["sha256"]:
@@ -403,7 +406,7 @@ def archive_cloud_copy(channel: str, apk: Path, apk_info: dict[str, object],
         raise RuntimeError(f"{channel}: archive remote/directory unavailable")
     if sha256_file(apk) != apk_info["sha256"]:
         raise RuntimeError("Archive source APK digest changed")
-    relpath = f"archive/{version}-{str(apk_info['sha256'])[:8]}/{DEFAULT_APK_NAME}"
+    relpath = f"archive/{version}-{str(apk_info['sha256'])[:8]}/{SOURCE_APK_NAME}"
     target = remote_spec(remote, directory, relpath)
     run(["rclone", "copyto", str(apk), target, "--immutable",
          "--retries", "2", "--low-level-retries", "3"], check=True)
@@ -687,7 +690,7 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     """[R96/R105-04] 本地发布目录只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
-    只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
+    只覆盖固定目录中的同名文件 `AD-Oreki-Edition-Stable.apk`；本地用临时文件写入、校验后原子替换。
     """
     if prerelease_id:
         destination_root = root / "pre-release"
@@ -695,7 +698,7 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
         say(f"本地：滚动替换固定预发布文件 {destination}；稳定 latest 不变")
     else:
         destination_root = root
-        destination = root / "latest" / DEFAULT_APK_NAME
+        destination = root / "latest" / STABLE_APK_NAME
         say(f"本地：原子覆盖 {destination}（不创建版本归档）")
     if dry_run:
         return
@@ -1145,7 +1148,9 @@ def main() -> int:
         return archive_only(root, apk, apk_info, args.version, args.only or [])
 
     release_id = prerelease_release_id(args.version, str(apk_info["sha256"]))
-    state_root = root / "pre-release" if args.no_promote else root
+    # 交付文件滚动覆盖固定 pre-release/<固定名>，状态必须按候选隔离：
+    # 共用同一 release-info.json 会让新候选覆盖上一候选的失败渠道，--retry-failed 假绿。
+    state_root = root / "pre-release" / "state" / release_id if args.no_promote else root
     state = load_or_create_state(state_root, args.version, apk_info, manifest)
     if args.retry_failed:
         selected = [channel for channel in CHANNELS if (state.get("channels", {}).get(channel) or {}).get("status") == "failed"]
@@ -1168,7 +1173,7 @@ def main() -> int:
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
     # 预发布使用固定滚动文件名，与 docs/DELIVERY_RULES.md 的路径一一对应。
-    channel_apk_name = PRE_RELEASE_APK_NAME if args.no_promote else DEFAULT_APK_NAME
+    channel_apk_name = PRE_RELEASE_APK_NAME if args.no_promote else STABLE_APK_NAME
 
     for channel in selected:
         try:

@@ -17,7 +17,7 @@ class DeliveryPreflightTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / "latest").mkdir()
-            latest = root / "latest" / "反物质维度.apk"
+            latest = root / "latest" / "AD-Oreki-Edition-Stable.apk"
             latest.write_bytes(b"stable-stays-unchanged")
             commands = []
             def fake_run(args, **kw):
@@ -154,8 +154,11 @@ class DeliveryPreflightTests(unittest.TestCase):
                   mock.patch.object(p, "rclone_publish", side_effect=rclone_publish)):
                 self.assertEqual(p.main(), 2)
 
-            isolated_state = root / "pre-release" / "release-info.json"
+            # 状态按候选隔离：交付文件仍是固定 pre-release/<固定名>，状态不得共用一个文件，
+            # 否则后一候选覆盖前一候选的失败渠道，--retry-failed 会假绿。
+            isolated_state = root / "pre-release" / "state" / release_id / "release-info.json"
             self.assertTrue(isolated_state.is_file())
+            self.assertFalse((root / "pre-release" / "release-info.json").exists())
             self.assertFalse((root / "release-info.json").exists())
             self.assertEqual(
                 json.loads(isolated_state.read_text(encoding="utf-8"))["channels"]["gdrive"]["status"],
