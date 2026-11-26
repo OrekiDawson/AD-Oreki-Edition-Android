@@ -41,4 +41,17 @@ public class OrekiCrunchPolicyPreBreakTest {
         assertNull(OrekiCrunchPolicy.preBreakJumpReason(null, 1.0));
         assertNull(OrekiCrunchPolicy.preBreakJumpReason(Double.NaN, 1.0));
     }
+
+    /**
+     * [R130 P0 Kody·critical] 旧实现只有单参数 leap，IP 余额为 0 时 gainVersusIp() 返回 +Infinity，
+     * 判据恒放行、退化成被删掉的无条件路径。现改为 (gainLog, ipLog) 双参数后，
+     * 任何非有限输入都不得构成跃升（只有 ipLog=-inf 走绝对下限分支，且必须 ≥10 IP）。
+     */
+    @Test
+    public void ignoresNonFiniteInputs() {
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(Double.POSITIVE_INFINITY, 1.0));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(Double.NEGATIVE_INFINITY, 1.0));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(3.0, Double.POSITIVE_INFINITY));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(3.0, Double.NaN));
+    }
 }
