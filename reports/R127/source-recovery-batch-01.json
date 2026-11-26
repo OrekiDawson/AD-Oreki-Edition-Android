@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-01",
+  "input": {
+    "apk_version": "3.21.0",
+    "dex_classes_total": 15319,
+    "game_jar_sha256": "a757cd6384e190f0fca40989fa760c21d736385490885bd55d435bb8ae708567",
+    "selection_gates": ["JADX warning-free", "game JAR descriptor", "Smali identity", "single-class javac preflight"]
+  },
+  "result": {
+    "source_takeover_entries_before": 1650,
+    "source_takeover_entries_added": 10,
+    "source_takeover_entries_after": 1660,
+    "agp_compile": "PASS",
+    "agp_task": ":app:compileDebugJavaWithJavac",
+    "rejected_preflight_classes": ["j58", "ra3"]
+  },
+  "emitted": [
+    "aq.class",
+    "dv7.class",
+    "mq2.class",
+    "n58.class",
+    "o15.class",
+    "q01.class",
+    "qs1.class",
+    "qz3.class",
+    "se5.class",
+    "v24.class"
+  ],
+  "notes": [
+    "Only classes that passed the standard AGP compile were retained.",
+    "Build outputs were generated in the isolated worktree and were not copied to release directories."
+  ]
+}

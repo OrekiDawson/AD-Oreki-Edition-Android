@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-19",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 19,
+  "blocked_count": 21,
+  "newly_blocked_candidates": 21,
+  "previous_source_coverage": 1969,
+  "source_coverage": 1988,
+  "coverage_percent": 12.977,
+  "takeover_entries": 2012,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    "au3.class",
+    "bc8.class",
+    "c42.class",
+    "d81.class",
+    "h31.class",
+    "i13.class",
+    "i60.class",
+    "kg0.class",
+    "m93.class",
+    "ny7.class",
+    "o67.class",
+    "qr2.class",
+    "s29.class",
+    "sl3.class",
+    "vg2.class",
+    "wq4.class",
+    "y36.class",
+    "yp6.class",
+    "yq0.class"
+  ],
+  "blocked": [
+    "bz5.class",
+    "cl3.class",
+    "cz3.class",
+    "eh2.class",
+    "h98.class",
+    "hx8.class",
+    "la1.class",
+    "mz3.class",
+    "n90.class",
+    "oe.class",
+    "oq7.class",
+    "q25.class",
+    "q84.class",
+    "tj1.class",
+    "ua8.class",
+    "uf.class",
+    "vj1.class",
+    "wj1.class",
+    "xj1.class",
+    "yj1.class",
+    "zj1.class"
+  ],
+  "verification": {
+    "static_tests": "PASS: 25",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidate blocked",
+    "sourceTakeoverAbi": "PASS: 2012",
+    "sourceTakeoverDex": "PASS: 2012",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "fullApkLedgerCheck": "PASS: 15319 descriptors, 1988 local compiled, 641 blocked",
+    "debugApk": {
+      "bytes": 83860552,
+      "sha256": "6ff66aca49e1ceda243334a7a59395b7547bbce2ef5997ed0cbf922b95ab7d07"
+    },
+    "ledger": {
+      "sha256": "12b71bf038fbf1c6b7f029334131640969e348c3b2ca3adf4d9eb4abb45027c8",
+      "blockedSha256": "d16a0b2259853a123e68d47f053d37051da8eb929ea8bcdca8f50b798d0eaacf",
+      "takeoverSha256": "145e08d4b0a7785d367873cf78678ff783cd6984baad39422b092d6e676fd209"
+    }
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R128-source-recovery/batch-19",
+    "blocked_source_references": "blocked-source-references",
+    "build_evidence": "build-evidence",
+    "preview_snapshot": "source-recovery-batch-19-preview.json",
+    "blocked_manifest": "source-takeover-blocked.txt",
+    "digests": [
+      "blocked-source-references/SHA256SUMS",
+      "SHA256SUMS"
+    ]
+  },
+  "notes": [
+    "阻断原因包括 Android 隐藏 API、继承链构造器或抽象方法缺失、版本 49 classfile 和 ABI 差异。",
+    "失败候选的 JADX 参考源码已保留，未猜测实现或伪造成员。",
+    "本批次仅增加通过编译、ABI 与 DEX 校验的未修改原版类。",
+    "发布冻结继续有效；Debug APK 仅作为本地构建证据，不是 Release、Pre-release 或稳定版候选。"
+  ]
+}

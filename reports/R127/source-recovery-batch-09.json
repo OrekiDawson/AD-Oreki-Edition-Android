@@ -1,0 +1,236 @@
+{
+  "schema": 1,
+  "batch": "R127-source-recovery-batch-09",
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "denominator": 15319,
+  "candidate_count": 40,
+  "accepted_count": 24,
+  "blocked_count": 16,
+  "previous_source_coverage": 1754,
+  "source_coverage": 1778,
+  "coverage_percent": 11.607,
+  "takeover_entries": 1802,
+  "takeover_outside_baseline": 24,
+  "accepted": [
+    {
+      "entry": "mh7.class",
+      "descriptor": "Lmh7;",
+      "source": "mh7.java"
+    },
+    {
+      "entry": "o43.class",
+      "descriptor": "Lo43;",
+      "source": "o43.java"
+    },
+    {
+      "entry": "za1.class",
+      "descriptor": "Lza1;",
+      "source": "za1.java"
+    },
+    {
+      "entry": "e34.class",
+      "descriptor": "Le34;",
+      "source": "e34.java"
+    },
+    {
+      "entry": "nl4.class",
+      "descriptor": "Lnl4;",
+      "source": "nl4.java"
+    },
+    {
+      "entry": "lw0.class",
+      "descriptor": "Llw0;",
+      "source": "lw0.java"
+    },
+    {
+      "entry": "my7.class",
+      "descriptor": "Lmy7;",
+      "source": "my7.java"
+    },
+    {
+      "entry": "rp.class",
+      "descriptor": "Lrp;",
+      "source": "rp.java"
+    },
+    {
+      "entry": "cr.class",
+      "descriptor": "Lcr;",
+      "source": "cr.java"
+    },
+    {
+      "entry": "cx0.class",
+      "descriptor": "Lcx0;",
+      "source": "cx0.java"
+    },
+    {
+      "entry": "dm1.class",
+      "descriptor": "Ldm1;",
+      "source": "dm1.java"
+    },
+    {
+      "entry": "et2.class",
+      "descriptor": "Let2;",
+      "source": "et2.java"
+    },
+    {
+      "entry": "eq.class",
+      "descriptor": "Leq;",
+      "source": "eq.java"
+    },
+    {
+      "entry": "mn1.class",
+      "descriptor": "Lmn1;",
+      "source": "mn1.java"
+    },
+    {
+      "entry": "ok6.class",
+      "descriptor": "Lok6;",
+      "source": "ok6.java"
+    },
+    {
+      "entry": "eh4.class",
+      "descriptor": "Leh4;",
+      "source": "eh4.java"
+    },
+    {
+      "entry": "me7.class",
+      "descriptor": "Lme7;",
+      "source": "me7.java"
+    },
+    {
+      "entry": "np2.class",
+      "descriptor": "Lnp2;",
+      "source": "np2.java"
+    },
+    {
+      "entry": "v68.class",
+      "descriptor": "Lv68;",
+      "source": "v68.java"
+    },
+    {
+      "entry": "v69.class",
+      "descriptor": "Lv69;",
+      "source": "v69.java"
+    },
+    {
+      "entry": "yy6.class",
+      "descriptor": "Lyy6;",
+      "source": "yy6.java"
+    },
+    {
+      "entry": "qn1.class",
+      "descriptor": "Lqn1;",
+      "source": "qn1.java"
+    },
+    {
+      "entry": "ur1.class",
+      "descriptor": "Lur1;",
+      "source": "ur1.java"
+    },
+    {
+      "entry": "yx.class",
+      "descriptor": "Lyx;",
+      "source": "yx.java"
+    }
+  ],
+  "blocked": [
+    {
+      "entry": "w47.class",
+      "descriptor": "Lw47;",
+      "reason": "javac compile failure: missing fr5.z1(int) and v47.b"
+    },
+    {
+      "entry": "yy0.class",
+      "descriptor": "Lyy0;",
+      "reason": "javac compile failure: missing xy0(byte) and wy0(String,byte) constructors"
+    },
+    {
+      "entry": "cv8.class",
+      "descriptor": "Lcv8;",
+      "reason": "javac compile failure: missing xu8() and cv8(int,String) constructors"
+    },
+    {
+      "entry": "mn4.class",
+      "descriptor": "Lmn4;",
+      "reason": "javac compile failure: EmptyList.a unavailable"
+    },
+    {
+      "entry": "ql6.class",
+      "descriptor": "Lql6;",
+      "reason": "javac compile failure: Object cannot convert to na7; no suitable k96(Object,byte) constructor"
+    },
+    {
+      "entry": "g93.class",
+      "descriptor": "Lg93;",
+      "reason": "javac compile failure: cannot find symbol constructor e42(long)"
+    },
+    {
+      "entry": "eh3.class",
+      "descriptor": "Leh3;",
+      "reason": "javac compile failure: superclass d requires the obfuscated 12-argument constructor"
+    },
+    {
+      "entry": "a24.class",
+      "descriptor": "La24;",
+      "reason": "javac compile failure: cannot find symbol constructor gw3(byte)"
+    },
+    {
+      "entry": "cy6.class",
+      "descriptor": "Lcy6;",
+      "reason": "javac compile failure: missing gc5 byte constructor, pf5(byte), and qf5(Object,Object,boolean,byte)"
+    },
+    {
+      "entry": "b86.class",
+      "descriptor": "Lb86;",
+      "reason": "javac compile failure: s9 requires u9; v0.E(zzifx) and v0.F(zzifx) are absent"
+    },
+    {
+      "entry": "a.class",
+      "descriptor": "La;",
+      "reason": "javac compile failure: cannot find symbol constructor kw()"
+    },
+    {
+      "entry": "jk0.class",
+      "descriptor": "Ljk0;",
+      "reason": "javac compile failure: class o requires dk0 and fg0(byte) is absent"
+    },
+    {
+      "entry": "l58.class",
+      "descriptor": "Ll58;",
+      "reason": "javac compile failure: missing fi8(int,ArrayList,String,gi8) constructor"
+    },
+    {
+      "entry": "be2.class",
+      "descriptor": "Lbe2;",
+      "reason": "javac compile failure: cannot find symbol constructor de2()"
+    },
+    {
+      "entry": "dj6.class",
+      "descriptor": "Ldj6;",
+      "reason": "source takeover ABI failure: compiled class is missing a(Z)Z"
+    },
+    {
+      "entry": "xq7.class",
+      "descriptor": "Lxq7;",
+      "reason": "source takeover ABI failure: compiled class is missing a()Lxq7; and clone()Ljava/lang/Object;"
+    }
+  ],
+  "verification": {
+    "static_tests": "PASS: 45",
+    "compileDebugJavaWithJavac": "PASS after failed javac candidates blocked",
+    "assembleDebug": "PASS after failed ABI candidates blocked",
+    "sourceTakeoverAbi": "PASS: 1802",
+    "sourceTakeoverDex": "PASS: 1802",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "d8_stack_map_warnings": 5
+  },
+  "preservation": {
+    "root": "/home/oreki/AD-Oreki-Edition-Preserved/R127-source-recovery/batch-09",
+    "blocked_source_references": "blocked-source-references",
+    "logs": "logs",
+    "digests": [
+      "SHA256SUMS.blocked",
+      "SHA256SUMS.logs"
+    ]
+  }
+}

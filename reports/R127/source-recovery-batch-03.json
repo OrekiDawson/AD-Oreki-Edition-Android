@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "selection": "warning-free JADX class + JAR descriptor + non-interface Smali",
+  "counts": {
+    "java_files": 2615,
+    "warning_free_class": 822,
+    "jar_present": 822,
+    "smali_verified": 811,
+    "already_in_manifest": 801,
+    "existing_source": 0,
+    "reused_existing": 0,
+    "emitted": 10
+  },
+  "verification": {
+    "compileDebugJavaWithJavac": "PASS",
+    "assembleDebug": "PASS",
+    "sourceTakeoverClasses": "PASS: 1680",
+    "sourceTakeoverAbi": "PASS",
+    "sourceTakeoverDex": "PASS",
+    "androidAbi": "PASS: arm64-v8a,x86_64",
+    "handoffEvidenceNote": "编译与门禁结果来自 Desktop 停工前证据；Twinny 接管后重新完成 JADX/JAR/Smali 三方静态语义复核"
+  },
+  "semantic_audit": {
+    "authority": ["JADX output_code_321_r88", "game-final.jar javap", "base_decoded_321 smali"],
+    "game_jar_sha256": "a757cd6384e190f0fca40989fa760c21d736385490885bd55d435bb8ae708567",
+    "result": "PASS",
+    "notes": {
+      "gk3": "构造器、字段与 q() 调用链一致",
+      "he7": "构造器非空检查和 c(re2) 委托一致",
+      "jr1": "默认构造器由 javac 生成；v() 返回 0.0、w(double) 为空与 Smali/JAR 一致",
+      "jr8": "Logger 与 AtomicBoolean 静态初始化及 a() 读取一致",
+      "nm5": "原调 kj7.P；因冻结依赖 classfile 不可由 javac 直接链接，使用反射调用其实际目标 x38.o，并保留空数组路径与对象初始化顺序",
+      "np4": "两个状态写入方法和 toString 常量一致",
+      "ql7": "字段赋值顺序、对象非空检查和 elapsedRealtime 加法一致",
+      "ra3": "补齐 Kotlin 默认参数 bitmask 构造器；静态实例超级参数为 (1,0)，a() 循环一致",
+      "y93": "补齐 Kotlin 默认参数 bitmask 构造器；静态实例超级参数为 (0,1)，a() 转换/写入调用一致",
+      "zb3": "字段初始化、Paint(1) 与 Float.NaN 三字段与 Smali 一致"
+    }
+  },
+  "emitted": [
+    {
+      "descriptor": "Lra3;",
+      "entry": "ra3.class",
+      "source": "ra3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ly93;",
+      "entry": "y93.class",
+      "source": "y93.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lnm5;",
+      "entry": "nm5.class",
+      "source": "nm5.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lgk3;",
+      "entry": "gk3.class",
+      "source": "gk3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljr8;",
+      "entry": "jr8.class",
+      "source": "jr8.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lnp4;",
+      "entry": "np4.class",
+      "source": "np4.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Ljr1;",
+      "entry": "jr1.class",
+      "source": "jr1.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lql7;",
+      "entry": "ql7.class",
+      "source": "ql7.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lzb3;",
+      "entry": "zb3.class",
+      "source": "zb3.java",
+      "reused_existing": false
+    },
+    {
+      "descriptor": "Lhe7;",
+      "entry": "he7.class",
+      "source": "he7.java",
+      "reused_existing": false
+    }
+  ]
+}
