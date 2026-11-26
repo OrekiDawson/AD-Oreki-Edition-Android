@@ -482,10 +482,14 @@ def main() -> int:
             if (package, version_name, version_code) != (args.expected_package, version, EXPECTED_VERSION_CODE):
                 raise PullError(f"下载 APK 身份不一致：{package}/{version_name}/{version_code}")
             target = dest / "latest" / DEFAULT_APK_NAME
+            # [R130 KODY-FIX] 旧名处置必须在替换新 APK 之前完成：retire_legacy_stable 内
+            # atomic_replace_bytes 的 PullError 属完整性 fail-closed，若发生在 APK 已替换
+            # 之后逃逸，会跳过 update_checksums/回执，使 SUMS 与回执和 latest 实际状态不符。
+            # 前置后失败时本地仍是上一稳定版，与“失败保留上一稳定版”的约定一致。
+            retire_legacy_stable(dest, remote_sha)
             atomic_replace_bytes(apk_path, target)
             if sha256_file(target) != remote_sha:
                 raise PullError("原子替换后本地 APK 哈希不一致")
-            retire_legacy_stable(dest, remote_sha)
             update_checksums(dest, remote_sha)
             receipt = build_receipt(status="PASS", mode="download", tag=tag, version=version,
                                     sha256=remote_sha, source_commit=source_commit,
