@@ -21,17 +21,19 @@ import org.junit.Test;
 public class OrekiCrunchPolicyPreBreakTest {
 
     @Test
-    public void allowsWhenGainBeatsBestByOneOrder() {
+    public void allowsWhenGainDoublesBest() {
         assertEquals("pre-break-rise", OrekiCrunchPolicy.preBreakRiseReason(3.5, 1.0));
         assertEquals("pre-break-rise", OrekiCrunchPolicy.preBreakRiseReason(2.0, 1.0));
+        // 2 倍边界（+0.3 dex）必须放行，否则 10→20 这一档会被永久拒绝
+        assertEquals("pre-break-rise", OrekiCrunchPolicy.preBreakRiseReason(1.3, 1.0));
     }
 
     @Test
     public void waitsWhenGainDoesNotBeatBest() {
         // 只是重复上一次的最小收益（16:11/16:14 实测的 10 IP）→ 必须等待成长
         assertNull(OrekiCrunchPolicy.preBreakRiseReason(1.0, 1.0));
-        assertNull(OrekiCrunchPolicy.preBreakRiseReason(1.99, 1.0));
-        assertNull(OrekiCrunchPolicy.preBreakRiseReason(2.5, 2.0));
+        assertNull(OrekiCrunchPolicy.preBreakRiseReason(1.2, 1.0));
+        assertNull(OrekiCrunchPolicy.preBreakRiseReason(2.2, 2.0));
     }
 
     @Test
@@ -74,5 +76,23 @@ public class OrekiCrunchPolicyPreBreakTest {
         assertTrue(OrekiCrunchPolicy.preBreakHoldActive(now + 8_000_000_000L, now + 5_000_000_000L));
         // 到期即恢复常规判据
         assertFalse(OrekiCrunchPolicy.preBreakHoldActive(now + 8_000_000_000L, now + 8_000_000_001L));
+    }
+
+    /**
+     * [R130 P0 六修 / Kody·medium] 投影读不到时必须给硬超时，否则收益判据恒为 null、
+     * 相对判据在 IP 接近上限后又永不满足，pre-break 会永久 deny、再无真实坍缩。
+     */
+    @Test
+    public void allowsOnceWhenProjectionUnavailableAfterWindow() {
+        long window = 60_000_000_000L;
+        // 窗口未到 → 继续等待
+        assertFalse(OrekiCrunchPolicy.preBreakTimeoutAllow(null, window - 1L, window));
+        // 窗口到期且读不到投影 → 放行一次
+        assertTrue(OrekiCrunchPolicy.preBreakTimeoutAllow(null, window, window));
+        assertTrue(OrekiCrunchPolicy.preBreakTimeoutAllow(null, window * 2, window));
+        // 读得到有效投影时走正常收益判据，不套用超时
+        assertFalse(OrekiCrunchPolicy.preBreakTimeoutAllow(1.0, window * 2, window));
+        // NaN 同样是「读不到」，必须走超时放行，否则会永久等待
+        assertTrue(OrekiCrunchPolicy.preBreakTimeoutAllow(Double.NaN, window * 2, window));
     }
 }

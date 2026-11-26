@@ -166,13 +166,23 @@ object OrekiCrunchPolicy {
         ) {
             floor
         } else {
-            kotlin.math.max(floor, bestGainLog + 1.0)
+            // [R130 P0 七修] 门槛从「+1.0 dex（10 倍）」降到「+0.3 dex（约 2 倍）」：
+            // 反物质上限 1.8e308，单次收益由 IP 乘数升级决定，10 IP 只能买到约 8 倍增益，
+            // 要求 10 倍会在上限处永久 deny。2 倍既保证每次坍缩都有真实提升，又能按
+            // 10→20→40… 的节奏推进到 32767 IP。
+            kotlin.math.max(floor, bestGainLog + PRE_BREAK_RISE_STEP_LOG10)
         }
         return if (gainLog >= target) "pre-break-rise" else null
     }
 
     /** pre-break 单次坍缩的绝对收益下限：log10(IP) ≥ 1 即至少 10 IP。 */
     private const val PRE_BREAK_MIN_GAIN_LOG10: Double = 1.0
+
+    /** pre-break 单次收益相对历史最佳的提升步长（0.3 dex ≈ 2 倍）。 */
+    private const val PRE_BREAK_RISE_STEP_LOG10: Double = 0.3
+
+    /** 反物质上限 log10(1.8e308)；到顶后收益已最大，继续等待没有意义。 */
+    private const val AM_CAP_LOG10: Double = 308.2
 
     /** 历史最佳单次坍缩收益（log10 IP）；0 = 尚未坍缩。 */
     @Volatile private var preBreakBestGainLog: Double = 0.0
@@ -201,6 +211,14 @@ object OrekiCrunchPolicy {
     @JvmStatic
     fun preBreakHoldActive(holdUntilNs: Long, nowNs: Long): Boolean =
         holdUntilNs > 0L && nowNs < holdUntilNs
+
+    /**
+     * [R130 P0 六修 / Kody·medium] pre-break 硬超时判据：窗口已到期且投影仍读不到时放行一次，
+     * 防止 `gainLog == null` 造成永久 deny（永远不再有真实坍缩）。纯函数便于单测。
+     */
+    @JvmStatic
+    fun preBreakTimeoutAllow(gainLog: Double?, elapsedNs: Long, windowNs: Long): Boolean =
+        (gainLog == null || gainLog.isNaN()) && elapsedNs >= windowNs
 
     /**
      * [R130 P0 六修 / Kody·medium] 供 `OrekiStageAuto` 接管分支使用的 pre-break 窗口毫秒数。
@@ -313,9 +331,15 @@ object OrekiCrunchPolicy {
                 preBreakWindowNs = PRE_BREAK_WAIT_START_NS
             }
             preBreakLastIpLog = ipLog
-            // [R130 P0 五修] 收益门槛改为「比历史最佳再高一个数量级」：
-            // 16:11/16:14 实测两次坍缩都恰好给 10 IP，只要到 10 IP 就清空维度，
-            // 反物质永远长不起来、每次收益都是最小值，32767 IP 依然不可达。
+            // [R130 P0 七修] 反物质到顶即放行：上限 1.8e308 之后收益已经最大，
+            // 再等下去既不会更长、也会让原版在 `amAtCap && break=false` 时隐藏正文。
+            // 六修真机（17:15:06）就出现过 maxAMlog≈268 仍 deny、只能靠兜底结算的形态。
+            val maxAMLog = GameApi.log10BigDouble(GameApi.thisInfinityMaxAM())
+            if (maxAMLog != null && maxAMLog >= AM_CAP_LOG10) {
+                preBreakLastAllowAt = nowNs
+                preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                return Decision(true, "pre-break-am-cap")
+            }
             val riseReason = preBreakRiseReason(gainLog, preBreakBestGainLog)
             val elapsed = if (preBreakLastAllowAt == 0L) Long.MAX_VALUE else nowNs - preBreakLastAllowAt
             if (elapsed >= preBreakWindowNs) {
@@ -328,7 +352,7 @@ object OrekiCrunchPolicy {
                 // [R130 P0 六修 / Kody·medium] 硬超时：投影读不到（gainLog==null）时收益判据恒为
                 // null，而相对判据在 IP 量级接近上限后永不满足 ⇒ 会永久 deny、再无真实坍缩。
                 // 窗口到期且确实读不到收益时先放行一次真实结算，并把窗口回到起点，避免无限放大。
-                if (gainLog == null) {
+                if (preBreakTimeoutAllow(gainLog, elapsed, preBreakWindowNs)) {
                     preBreakLastAllowAt = nowNs
                     preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
                     preBreakWindowNs = PRE_BREAK_WAIT_START_NS
