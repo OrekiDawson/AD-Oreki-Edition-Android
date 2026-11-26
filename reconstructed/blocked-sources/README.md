@@ -3,6 +3,12 @@
 本目录保存 **JADX 恢复后判定阻断、不进入 AGP 生产编译**的原版类源码。
 文件仅作研究证据与后续回补参考，不参与 `app` 的 Source Set，也不在 `build-logic/source-takeover.txt` 中登记。
 
+> **`nm5.java` 不是 JADX 原样输出**：其中有一段为绕过 javac 断链而手写的反射兼容层
+> （`Class.forName("x38").getMethod("o", ...).invoke(...)`，并 `try/catch ReflectiveOperationException`），
+> 它会在反射失败时静默跳过原版 “Empty tracks are not allowed” 校验，与冻结实现行为不一致。
+> 回补 `nm5` 时必须按原版字节码语义重写该段，不得把这份 shim 直接搬回生产源码。
+> `ra3.java`、`y93.java` 的差异见下表“阻断原因”，同样需要按原版 ABI 修正后才能回补。
+
 ## 为什么放在这里
 
 这些类在 `scripts/agp/source-takeover-blocked.txt` 中已有阻断记录，生产必须沿用冻结 JAR 的原实现。
