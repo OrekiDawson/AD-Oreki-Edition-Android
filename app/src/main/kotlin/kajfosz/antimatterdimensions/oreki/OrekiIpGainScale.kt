@@ -94,7 +94,7 @@ object OrekiIpGainScale {
     }
 
     /** [R130] 爬坡期固定除数：重置后 maxAM e5.7 时约换到 1e5 IP，随 maxAM 抬升自然放大。 */
-    private const val FLOOR_DIVISOR = 1.0
+    private const val FLOOR_DIVISOR = 0.001
 
     /** [R130] 只读诊断：收益函数每秒调用本方法的次数与当前判据（用于定位除数是否生效）。 */
     private fun noteCall(originalDivisor: Double, bootstrap: Boolean, effective: Double) {
