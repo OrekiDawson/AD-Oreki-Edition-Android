@@ -146,29 +146,36 @@ object OrekiCrunchPolicy {
     data class Decision(val allow: Boolean, val reason: String)
 
     /**
-     * [R130 P0] 首次 Break 之前「这一拍坍缩值不值得」的纯函数判据。
+     * [R130 P0 五修] pre-break 单次坍缩的收益门槛。
      *
-     * 返回非 null 表示放行，null 表示应等待成长。规则：
-     *   1. 投影必须至少 10 IP（`gainLog >= 1.0`），否则坍缩后仍是 0 IP，纯属清空维度；
-     *   2. 已有 IP（`ipLog` 有限）时还要求相对涨一个数量级（`gainLog - ipLog >= 1.0`）；
-     *   3. 任一投影读不到（null）→ 等待，由 60 秒上限兜底放行一次。
+     * 旧判据只要求「≥10 IP」（`gainLog >= 1.0`）：16:11/16:14 实测两次真实坍缩都恰好给
+     * 10 IP（`crunch detected … ip=1.0e1`），说明只要一达到 10 IP 就立刻清空维度，
+     * 反物质永远长不到能产出更大收益的量级 ⇒ 每个循环收益都是最小值，
+     * 32767 IP 的 Break 门槛依然不可达（换了形式的同一个死锁）。
      *
-     * IP 为 0 时 `log10` 为 -inf，不能直接做相对比较（否则恒放行），故单列绝对下限。
+     * 现在要求每次坍缩至少比**历史最佳单次收益**再高一个数量级
+     * （`max(10 IP, best + 1.0)`），让反物质在每个循环内继续成长，
+     * 收益按 10 → 100 → 1000 … 递增，Break 只需数次坍缩。
      */
     @JvmStatic
-    fun preBreakJumpReason(gainLog: Double?, ipLog: Double?): String? {
+    fun preBreakRiseReason(gainLog: Double?, bestGainLog: Double?): String? {
         if (gainLog == null || gainLog.isNaN() || gainLog.isInfinite()) return null
-        if (gainLog < PRE_BREAK_MIN_GAIN_LOG10) return null
-        if (ipLog == null) return "pre-break-ip-jump"
-        if (ipLog.isNaN() || ipLog.isInfinite()) {
-            // IP=0（-inf）或读异常：只受绝对下限约束。
-            return if (ipLog == Double.NEGATIVE_INFINITY) "pre-break-ip-jump" else null
+        val floor = PRE_BREAK_MIN_GAIN_LOG10
+        val target = if (bestGainLog == null || bestGainLog.isNaN() ||
+            bestGainLog == Double.NEGATIVE_INFINITY || bestGainLog == Double.POSITIVE_INFINITY
+        ) {
+            floor
+        } else {
+            kotlin.math.max(floor, bestGainLog + 1.0)
         }
-        return if (gainLog - ipLog >= 1.0) "pre-break-ip-jump" else null
+        return if (gainLog >= target) "pre-break-rise" else null
     }
 
     /** pre-break 单次坍缩的绝对收益下限：log10(IP) ≥ 1 即至少 10 IP。 */
     private const val PRE_BREAK_MIN_GAIN_LOG10: Double = 1.0
+
+    /** 历史最佳单次坍缩收益（log10 IP）；0 = 尚未坍缩。 */
+    @Volatile private var preBreakBestGainLog: Double = 0.0
 
     /** pre-break 零收益自适应窗口：起始 60 秒，上限 900 秒。 */
     private const val PRE_BREAK_WAIT_START_NS: Long = 60_000_000_000L
@@ -296,16 +303,28 @@ object OrekiCrunchPolicy {
                 preBreakWindowNs = PRE_BREAK_WAIT_START_NS
             }
             preBreakLastIpLog = ipLog
-            val jumpReason = preBreakJumpReason(gainLog, ipLog)
+            // [R130 P0 五修] 收益门槛改为「比历史最佳再高一个数量级」：
+            // 16:11/16:14 实测两次坍缩都恰好给 10 IP，只要到 10 IP 就清空维度，
+            // 反物质永远长不起来、每次收益都是最小值，32767 IP 依然不可达。
+            val riseReason = preBreakRiseReason(gainLog, preBreakBestGainLog)
             val elapsed = if (preBreakLastAllowAt == 0L) Long.MAX_VALUE else nowNs - preBreakLastAllowAt
             if (elapsed >= preBreakWindowNs) {
-                if (jumpReason != null) {
+                if (riseReason != null) {
+                    preBreakBestGainLog = gainLog!!
                     preBreakLastAllowAt = nowNs
                     preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
-                    return Decision(true, jumpReason)
+                    return Decision(true, riseReason)
                 }
-                // 窗口已过但收益仍不足：延长窗口，让反物质继续长，
-                // 防止「每 60 秒一次零收益坍缩」把 maxAM 永久按住。
+                // 窗口到期且收益确有提升（>2 倍）时接受一次，避免长期零结算；
+                // 完全没有提升则延长窗口，让反物质继续长。
+                if (preBreakLastAllowAt != 0L && gainLog != null &&
+                    gainLog > preBreakBestGainLog + 0.3
+                ) {
+                    preBreakBestGainLog = gainLog
+                    preBreakLastAllowAt = nowNs
+                    preBreakHoldUntilNs = nowNs + PRE_BREAK_ALLOW_HOLD_NS
+                    return Decision(true, "pre-break-window-rise")
+                }
                 if (preBreakLastAllowAt != 0L) {
                     preBreakWindowNs = kotlin.math.min(
                         preBreakWindowNs * 2L,

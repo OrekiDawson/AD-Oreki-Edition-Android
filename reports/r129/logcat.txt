@@ -1,0 +1,1497 @@
+--------- beginning of main
+11-25 22:00:05.309 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.309 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.309 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.320 I/dqwq    ( 1462): (REDACTED) Hotword consumer guarding condition has changed: %s.
+11-25 22:00:05.325 I/resolv  (  471): GetAddrInfoHandler::run: {101 983141 101 983141 1073 1}
+11-25 22:00:05.326 I/resolv  (  471): res_nmkquery: (QUERY, IN, A)
+11-25 22:00:05.326 I/resolv  (  471): resolv_cache_lookup: FOUND IN CACHE entry=0x7793f8a07a30
+11-25 22:00:05.326 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=48
+11-25 22:00:05.330 I/resolv  (  471): res_nmkquery: (QUERY, IN, AAAA)
+11-25 22:00:05.330 I/resolv  (  471): resolv_cache_lookup: FOUND IN CACHE entry=0x779468a08790
+11-25 22:00:05.330 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=60
+11-25 22:00:05.339 I/AiAiAutofill( 1488): Connected AiAiAugmentedAutofillService.
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.361 W/JobInfo ( 1488): Requested important-while-foreground flag for job36 is ignored and takes no effect
+11-25 22:00:05.363 D/CellBroadcastReceiver( 2333): onReceive Intent { act=android.intent.action.SERVICE_STATE flg=0x1000010 xflg=0x4 cmp=com.google.android.cellbroadcastreceiver/com.android.cellbroadcastreceiver.CellBroadcastReceiver (has extras) }
+11-25 22:00:05.364 D/CellBroadcastReceiver( 2333): onServiceStateChanged, ss: 0
+11-25 22:00:05.368 I/AiAiCaptions( 1488): Live Caption will use SP for model mgt and audio transcription.
+11-25 22:00:05.385 D/CellBroadcastReceiver( 2333): networkOperator: 310260
+11-25 22:00:05.385 D/CellBroadcastReceiver( 2333): mockmodem is running? = false
+11-25 22:00:05.385 D/CellBroadcastReceiver( 2333): isCurrentUser: true
+11-25 22:00:05.385 D/CellBroadcastReceiver( 2333): Start Cell Broadcast configuration for intent=ACTION_ENABLE_CHANNELS
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.400 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.415 I/dqsn    ( 1462): (REDACTED) Hotword consumer configuration has changed: %s.
+11-25 22:00:05.424 I/AiAiEcho( 1488): AppIndexer Package:[net.oreki.antimatterdimensions.debug] UserProfile:[0] Enabled:[true].
+11-25 22:00:05.424 I/AiAiEcho( 1488): AppFetcherImplV2 updateApps package:[net.oreki.antimatterdimensions.debug], userId:[0], reason:[package is updated.].
+11-25 22:00:05.433 I/dqtz    ( 1462): (REDACTED) Configuration=%s changed; frontend=%s is not running.
+11-25 22:00:05.447 I/AiAiTranslate( 1488): Auto Translate initializing...
+11-25 22:00:05.456 I/netd    (  471): tetherGetStats() -> {[]} <1.21ms>
+11-25 22:00:05.459 D/NetworkMonitor/101( 1027): PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=230ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Wed, 25 Nov 2026 14:00:06 GMT], X-Android-Received-Millis=[1795615205458], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1795615205340]}
+11-25 22:00:05.460 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.461 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.461 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.461 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.461 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.461 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.492 I/netd    (  471): bandwidthSetGlobalAlert(2097152) <0.19ms>
+11-25 22:00:05.500 W/system_server(  680): Long monitor contention with owner NetworkStats (846) at void android.net.connectivity.com.android.server.net.NetworkStatsService.performPoll(int, android.net.connectivity.com.android.server.net.NetworkStatsEventLogger$PollEvent)(NetworkStatsService.java:2656) waiters=0 in android.net.NetworkStatsHistory android.net.connectivity.com.android.server.net.NetworkStatsService.internalGetHistoryForNetwork(android.net.NetworkTemplate, int, int, int, int, long, long) for 346ms
+11-25 22:00:05.521 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.521 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.521 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.526 D/NetworkStatsObservers(  680): Registering observer for RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=3, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3558742 ] accessLevel:3
+11-25 22:00:05.526 W/ndroid.systemui(  959): Suspending all threads took: 207.317ms
+11-25 22:00:05.526 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.526 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.579 I/netd    (  471): bandwidthRemoveInterfaceQuota(eth0) <52.88ms>
+11-25 22:00:05.597 D/ConnectivityService(  680): NetReassign [2 : null → 101] [c 1] [a 461] [i 143]
+11-25 22:00:05.606 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:05.606 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.610 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.619 I/adbd    (  541): adbd service requested 'shell,v2,raw:am start -W -n net.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity'
+11-25 22:00:05.621 D/CellBroadcastReceiver( 2333): update supported roaming operator as 
+11-25 22:00:05.652 I/netd    (  471): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <8.51ms>
+11-25 22:00:05.659 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:05.660 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:05.662 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:05.663 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:05.664 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.664 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.664 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.664 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.665 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.665 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.666 D/ConnectivityService(  680): NetReassign [no changes] [c 1] [a 0] [i 1]
+11-25 22:00:05.666 I/agzg    ( 1462): User not OptedIn. Skipping Eligibility Checks.
+11-25 22:00:05.666 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-25 22:00:05.667 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-25 22:00:05.667 D/InetDiagMessage(  680): Destroyed live tcp sockets for uids={10149} in 1ms
+11-25 22:00:05.673 W/dkze    ( 2041): Timed out waiting on job to complete, continuing execution.
+11-25 22:00:05.715 I/NearbyFastPair( 1259): DynamicSupportModule: onSupportStateUpdate start [CONTEXT service_id=265 ]
+11-25 22:00:05.718 I/NearbyFastPair( 1259): DynamicSupportModule: onSupportStateUpdate end [CONTEXT service_id=265 ]
+11-25 22:00:05.725 I/NearbyDiscovery( 1259): ApFastPairScanner: isScreenOn=true, isLocationEnabled=true, disableLocationRequirement=true, isDiscoveryScanningEnabled=true, during24GhzWifiWarmingUpPeriod=false [CONTEXT service_id=265 ]
+11-25 22:00:05.726 D/BluetoothAdapter( 1259): isLeEnabled(): BLE_TURNING_ON
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.727 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.730 I/NearbyDiscovery( 1259): ApFastPairScanner: eventType=SERVICE_INITIALIZE, intReq=false, scanning=false, scanAllowed=true, bleEnabled=false, lockScanRate=false, startScanningByLowPowerMode=false [CONTEXT service_id=265 ]
+11-25 22:00:05.751 D/CellBroadcastConfigService( 2333): Enable CellBroadcast on sub 1
+11-25 22:00:05.752 I/netd    (  471): tetherGetStats() -> {[]} <0.51ms>
+11-25 22:00:05.758 D/CellBroadcastConfigTracker-0( 1076): setCellBroadcastIdRanges with ranges:[CellBroadcastIdRange[4370, 4370, 1, true], CellBroadcastIdRange[4096, 4096, 2, true], CellBroadcastIdRange[4383, 4383, 1, true], CellBroadcastIdRange[4371, 4372, 1, true], CellBroadcastIdRange[4097, 4097, 2, true], CellBroadcastIdRange[4384, 4385, 1, true], CellBroadcastIdRange[4373, 4378, 1, true], CellBroadcastIdRange[4098, 4098, 2, true], CellBroadcastIdRange[4386, 4391, 1, true], CellBroadcastIdRange[4379, 4379, 1, true], CellBroadcastIdRange[4099, 4099, 2, true], CellBroadcastIdRange[4392, 4392, 1, true], CellBroadcastIdRange[4380, 4380, 1, false], CellBroadcastIdRange[4100, 4100, 2, false], CellBroadcastIdRange[4393, 4393, 1, false], CellBroadcastIdRange[4381, 4381, 1, false], CellBroadcastIdRange[4394, 4394, 1, false], CellBroadcastIdRange[4382, 4382, 1, false], CellBroadcastIdRange[4395, 4395, 1, false], CellBroadcastIdRange[4352, 4354, 1, true], CellBroadcastIdRange[4356, 4356, 1, true], CellBroadcastIdRange[4355, 4355, 1, false], CellBroadcastIdRange[4396, 4396, 1, true], CellBroadcastIdRange[4397, 4397, 1, true], CellBroadcastIdRange[4398, 4398, 1, false], CellBroadcastIdRange[4399, 4399, 1, false], CellBroadcastIdRange[4400, 4400, 1, true]]
+11-25 22:00:05.758 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.759 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.759 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.759 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.759 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.759 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+--------- beginning of system
+11-25 22:00:05.767 W/Looper  (  680): Slow dispatch took 243ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@c3cf1ec m=0
+11-25 22:00:05.767 W/ActivityManager(  680): Unable to start service Intent { act=android.proximity.ProximityProviderService xflg=0x4 cmp=com.google.android.crossdeviceaccessservice/.primary.proximityprovider.service.ProximityProviderService } U=0: not found
+11-25 22:00:05.768 D/IdentityCheckWatchRangingLogger(  680): Couldn't find service for ProximityProviderService
+11-25 22:00:05.783 W/ogle.android.as( 1488): Suspending all threads took: 34.830ms
+11-25 22:00:05.804 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:05.804 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:05.812 D/CellBroadcastConfigTracker-0( 1076): IdleState message:1
+11-25 22:00:05.812 D/CellBroadcastConfigTracker-0( 1076): IdleState handle EVENT_REQUEST with request:Request[mCbRangesRequest3gpp = [CellBroadcastIdRange[4352, 4354, 1, true], CellBroadcastIdRange[4355, 4355, 1, false], CellBroadcastIdRange[4356, 4356, 1, true], CellBroadcastIdRange[4370, 4379, 1, true], CellBroadcastIdRange[4380, 4382, 1, false], CellBroadcastIdRange[4383, 4392, 1, true], CellBroadcastIdRange[4393, 4395, 1, false], CellBroadcastIdRange[4396, 4397, 1, true], CellBroadcastIdRange[4398, 4399, 1, false], CellBroadcastIdRange[4400, 4400, 1, true]], mCbRangesRequest3gpp2 = [CellBroadcastIdRange[4096, 4099, 2, true], CellBroadcastIdRange[4100, 4100, 2, false]]]
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.816 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.817 D/CellBroadcastConfigTracker-0( 1076): Do nothing as the requested ranges are same as now
+11-25 22:00:05.818 I/AppWidgetServiceImpl(  680): Received broadcast: android.intent.action.PACKAGE_REMOVED on user 0
+11-25 22:00:05.822 I/AppWidgetServiceImpl(  680): Received broadcast: android.intent.action.PACKAGE_ADDED on user 0
+11-25 22:00:05.833 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:05.837 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:05.837 V/GrammaticalInflectionUtils(  680): AttributionSource: AttributionSource { uid = 10144, packageName = null, attributionTag = null, token = android.os.Binder@d6d71ca, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-25 22:00:05.837 I/agzg    ( 1462): User not OptedIn. Skipping Eligibility Checks.
+11-25 22:00:05.839 W/system_server(  680): Long monitor contention with owner main (680) at void com.android.server.am.BroadcastController.finishReceiver(android.os.IBinder, int, java.lang.String, android.os.Bundle, boolean, int)(BroadcastController.java:1909) waiters=2 in void com.android.server.am.BroadcastController.finishReceiver(android.os.IBinder, int, java.lang.String, android.os.Bundle, boolean, int) for 217ms
+11-25 22:00:05.849 D/NetworkStatsObservers(  680): Registering observer for RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=4, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3557793 ] accessLevel:3
+11-25 22:00:05.850 D/NetworkStatsObservers(  680): Unregistering RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=3, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3558742 ] accessLevel:3
+11-25 22:00:05.850 W/ActivityThread( 2333): getPackageInfo() called with an older ApplicationInfo than the cached version for package com.google.android.cellbroadcastreceiver
+11-25 22:00:05.851 D/CellBroadcastReceiver( 2333): onReceive Intent { act=android.intent.action.BOOT_COMPLETED flg=0x89000010 cmp=com.google.android.cellbroadcastreceiver/com.android.cellbroadcastreceiver.CellBroadcastReceiver (has extras) }
+11-25 22:00:05.861 I/DialerSyncManagerImpl( 1587): com.google.apps.tiktok.sync.impl.SyncManagerImpl.scheduleNextSyncInParallel:657 Completed sync. Scheduling next wakeup
+11-25 22:00:05.869 I/DownloadManager( 1347): DownloadManager$3.onProgress():537 Downloading emoji_kitchen_data with size 2137127
+11-25 22:00:05.873 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.873 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.873 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.878 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.906 W/Looper  (  680): Slow delivery took 291ms main app=system_server main=true group=FOREGROUND h=com.android.server.alarm.AlarmManagerService$AlarmHandler c=android.app.PendingIntent$FinishedDispatcher@e3d3c57 m=0
+11-25 22:00:05.923 I/DialerPhoneLookupHistoryDataRepository( 1587): com.android.dialer.phonelookup.database.PhoneLookupHistoryDataRepository$Companion.getPhoneLookupHistoryEntries:239 Cursor is empty
+11-25 22:00:05.933 I/netd    (  471): bandwidthRemoveInterfaceQuota(eth0) <1.00ms>
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.934 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.939 I/serviceentitlement( 1412): [CredManRegistrationManager] [serviceentitlement][com.google.android.gms.serviceentitlement] Success to register credentials [CONTEXT service_id=359 ]
+11-25 22:00:05.940 I/netd    (  471): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.87ms>
+11-25 22:00:05.942 I/thm     ( 1462): no assistant invocation found, returning 0.
+11-25 22:00:05.946 I/thm     ( 1462): no assistant invocation found, returning max duration.
+11-25 22:00:05.954 I/netd    (  471): tetherGetStats() -> {[]} <0.68ms>
+11-25 22:00:05.957 D/NetworkMonitor/101( 1027): PROBE_HTTPS https://www.google.com/generate_204 time=661ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Wed, 25 Nov 2026 14:00:06 GMT], X-Android-Received-Millis=[1795615205911], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1795615205769]}
+11-25 22:00:05.963 E/AppOps  (  680): attributionTag VCN not declared in manifest of android
+11-25 22:00:05.966 I/akpd    ( 1462): (REDACTED) #isRobinOnlyLocale checkedLocale:%s language:%s list:%s
+11-25 22:00:05.966 I/agsd    ( 1462): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:05.967 I/agsd    ( 1462): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:05.968 I/agyg    ( 1462): (REDACTED) #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:05.968 I/agfj    ( 1462): (REDACTED) #initialConfig Current Locale set to: %s
+11-25 22:00:05.970 W/JobInfo ( 1488): Requested important-while-foreground flag for job37 is ignored and takes no effect
+11-25 22:00:05.986 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.986 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.986 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:05.988 D/CellBroadcastContentProvider( 2333): database changed: notifying observers...
+11-25 22:00:05.996 W/dkze    ( 2041): Timed out waiting on job to complete, continuing execution.
+11-25 22:00:05.997 D/Zygote  (  473): Forked child process 2476
+11-25 22:00:05.997 W/dkze    ( 2041): Timed out waiting on job to complete, continuing execution.
+11-25 22:00:05.997 W/ActivityManager(  680): Slow operation: 160ms so far, now at startProcess: returned from zygote!
+11-25 22:00:05.998 D/NetworkMonitor/101( 1027): isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=925ms
+11-25 22:00:06.000 I/libprocessgroup( 2476): Created cgroup /sys/fs/cgroup/apps/uid_10144
+11-25 22:00:06.001 I/ConnectivityService(  680): Update score for net 101 : +EVER_EVALUATED
+11-25 22:00:06.001 D/ConnectivityService(  680): [101 CELLULAR] validation passed
+11-25 22:00:06.001 I/ConnectivityService(  680): Update capabilities for net 101 : +VALIDATED
+11-25 22:00:06.002 I/ConnectivityService(  680): Update score for net 101 : +EVER_VALIDATED+IS_VALIDATED
+11-25 22:00:06.002 I/libprocessgroup( 2476): Created cgroup /sys/fs/cgroup/apps/uid_10144/pid_2476
+11-25 22:00:06.006 V/ActivityTaskManager(  680): TaskLaunchParamsModifier: phase=0 task=null activity=null display-area-from-current-params=null display-area-from-default-fallback=DefaultTaskDisplayArea@99494819 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@99494819
+11-25 22:00:06.006 I/ActivityTaskManager(  680): START u0 {flg=0x10000000 xflg=0x4 cmp=net.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} with LAUNCH_MULTIPLE from uid 2000 (com.android.shell) result code=-92
+11-25 22:00:06.008 I/Zygote  ( 2476): Process 2476 created for com.android.carrierdefaultapp
+11-25 22:00:06.008 I/rrierdefaultapp( 2476): Using generational CollectorTypeCMC GC.
+11-25 22:00:06.009 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.010 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.010 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.010 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.010 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.010 W/rrierdefaultapp( 2476): Unexpected CPU variant for x86: x86_64.
+11-25 22:00:06.010 W/rrierdefaultapp( 2476): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-25 22:00:06.010 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.022 D/nativeloader( 2476): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-25 22:00:06.028 D/nativeloader( 1027): Load libandroid_net_connectivity_com_android_net_module_util_jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity.jar: ok
+11-25 22:00:06.032 D/ConnectivityService(  680): NetReassign [no changes] [c 1] [a 28] [i 1]
+11-25 22:00:06.033 D/ConnectivityService(  680): Setting DNS servers for network 101 to [/10.0.2.3]
+11-25 22:00:06.033 D/DnsManager(  680): sendDnsConfigurationForNetwork(ResolverParamsParcel{netId: 101, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: null, transportTypes: [0], meteredNetwork: true, dohParams: null, interfaceNames: [eth0]})
+11-25 22:00:06.036 I/agfj    ( 1462): (REDACTED) #initialConfig Assistant is currently enabled: %s
+11-25 22:00:06.037 I/agfj    ( 1462): (REDACTED) #initialConfig InputModality is currently: %s
+11-25 22:00:06.037 I/agfj    ( 1462): (REDACTED) #initialConfig Speed Bump entry points: %s
+11-25 22:00:06.038 I/agfj    ( 1462): (REDACTED) #initialConfig Long Press Power Education entrypoints: %s
+11-25 22:00:06.038 I/agfj    ( 1462): (REDACTED) #initialConfig Robin entrypoints: %s
+11-25 22:00:06.040 I/resolv  (  471): setDoh: No suitable DoH server found
+11-25 22:00:06.040 I/netd    (  471): setResolverConfiguration(ResolverParamsParcel{netId: 101, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [0], meteredNetwork: true, dohParams: (null), interfaceNames: [eth0]}) <0.63ms>
+11-25 22:00:06.041 W/resolv  (  471): Validating DnsTlsServer {10.0.2.3/} with mark 0xf0065
+11-25 22:00:06.041 I/resolv  (  471): Connecting to {10.0.2.3/} with mark 0xf0065
+11-25 22:00:06.044 I/resolv  (  471):  SSL_connect returned 0 with mark 0xf0065
+11-25 22:00:06.044 W/resolv  (  471): SSL_connect ssl error =5, mark 0xf0065: Success
+11-25 22:00:06.044 W/resolv  (  471): TLS Handshake failed
+11-25 22:00:06.044 W/resolv  (  471): query failed
+11-25 22:00:06.044 W/resolv  (  471): validateDnsTlsServer returned 0 for {10.0.2.3/}
+11-25 22:00:06.045 W/resolv  (  471): Validation failed
+11-25 22:00:06.038 I/agfj    ( 1462): (REDACTED) #initialConfig Preferred audio route type: %s
+11-25 22:00:06.049 I/NearbyDiscovery( 1259): BleRecoveryHelper: BLE is not always available, resets retry count and skip. eventType=SERVICE_INITIALIZE [CONTEXT service_id=265 ]
+11-25 22:00:06.053 D/ONSProfileActivator( 1076): Internet connection available
+11-25 22:00:06.060 I/SQLiteConnection( 1259): Long db operation: /data/user/0/com.google.android.gms/databases/phenotype.db
+11-25 22:00:06.062 I/GnssNetworkConnectivityHandler(  680): updateNetworkState, state=CLOSED, connected=true, network=101, capabilityFlags=2, availableNetworkCount: 2
+11-25 22:00:06.068 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.069 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.069 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.076 I/agfj    ( 1462): (REDACTED) #initialConfig Earcons to be added: %s
+11-25 22:00:06.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.078 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.078 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.078 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.078 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.082 I/agfj    ( 1462): (REDACTED) #initialConfig Mic occupied behavior: %s
+11-25 22:00:06.083 I/agfj    ( 1462): (REDACTED) #initialConfig Headphone voice queries and spoken notifications status: %s
+11-25 22:00:06.087 D/OomAdjuster(  680): Not killing cached processes
+11-25 22:00:06.092 I/Telecom (  680): CarModeTracker: Package net.oreki.antimatterdimensions.debug is not tracked.: SSH.oR@AGk🔒
+11-25 22:00:06.100 I/Telecom (  680): InCallController: updateCarModeForConnections: car mode apps: : SSH.oR@AGk🔒
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.104 I/aohp    ( 1462): (REDACTED) DelegationStatus: %s
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.104 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.105 I/NearbyDiscovery( 1259): FastPair: HeadsetPieceImage, grant permission files:0 [CONTEXT service_id=265 ]
+11-25 22:00:06.105 I/NearbyDiscovery( 1259): FastPairController: initializeProfileConnectionState: set event stream listener [CONTEXT service_id=265 ]
+11-25 22:00:06.109 I/Telecom (  680): InCallController: update carmode current:UserHandle{0} parent:null: SSH.oR@AGk🔒
+11-25 22:00:06.114 I/RoleService(  680): Granting default roles...
+11-25 22:00:06.126 D/NetworkStatsObservers(  680): Unregistering RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=4, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3557793 ] accessLevel:3
+11-25 22:00:06.151 D/AS.AudioService(  680): received android.intent.action.PACKAGE_ADDED replacing: true archival: false for package net.oreki.antimatterdimensions.debug with uid 10235
+11-25 22:00:06.151 D/NetworkStatsObservers(  680): Registering observer for RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=5, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3556322 ] accessLevel:3
+11-25 22:00:06.165 I/netd    (  471): bandwidthRemoveInterfaceQuota(eth0) <1.47ms>
+11-25 22:00:06.170 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.170 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.170 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.178 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.178 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.179 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.179 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.179 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.179 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.204 I/netd    (  471): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.73ms>
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.215 W/System  ( 1076): A resource failed to call AbstractCursor.close. 
+11-25 22:00:06.234 V/ClearcutMetricXmitter( 1462): Transmission is done.
+11-25 22:00:06.241 I/NearbyFastPair( 1259): DynamicSupportModule: onSupportStateUpdate start [CONTEXT service_id=265 ]
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.243 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.248 D/SsCardRecyclerViewAdapter(  959): Updating Smartspace targets to targets for Lockscreen
+11-25 22:00:06.253 I/NearbyFastPair( 1259): DynamicSupportModule: onSupportStateUpdate end [CONTEXT service_id=265 ]
+11-25 22:00:06.259 D/SsCardRecyclerViewAdapter(  959): Updating Smartspace targets to targets for Lockscreen
+11-25 22:00:06.266 I/DialerVoicemailStatusDataMigration( 1587): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataMigration.migrate:64 no package status to migrate
+11-25 22:00:06.269 D/LockscreenSmartspaceController(  959): Starting smartspace session for lockscreen
+11-25 22:00:06.273 W/BcSmartspaceView(  959): Current card is not present in the Adapter; cannot log.
+11-25 22:00:06.276 E/DateSmartspaceView(  959): No tap action can be set up
+11-25 22:00:06.280 I/DialerSyncWorkManagerPeriodicScheduler( 1587): com.google.apps.tiktok.sync.impl.workmanager.SyncWorkManagerPeriodicScheduler.scheduleNextSyncSystemWakeup:91 Scheduling next periodic WorkManager workers
+11-25 22:00:06.283 W/AlarmManager(  959): Unrecognized alarm listener com.google.android.systemui.smartspace.KeyguardZenAlarmViewController$showNextAlarm$1@3cfc1b7
+11-25 22:00:06.283 W/AlarmManager(  959): Unrecognized alarm listener com.google.android.systemui.smartspace.KeyguardZenAlarmViewController$showNextAlarm$1@3cfc1b7
+11-25 22:00:06.284 W/BcSmartspaceView(  959): Current card is not present in the Adapter; cannot log.
+11-25 22:00:06.295 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.295 W/BcSmartspaceView(  959): Current card is not present in the Adapter; cannot log.
+11-25 22:00:06.295 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.295 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.296 E/DateSmartspaceView(  959): No tap action can be set up
+11-25 22:00:06.299 W/system_server(  680): Long monitor contention with owner binder:680_18 (1731) at void com.android.server.am.ActivityManagerService.serviceDoneExecuting(android.os.IBinder, int, int, int)(ActivityManagerService.java:14875) waiters=6 in void com.android.server.am.ProcessList.lambda$handleProcessStart$1(com.android.server.am.ProcessRecord, java.lang.String, int[], int, int, int, java.lang.String, java.lang.String, java.lang.String, long) for 143ms
+11-25 22:00:06.300 W/AlarmManager(  959): Unrecognized alarm listener com.google.android.systemui.smartspace.KeyguardZenAlarmViewController$showNextAlarm$1@3cfc1b7
+11-25 22:00:06.300 W/BcSmartspaceView(  959): Current card is not present in the Adapter; cannot log.
+11-25 22:00:06.301 W/ActivityManager(  680): Slow operation: 464ms so far, now at startProcess: done updating battery stats
+11-25 22:00:06.303 W/ActivityManager(  680): Slow operation: 465ms so far, now at startProcess: building log message
+11-25 22:00:06.303 I/ActivityManager(  680): Start proc 2476:com.android.carrierdefaultapp/u0a144 for broadcast {com.android.carrierdefaultapp/com.android.carrierdefaultapp.CarrierDefaultBroadcastReceiver}
+11-25 22:00:06.303 W/ActivityManager(  680): Slow operation: 465ms so far, now at startProcess: starting to update pids map
+11-25 22:00:06.304 W/ActivityManager(  680): Slow operation: 466ms so far, now at startProcess: done updating pids map
+11-25 22:00:06.305 W/Looper  (  680): Slow dispatch took 154ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@9f88b7d m=0
+11-25 22:00:06.307 I/DialerVoicemailStatusDataMigration( 1587): com.android.dialer.voicemailstatus.dataservice.impl.VoicemailStatusDataMigration.cleanUp:75 enter
+11-25 22:00:06.321 W/BcSmartspaceView(  959): Current card is not present in the Adapter; cannot log.
+11-25 22:00:06.321 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.322 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.322 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.322 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.322 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.322 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.350 I/DialerSingletonScopedExternalsLogging( 1587): com.google.android.dialershared.externals.logging.SingletonScopedExternalsLogging.recordCallMethodInvocation:75 event: CONTENT_RESOLVER_DELETE, function parameters: [com.android.voicemail,content://com.android.voicemail/status,(source_package = ?)], return value: <empty>
+11-25 22:00:06.352 E/DialerAndroidFutures( 1587): com.google.apps.tiktok.concurrent.AndroidFutures.crashApplicationOnFailure:363 Timeout exceeded waiting on crashApplicationOnFailure future. Waited 5 SECONDS. Allowing future agtx@3272422[status=PENDING, info=[task=[running=[RUNNING ON Blocking Thread #13], java.util.concurrent.Executors$RunnableAdapter@8f8eeb3[Wrapped task = propagating=[wal@c2a5c70]]]]] to continue anyway.
+11-25 22:00:06.352 E/DialerAndroidFutures( 1587): afhk: 
+11-25 22:00:06.352 E/DialerAndroidFutures( 1587): 	at tk_trace.<missing root>(Unknown Source:0)
+11-25 22:00:06.352 E/DialerAndroidFutures( 1587): 	at tk_trace.Missing root trace(Unknown Source:0)
+11-25 22:00:06.361 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.365 W/AlarmManager(  680): Package net.oreki.antimatterdimensions.debug, uid 10235 lost permission to set exact alarms!
+11-25 22:00:06.365 W/KeyChain( 1915): Creating new DB.
+11-25 22:00:06.421 W/KeyChain( 1915): Existing alias: com.android.server.locksettings.recoverablekeystore/application/0/10221/com.google.android.gms.auth.folsom/v1/1795614215907/1A000C63873924531C07BEB76C1D87A2
+11-25 22:00:06.422 W/KeyChain( 1915): Marking as selectable: com.android.server.locksettings.recoverablekeystore/application/0/10221/com.google.android.gms.auth.folsom/v1/1795614215907/1A000C63873924531C07BEB76C1D87A2
+11-25 22:00:06.422 W/KeyChain( 1915): Existing alias: com.android.server.locksettings.recoverablekeystore/platform/0/1001000/decrypt
+11-25 22:00:06.422 W/KeyChain( 1915): Marking as selectable: com.android.server.locksettings.recoverablekeystore/platform/0/1001000/decrypt
+11-25 22:00:06.422 W/KeyChain( 1915): Existing alias: com.android.server.locksettings.recoverablekeystore/platform/0/1001000/encrypt
+11-25 22:00:06.422 W/KeyChain( 1915): Marking as selectable: com.android.server.locksettings.recoverablekeystore/platform/0/1001000/encrypt
+11-25 22:00:06.427 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.428 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.428 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.428 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.428 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.428 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.464 E/system_server(  680): No package ID 7f found for resource ID 0x7f0805c0.
+11-25 22:00:06.465 E/system_server(  680): No package ID 7f found for resource ID 0x7f15134b.
+11-25 22:00:06.465 E/system_server(  680): No package ID 7f found for resource ID 0x7f15134b.
+11-25 22:00:06.466 E/system_server(  680): No package ID 7f found for resource ID 0x7f151349.
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.482 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.510 W/SignedPackage(  680): Package doesn't have required signing certificate: com.google.android.retaildemo
+11-25 22:00:06.509 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:06.511 E/RoleControllerServiceImpl(  680): Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION, user: 0
+11-25 22:00:06.511 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:06.511 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:06.511 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:06.512 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:06.512 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:06.512 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:06.512 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:06.512 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:06.516 W/SignedPackage(  680): Package doesn't have required signing certificate: com.google.android.apps.work.clouddpc
+11-25 22:00:06.531 D/SatelliteController( 1076): isInCarrierRoamingNbIotNtn: satellite is disabled
+11-25 22:00:06.532 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-25 22:00:06.532 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.532 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.532 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:00:06.533 D/SatelliteController( 1076): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-25 22:00:06.533 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: config: null
+11-25 22:00:06.533 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.533 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.533 D/SatelliteController( 1076): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-25 22:00:06.534 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-25 22:00:06.534 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.534 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.534 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:00:06.534 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-25 22:00:06.534 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.534 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.534 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:00:06.535 D/SatelliteController( 1076): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-25 22:00:06.535 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: config: null
+11-25 22:00:06.535 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.535 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.535 D/SatelliteController( 1076): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-25 22:00:06.536 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-25 22:00:06.536 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:00:06.536 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:00:06.536 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:00:06.545 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.545 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.551 W/ActivityManager(  680): Slow operation: 52ms so far, now at attachApplicationLocked: after updateOomAdjLocked
+11-25 22:00:06.573 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:06.574 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:06.574 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:06.574 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:06.574 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:06.577 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:06.578 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:06.578 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:06.578 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:06.578 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:06.579 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:06.581 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-25 22:00:06.591 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-25 22:00:06.591 W/Looper  (  680): Slow dispatch took 225ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ServiceDispatcher$RunConnection@e4de7b1 m=0
+11-25 22:00:06.592 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-25 22:00:06.593 I/GCoreUlr( 1259): Unbound from all signal providers.
+11-25 22:00:06.594 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.594 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.594 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.597 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.598 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.603 W/system_server(  680): Long monitor contention with owner android.io (716) at int com.android.server.am.ActivityManagerService.bindServiceInstance(android.app.IApplicationThread, android.os.IBinder, android.content.Intent, java.lang.String, android.app.IServiceConnection, long, java.lang.String, boolean, int, java.lang.String, android.app.IApplicationThread, java.lang.String, int)(ActivityManagerService.java:14787) waiters=10 in android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String) for 258ms
+11-25 22:00:06.637 I/Checkin ( 1412): [CheckinApiChimeraService] onGetService
+11-25 22:00:06.648 W/system_server(  680): Long monitor contention with owner RoleControllerService (2488) at android.util.Pair android.app.ResourcesManager.updateResourceImplAssetsWithRegisteredLibs(android.content.res.AssetManager, boolean)(ResourcesManager.java:195) waiters=0 in android.content.res.Resources android.app.ResourcesManager.createResources(android.content.res.ResourcesKey, java.lang.ClassLoader, android.app.ResourcesManager$ApkAssetsSupplier) for 180ms
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.651 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.677 D/CompatChangeReporter( 2476): Compat change id reported: 460838111; UID 10144; state: ENABLED
+11-25 22:00:06.679 D/CompatChangeReporter( 2476): Compat change id reported: 333566037; UID 10144; state: ENABLED
+11-25 22:00:06.691 W/chbox:googleapp( 2041): Suspending all threads took: 625.920ms
+11-25 22:00:06.702 W/Looper  (  680): Drained
+11-25 22:00:06.703 I/netd    (  471): tetherGetStats() -> {[]} <0.78ms>
+11-25 22:00:06.705 D/WifiClientModeImpl[18222:wlan0](  680): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2447 RxLinkSpeed=2
+11-25 22:00:06.706 D/WifiClientModeImpl[18222:wlan0](  680): reported txKbps 12000 rxKbps 30000
+11-25 22:00:06.706 D/WifiDataStall(  680): tx tput in kbps: 11000
+11-25 22:00:06.706 D/WifiDataStall(  680): rx tput in kbps: 11000
+11-25 22:00:06.706 V/WifiConfigManager(  680): Updating scan detail cache freq=2447 BSSID=00:13:10:85:fe:01 RSSI=-50 for "AndroidWifi"NONE
+11-25 22:00:06.707 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:06.707 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:06.707 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:06.707 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:06.708 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.708 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.708 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.727 I/AdbWifiNetworkMonitor(  680): Wi-Fi network available
+11-25 22:00:06.727 I/AdbWifiNetworkMonitor(  680): Received the same Wi-Fi SSID. Ignoring.
+11-25 22:00:06.735 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.736 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.736 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.736 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.736 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.736 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.739 W/gle.android.gms( 1412): Suspending all threads took: 87.156ms
+11-25 22:00:06.746 W/ogle.android.as( 1488): Suspending all threads took: 100.477ms
+11-25 22:00:06.753 I/WifiService(  680): getConnectionInfo uid=10221
+11-25 22:00:06.753 V/WifiService(  680): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10221)
+11-25 22:00:06.763 D/nativeloader( 2476): Configuring clns-shared-9 for other apk /system/app/CarrierDefaultApp/CarrierDefaultApp.apk. target_sdk_version=37, uses_libraries=, library_path=/system/app/CarrierDefaultApp/lib/x86_64:/system/lib64:/system_ext/lib64, permitted_path=/data:/mnt/expand:/data/user/0/com.android.carrierdefaultapp:/system/app/CarrierDefaultApp:/system/lib64:/system_ext/lib64
+11-25 22:00:06.766 W/libbinder.Binder( 1259): Binder transaction to com.google.android.auth.IAuthManagerService, function: UNKNOWN_FUNCTION_NAME, code: 6, took 4379ms. Data bytes: 320 Reply bytes: 60 Flags: 16
+11-25 22:00:06.768 D/WM-GreedyScheduler( 1587): Cancelling work ID 1c3e2a3f-7e7d-4a87-aacf-d6b543758fe6
+11-25 22:00:06.768 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.769 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.769 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.769 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.769 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.769 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.772 W/JobService( 1347): onNetworkChanged() not implemented in androidx.work.impl.background.systemjob.SystemJobService. Must override in a subclass.
+11-25 22:00:06.782 I/Trustlet_Onbody( 1412): onbodyAlreadySet: false [CONTEXT service_id=294 ]
+11-25 22:00:06.794 W/Looper  (  959): Slow dispatch took 1088ms SysUiBg app=com.android.systemui main=false group=FOREGROUND h=android.os.Handler c=com.android.systemui.broadcast.ActionReceiver$onReceive$1$1$1@76240cd m=0
+11-25 22:00:06.797 I/Trustlet_Onbody( 1412): isOnbodySuggestionEnabledByPhenotype: false [CONTEXT service_id=294 ]
+11-25 22:00:06.798 I/Trustlet_Onbody( 1412): isTrustAgentEnabled: hgka@e737b6b[status=SUCCESS, result=[true]] [CONTEXT service_id=294 ]
+11-25 22:00:06.803 I/ActivityManager(  680): Broadcast completed: result=0
+11-25 22:00:06.817 V/WifiPermissionsUtil(  680): checkCallersLocationPermission(com.google.android.gms): ok because uid 10221 has app-op android:fine_location
+11-25 22:00:06.817 V/WifiService(  680): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10221)
+11-25 22:00:06.823 I/DialerSingletonScopedExternalsLogging( 1587): com.google.android.dialershared.externals.logging.SingletonScopedExternalsLogging.recordCallMethodInvocation:75 event: CONTENT_RESOLVER_DELETE, function parameters: [com.android.voicemail,content://com.android.voicemail/status,(source_package = ?)], return value: 0
+11-25 22:00:06.828 W/libbinder.Binder(  680): Binder transaction to android.app.IActivityManager, function: UNKNOWN_FUNCTION_NAME, code: 1598246212, took 16764ms. Data bytes: 424 Reply bytes: 4 Flags: 16
+11-25 22:00:06.828 I/Trustlet_Onbody( 1412): Trustlet onbody is supported. [CONTEXT service_id=294 ]
+11-25 22:00:06.828 I/Trustlet_Onbody( 1412): isSupported: true [CONTEXT service_id=294 ]
+11-25 22:00:06.828 I/Trustlet_Onbody( 1412): isChromeOsDevice: false [CONTEXT service_id=294 ]
+11-25 22:00:06.829 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.830 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.830 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.830 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.830 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.830 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.834 W/system_server(  680): Long monitor contention with owner NetworkStats (846) at void android.net.connectivity.com.android.server.net.NetworkStatsService.performPoll(int, android.net.connectivity.com.android.server.net.NetworkStatsEventLogger$PollEvent)(NetworkStatsService.java:2656) waiters=0 in java.lang.String[] android.net.connectivity.com.android.server.net.NetworkStatsService.getAllIfacesSinceBoot(int) for 296ms
+11-25 22:00:06.862 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:06.863 I/AppDoctorConfigChanged( 1259): Refreshing configuration on flag commit.
+11-25 22:00:06.863 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:06.863 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:06.863 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:06.863 V/ClearcutMetricXmitter( 1462): Transmission is done.
+11-25 22:00:06.877 I/DownloadManager( 1347): DownloadManager$3.onProgress():537 Downloading emoji_kitchen_data with size 2625774
+11-25 22:00:06.892 I/netd    (  471): bandwidthRemoveInterfaceQuota(eth0) <51.10ms>
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.893 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.903 I/HalDevMgr(  680): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-25 22:00:06.946 I/netd    (  471): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.09ms>
+11-25 22:00:06.949 I/netd    (  471): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <8.69ms>
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.950 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.974 I/netd    (  471): setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.07ms>
+11-25 22:00:06.975 I/netd    (  471): tetherGetStats() -> {[]} <2.04ms>
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.983 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:06.985 E/AppOps  (  680): attributionTag VCN not declared in manifest of android
+11-25 22:00:06.986 D/NetworkStatsObservers(  680): Unregistering RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=5, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3556322 ] accessLevel:3
+11-25 22:00:06.992 D/NetworkStatsObservers(  680): Registering observer for RequestInfo from pid/uid:680/1000(android) for DataUsageRequest [ requestId=6, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3555120 ] accessLevel:3
+11-25 22:00:07.010 I/Nearby  ( 1259): is blocked device type false, isAuto=false, isIot=false, isLatchsky=false, isChinaWearable=false, isTv=false, isWearable=false (supportWearOs=false), isChromeOsDevice=false (supportChromeOs=false) [CONTEXT service_id=49 ]
+11-25 22:00:07.026 I/netd    (  471): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.10ms>
+11-25 22:00:07.058 I/netd    (  471): setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <30.89ms>
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.061 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.072 V/GraphicsEnvironment( 2476): Currently set values for:
+11-25 22:00:07.072 V/GraphicsEnvironment( 2476):   angle_gl_driver_selection_pkgs=[]
+11-25 22:00:07.072 V/GraphicsEnvironment( 2476):   angle_gl_driver_selection_values=[]
+11-25 22:00:07.072 V/GraphicsEnvironment( 2476): com.android.carrierdefaultapp is not listed in per-application setting
+11-25 22:00:07.072 V/GraphicsEnvironment( 2476): No special selections for ANGLE, returning default driver choice
+11-25 22:00:07.073 I/AiAiEcho( 1488): SearchBE[AppFetcherV2][PROCESSING]:is initialized with [20] apps [time=2590071700, reason=module is initialized.]
+11-25 22:00:07.076 D/IpClient/wlan0( 1027): interfaceLinkStateChanged: ifindex 16 up
+11-25 22:00:07.079 V/GraphicsEnvironment( 2476): Neither updatable production driver nor prerelease driver is supported.
+11-25 22:00:07.085 W/JobInfo ( 1488): Requested important-while-foreground flag for job38 is ignored and takes no effect
+11-25 22:00:07.086 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.086 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.086 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.088 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.114 D/CompatChangeReporter( 2476): Compat change id reported: 407952621; UID 10144; state: ENABLED
+11-25 22:00:07.114 D/CompatChangeReporter( 2476): Compat change id reported: 419020719; UID 10144; state: ENABLED
+11-25 22:00:07.128 I/netd    (  471): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.97ms>
+11-25 22:00:07.128 I/netd    (  471): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.03ms>
+11-25 22:00:07.128 I/netd    (  471): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.04ms>
+11-25 22:00:07.128 I/netd    (  471): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.02ms>
+11-25 22:00:07.129 I/netd    (  471): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-25 22:00:07.129 I/netd    (  471): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.02ms>
+11-25 22:00:07.129 I/netd    (  471): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.04ms>
+11-25 22:00:07.130 I/netd    (  471): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.03ms>
+11-25 22:00:07.137 I/Role    (  680): com.google.android.gms not qualified for android.app.role.SYSTEM_DEPENDENCY_INSTALLER due to missing RequiredComponent{mFlags='0', mIntentFilterData=IntentFilterData{mAction='android.content.pm.action.INSTALL_DEPENDENCY', mCategories='[]', mDataScheme='null', mDataType='null'}, mMetaData=[], mPermission='android.permission.BIND_DEPENDENCY_INSTALLER', mQueryFlags=0} Requirement{mFeatureFlag=null, mMinTargetSdkVersion=1}
+11-25 22:00:07.137 E/RoleControllerServiceImpl(  680): Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.SYSTEM_DEPENDENCY_INSTALLER, user: 0
+11-25 22:00:07.143 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.144 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.144 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.144 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.144 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.144 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.188 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.188 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.188 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.193 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.193 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.194 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.194 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.195 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.197 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.239 D/IpClient/wlan0( 1027): interfaceLinkStateChanged: ifindex 16 up
+11-25 22:00:07.239 D/IpClient/wlan0( 1027): interfaceLinkStateChanged: ifindex 16 up
+11-25 22:00:07.240 W/gle.android.gms( 1412): Suspending all threads took: 254.323ms
+11-25 22:00:07.244 I/NearbyDiscovery( 1259): DiscoveryController, showNotification, itemSize=0 [CONTEXT service_id=265 ]
+11-25 22:00:07.246 I/NearbyDiscovery( 1259): Show notifications: 0 total, no changes since last shown, no-op. [CONTEXT service_id=265 ]
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.253 D/WifiScoreCard(  680): BSSID update SIGNAL_POLL ID: 561269453 SSID: "AndroidWifi", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 11Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Calculated Rx : 0Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-25 22:00:07.253 D/WifiScoreCard(  680): txRate: 20 txSpeed: 1
+11-25 22:00:07.253 D/WifiScoreCard(  680): network update SIGNAL_POLL "AndroidWifi" ID: 4768197 RSSI -50 txSpeed 1
+11-25 22:00:07.253 D/WifiClientModeImpl[18222:wlan0](  680):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 00:13:10:85:fe:01 rssi=-50 f=2447 sc=100 link=1 tx=19.4, 0.0, 0.0 rx=63.1 bcn=0 [on:0 tx:0 rx:0 period:3589] from screen [on:0 period:318877525] score=100
+11-25 22:00:07.289 I/ActivityManager(  680): Broadcast completed: result=0
+11-25 22:00:07.292 W/libbinder.Binder(  680): Binder transaction to android.app.IActivityManager, function: UNKNOWN_FUNCTION_NAME, code: 1598246212, took 11211ms. Data bytes: 424 Reply bytes: 4 Flags: 16
+11-25 22:00:07.295 I/ActivityManager(  680): Broadcast completed: result=0
+11-25 22:00:07.300 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.300 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.300 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.310 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.310 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.311 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.311 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.311 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.311 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.324 D/ConnectivityService(  680): requestNetwork for uid/pid:10162/2173 activeRequest: null callbackRequest: 92 [NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOSING|LOST|UNAVAIL|NC|LP|BLK
+11-25 22:00:07.341 W/libbinder.Binder(  680): Binder transaction to android.app.IActivityManager, function: UNKNOWN_FUNCTION_NAME, code: 1598246212, took 5225ms. Data bytes: 424 Reply bytes: 4 Flags: 16
+11-25 22:00:07.341 W/ActivityManager(  680): Slow operation: 210ms so far, now at finishAttachApplicationInner: after mServices.attachApplicationLocked
+11-25 22:00:07.343 W/ActivityManager(  680): Slow operation: 211ms so far, now at finishAttachApplicationInner: after dispatching broadcasts
+11-25 22:00:07.343 D/CompatChangeReporter( 2476): Compat change id reported: 458413887; UID 10144; state: ENABLED
+11-25 22:00:07.353 W/libbinder.Binder( 1259): Binder transaction to android.content.IContentProvider, function: UNKNOWN_FUNCTION_NAME, code: 1, took 2086ms. Data bytes: 380 Reply bytes: 80 Flags: 16
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.364 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.382 E/SmsApplication( 1076): com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-25 22:00:07.387 I/SatelliteAppTracker( 1076): onPackageUpdateFinished : net.oreki.antimatterdimensions.debug
+11-25 22:00:07.387 I/SatelliteAppTracker( 1076): onPackageModified : net.oreki.antimatterdimensions.debug
+11-25 22:00:07.387 D/WifiNetworkFactory(  680): got request NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+11-25 22:00:07.388 V/WifiNetworkFactory(  680): Accepted network request NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+11-25 22:00:07.390 D/SatelliteAppTracker( 1076): packageName: net.oreki.antimatterdimensions.debug, value: null
+11-25 22:00:07.390 D/ConnectivityService(  680): NetReassign [93 : null → 100] [c 1] [a 1] [i 8]
+11-25 22:00:07.391 D/UntrustedWifiNetworkFactory(  680): got request NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+11-25 22:00:07.391 D/OemPaidWifiNetworkFactory(  680): got request NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+11-25 22:00:07.397 D/MultiInternetWifiNetworkFactory(  680): got request NetworkRequest [ REQUEST id=93, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10162 RequestorUid: 10162 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+11-25 22:00:07.397 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-25 22:00:07.402 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-25 22:00:07.403 D/InetDiagMessage(  680): Destroyed live tcp sockets for uids={10182} in 11ms
+11-25 22:00:07.403 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-25 22:00:07.408 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-25 22:00:07.408 D/InetDiagMessage(  680): Destroyed live tcp sockets for uids={20182} in 5ms
+11-25 22:00:07.421 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.421 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.422 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.431 D/SatelliteAppTracker( 1076): packageName: net.oreki.antimatterdimensions.debug, value: null
+11-25 22:00:07.432 D/CarrierSvcBindHelper( 1076): onPackageUpdateFinished: net.oreki.antimatterdimensions.debug
+11-25 22:00:07.432 D/CarrierSvcBindHelper( 1076): No carrier app for: 0
+11-25 22:00:07.432 D/CarrierSvcBindHelper( 1076): onPackageModified: net.oreki.antimatterdimensions.debug
+11-25 22:00:07.433 D/CarrierSvcBindHelper( 1076): No carrier app for: 0
+11-25 22:00:07.444 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.444 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.445 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.445 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.445 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.445 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.469 I/DialerGmsAccounts( 1587): com.google.apps.tiktok.account.data.google.GmsAccounts.createAccountInfos:137 GMSCore Auth returned 0 accounts.
+11-25 22:00:07.482 E/SmsApplication( 1076): com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-25 22:00:07.482 I/DialerGmsAccounts( 1587): com.google.apps.tiktok.account.data.google.GmsAccounts.createAccountInfos:138 GoogleOwnersProvider returned 0 accounts.
+11-25 22:00:07.483 W/dkze    ( 2041): Timed out waiting on job to complete, continuing execution.
+11-25 22:00:07.488 E/AppOps  (  680): attributionTag VCN not declared in manifest of android
+11-25 22:00:07.495 W/JobInfo ( 1587): Requested important-while-foreground flag for job40 is ignored and takes no effect
+11-25 22:00:07.496 D/WM-SystemJobScheduler( 1587): Scheduling work ID 1c3e2a3f-7e7d-4a87-aacf-d6b543758fe6Job ID 40
+11-25 22:00:07.506 D/CarrierDefaultBroadcastReceiver( 2476): onReceive intent: android.telephony.action.CARRIER_SIGNAL_RESET
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.510 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.512 I/AppBindingService(  680): [Supervision app] feature disabled
+11-25 22:00:07.515 I/SdkSandboxManager(  680): No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10235, mPackageName='net.oreki.antimatterdimensions.debug, mAppProcessToken='null'}
+11-25 22:00:07.516 I/SdkSandboxManager(  680): No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10235, mPackageName='net.oreki.antimatterdimensions.debug, mAppProcessToken='null'}
+11-25 22:00:07.519 V/MessagingReadRestrictionAllowlistMonitor( 1076): onBroadcastReceived: No AppOp changes for package: net.oreki.antimatterdimensions.debug
+11-25 22:00:07.532 I/SQLiteConnection( 2041): Long db operation: /data/user/0/com.google.android.googlequicksearchbox/no_backup/androidx.work.workdb
+11-25 22:00:07.552 W/libbinder.Binder( 2044): Binder transaction to android.content.IContentProvider, function: UNKNOWN_FUNCTION_NAME, code: 3, took 1518ms. Data bytes: 812 Reply bytes: 48 Flags: 16
+11-25 22:00:07.555 I/anxb    ( 2173): #onAvailable()
+11-25 22:00:07.557 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.557 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.557 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.560 W/system_server(  680): Long monitor contention with owner binder:680_8 (1005) at java.util.HashMap com.android.providers.settings.SettingsProvider.getAllConfigFlags(java.lang.String)(SettingsProvider.java:1528) waiters=1 in com.android.providers.settings.SettingsState$Setting com.android.providers.settings.SettingsProvider.getSecureSetting(java.lang.String, int, int) for 162ms
+11-25 22:00:07.565 W/system_server(  680): Long monitor contention with owner pool-34-thread-1 (2466) at boolean com.android.server.job.JobSchedulerService.isBatteryCharging()(JobSchedulerService.java:5949) waiters=0 in int com.android.server.job.JobSchedulerService.scheduleAsPackage(android.app.job.JobInfo, android.app.job.JobWorkItem, int, java.lang.String, int, java.lang.String, java.lang.String) for 280ms
+11-25 22:00:07.567 W/Looper  (  680): Slow dispatch took 169ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@1567e49 m=0
+11-25 22:00:07.568 W/system_server(  680): Long monitor contention with owner binder:680_8 (1005) at java.util.HashMap com.android.providers.settings.SettingsProvider.getAllConfigFlags(java.lang.String)(SettingsProvider.java:1528) waiters=0 in com.android.providers.settings.SettingsState$Setting com.android.providers.settings.SettingsProvider.getSecureSetting(java.lang.String, int, int) for 231ms
+11-25 22:00:07.568 V/GameManagerService_GamePackageConfiguration(  680): No android.game_mode_config meta-data found for package net.oreki.antimatterdimensions.debug
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.578 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.582 I/LocationHistory( 1412): [IntentOperation] Handling action android.location.PROVIDERS_CHANGED [CONTEXT service_id=314 ]
+11-25 22:00:07.583 I/LocationHistory( 1412): [IntentOperation] Device settings changed to ENABLED. Scheduling periodic tasks. [CONTEXT service_id=314 ]
+11-25 22:00:07.583 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.deidentifieddata.storevisits.StoreVisitsProcessingService.StoreVisitsProcessing is scheduled to run EVERY_3_HOURS [CONTEXT service_id=173 ]
+11-25 22:00:07.583 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.deidentifieddata.wifi.WifiPlaceVisitProcessingService.WifiPlaceVisit is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.584 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.deidentifieddata.uploads.BatchDeidentifiedDataUploadService.BatchDeidentifiedDataUpload is scheduled to run EVERY_6_HOURS [CONTEXT service_id=173 ]
+11-25 22:00:07.584 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.deidentifieddata.historicalbusyness.TransientHistoricalBusynessProcessingService.TransientHistoricalBusyness is scheduled to run at cadence cwyp@a663776 [CONTEXT service_id=173 ]
+11-25 22:00:07.585 V/GameManagerService(  680): Inactive package config for net.oreki.antimatterdimensions.debug:[Name:net.oreki.antimatterdimensions.debug Modes: {}]
+11-25 22:00:07.590 V/GameManagerService(  680): Package configuration not found for net.oreki.antimatterdimensions.debug
+11-25 22:00:07.600 I/AiAiCaptions( 1488): initialize(): check availability of mandatory languages models: [en_US].
+11-25 22:00:07.617 W/Looper  (  680): Slow delivery took 205ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@c6f5e26 m=0
+11-25 22:00:07.618 W/system_server(  680): Long monitor contention with owner pool-34-thread-1 (2466) at boolean com.android.server.job.JobSchedulerService.isBatteryCharging()(JobSchedulerService.java:5949) waiters=1 in void com.android.server.job.controllers.BackgroundJobsController$2.updateAllJobs() for 325ms
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.627 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.632 W/system_server(  680): Long monitor contention with owner pool-34-thread-1 (2466) at boolean com.android.server.job.JobSchedulerService.isBatteryCharging()(JobSchedulerService.java:5949) waiters=2 in int com.android.server.job.JobSchedulerService.scheduleAsPackage(android.app.job.JobInfo, android.app.job.JobWorkItem, int, java.lang.String, int, java.lang.String, java.lang.String) for 127ms
+11-25 22:00:07.635 I/PermissionControllerServiceImpl( 1484): Updating user sensitive for uid 10235
+11-25 22:00:07.639 I/PackageManager(  680): getInstalledPackages: callingUid=1000 flags=134217728 updatedFlags=135004160 userId=0
+11-25 22:00:07.645 I/PackageManager(  680): getInstalledPackages: callingUid=1000 flags=134217856 updatedFlags=135004288 userId=0
+11-25 22:00:07.646 I/WifiService(  680): getWifiEnabledState uid=10189 state=3
+11-25 22:00:07.650 E/system_server(  680): No package ID 7f found for resource ID 0x7f080f6c.
+11-25 22:00:07.650 E/system_server(  680): No package ID 7f found for resource ID 0x7f1525d6.
+11-25 22:00:07.651 E/system_server(  680): No package ID 7f found for resource ID 0x7f080f74.
+11-25 22:00:07.651 E/system_server(  680): No package ID 7f found for resource ID 0x7f1525d7.
+11-25 22:00:07.671 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 6
+11-25 22:00:07.673 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 1c3e2a3f-7e7d-4a87-aacf-d6b543758fe6}. Requires device idle.
+11-25 22:00:07.675 D/CarrierActionUtils( 2476): onCancelAllNotifications
+11-25 22:00:07.676 I/netd    (  471): tetherGetStats() -> {[]} <1.62ms>
+11-25 22:00:07.678 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.deidentifieddata.batchactivity.CyclingProcessingService.CyclingActivity is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.678 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.pulp.PulpInferenceService.PulpInference is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.679 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.679 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.679 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.679 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.pulp.PulpMddDownloadScheduleService.PulpMddRefreshDownloadTask is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.679 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.pulp.PulpMddMaintenanceService.PulpMddMaintenanceTask is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.679 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.deidentifieddata.pulptraining.PulpTrainingService.PulpTraining is scheduled to run EVERY_7_DAYS [CONTEXT service_id=173 ]
+11-25 22:00:07.680 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.topplace.TopPlaceProcessingService.TopPlaceProcessing is scheduled to run EVERY_3_DAYS [CONTEXT service_id=173 ]
+11-25 22:00:07.680 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.FederatedScheduleService.FederatedLocation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.681 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.FederatedTaskIdentityDataService.FederatedTaskIdentityDataService is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.681 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.FederatedJobHistoryService.FederatedJobHistoryService is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.681 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.federated.BrellaFrequentInvocationService.BrellaFrequentInvocationService is scheduled to run EVERY_6_HOURS [CONTEXT service_id=173 ]
+11-25 22:00:07.682 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.BrellaInvocationService.BrellaInvocationServiceFirstPopulation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.683 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.BrellaInvocationService.BrellaInvocationServiceSecondPopulation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.683 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.BrellaInvocationService.BrellaInvocationServiceThirdPopulation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.683 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.BrellaInvocationService.BrellaInvocationServiceFourthPopulation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.684 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.BrellaInvocationService.BrellaInvocationServiceFifthPopulation is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.684 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.federated.regionfetcher.RegionMddMaintenanceService.RegionMddMaintenanceTask is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.685 I/SemanticLocation( 1412): [Scheduler] Periodic Task com.google.android.gms.semanticlocationhistory.federated.regionfetcher.RegionMddDownloadScheduleService.RegionMddRefreshDownloadTask is scheduled to run EVERY_6_HOURS [CONTEXT service_id=173 ]
+11-25 22:00:07.685 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.db.backup.OdlhBackupService.OdlhBackup is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.685 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.edit.EditUploadJob.EditUploadJob is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.685 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.reinference.ReinferenceService.ReinferenceServiceTask is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.686 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.deidentifieddata.golden.ParcelRefreshTokensJob.ParcelRefreshTokenJob is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.686 W/.gms.persistent( 1259): Suspending all threads took: 357.337ms
+11-25 22:00:07.686 I/SemanticLocation( 1412): [Scheduler] Housekeeping Task com.google.android.gms.semanticlocationhistory.deidentifieddata.golden.ParcelSynchronizePersonalizationJob.ParcelSynchronizePersonalizationJob is scheduled to run at cadence cwzh@3fada11 [CONTEXT service_id=173 ]
+11-25 22:00:07.693 W/.gms.persistent( 1259): Long monitor contention with owner lowpool[10] (1974) at void bike.execute(java.lang.Runnable)(:com.google.android.gms@261136038@26.11.36 (260800-892401869):12) waiters=0 in void bike.execute(java.lang.Runnable) for 491ms
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.695 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.726 I/NearbyMediums( 1259): ModuleInitializer handles incoming intent android.intent.action.USER_PRESENT
+11-25 22:00:07.727 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:07.728 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 8
+11-25 22:00:07.730 D/CarrierActionUtils( 2476): onDisableDefaultURLHandler
+11-25 22:00:07.733 E/SmsApplication( 1076): com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-25 22:00:07.739 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:07.739 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:07.739 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:07.741 W/system_server(  680): Long monitor contention with owner NetworkStats (846) at void android.net.connectivity.com.android.server.net.NetworkStatsService.performPoll(int, android.net.connectivity.com.android.server.net.NetworkStatsEventLogger$PollEvent)(NetworkStatsService.java:2656) waiters=0 in void android.net.connectivity.com.android.server.net.NetworkStatsService.noteUidForeground(int, boolean) for 396ms
+11-25 22:00:07.743 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.744 I/WM-WorkerWrapper( 1488): Worker result SUCCESS for Work [ id=d544fd0b-beb2-4244-be4d-46c5acec70ec, tags={ com.google.android.apps.miphone.aiai.chronicle.data.storage.datacache.workmanager.UpdateDataCacheStorageWorker,UpdateDataCacheStorageWorker } ]
+11-25 22:00:07.744 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.744 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.744 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.744 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.744 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.753 D/Zygote  (  473): Forked child process 2502
+11-25 22:00:07.761 I/libprocessgroup( 2502): Created cgroup /sys/fs/cgroup/apps/uid_10160
+11-25 22:00:07.775 I/libprocessgroup( 2502): Created cgroup /sys/fs/cgroup/apps/uid_10160/pid_2502
+11-25 22:00:07.776 W/ActivityManager(  680): Slow operation: 105ms so far, now at startProcess: returned from zygote!
+11-25 22:00:07.776 W/ActivityManager(  680): Slow operation: 106ms so far, now at startProcess: done updating battery stats
+11-25 22:00:07.777 W/ActivityManager(  680): Slow operation: 106ms so far, now at startProcess: building log message
+11-25 22:00:07.777 I/ActivityManager(  680): Start proc 2502:com.google.android.apps.wellbeing/u0a160 for broadcast {com.google.android.apps.wellbeing/com.google.android.apps.wellbeing.common.receiver.coalescedreceivers.LockedBootCompletedCoalescedBroadcast_Receiver}
+11-25 22:00:07.781 I/Zygote  ( 2502): Process 2502 created for com.google.android.apps.wellbeing
+11-25 22:00:07.781 I/.apps.wellbeing( 2502): Using generational CollectorTypeCMC GC.
+11-25 22:00:07.782 W/.apps.wellbeing( 2502): Unexpected CPU variant for x86: x86_64.
+11-25 22:00:07.782 W/.apps.wellbeing( 2502): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-25 22:00:07.792 D/nativeloader( 2502): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-25 22:00:07.801 W/ActivityManager(  680): Slow operation: 130ms so far, now at startProcess: starting to update pids map
+11-25 22:00:07.801 W/ActivityManager(  680): Slow operation: 131ms so far, now at startProcess: done updating pids map
+11-25 22:00:07.807 I/awic    ( 2173): Live eligibility: Not available yet.
+11-25 22:00:07.810 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.810 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.810 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.811 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.811 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.811 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.820 I/Choreographer(  959): Skipped 528 frames!  The application may be doing too much work on its main thread.
+11-25 22:00:07.827 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:07.829 V/ClearcutMetricXmitter( 1462): Transmission is done.
+11-25 22:00:07.841 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:00:07.860 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.860 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.861 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.861 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.861 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.861 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.866 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:00:07.866 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:00:07.866 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:07.868 D/CarrierDefaultBroadcastReceiver( 2476): onReceive intent: android.telephony.action.CARRIER_SIGNAL_RESET
+11-25 22:00:07.870 I/DownloadManager( 1347): DownloadManager$3.onProgress():537 Downloading emoji_kitchen_data with size 3078496
+11-25 22:00:07.889 I/WifiService(  680): getWifiEnabledState uid=10221 state=3
+11-25 22:00:07.893 W/ImageLoader(  959): Failed to load source Resource{name=com.android.systemui:drawable/ic_brightness_full}
+11-25 22:00:07.893 W/ImageLoader(  959): android.graphics.ImageDecoder$DecodeException: Failed to create image decoder with message 'unimplemented'Input contained an error.
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder.nCreate(Native Method)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder.createFromAsset(ImageDecoder.java:551)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder.-$$Nest$smcreateFromAsset(ImageDecoder.java:0)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder$ResourceSource.createImageDecoder(ImageDecoder.java:528)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder.decodeDrawableImpl(ImageDecoder.java:1879)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at android.graphics.ImageDecoder.decodeDrawable(ImageDecoder.java:1871)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at com.android.systemui.graphics.ImageLoaderImpl.loadDrawableSync(go/retraceme c3274dba9613c14089c884cae516646c18fdc40b5a0d777658c4d309489fa7a2:218)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at com.android.systemui.graphics.ImageLoaderImpl.loadDrawableSync(go/retraceme c3274dba9613c14089c884cae516646c18fdc40b5a0d777658c4d309489fa7a2:134)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at com.android.systemui.graphics.ImageLoaderImpl$loadDrawable$4.invokeSuspend(go/retraceme c3274dba9613c14089c884cae516646c18fdc40b5a0d777658c4d309489fa7a2:17)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(go/retraceme c3274dba9613c14089c884cae516646c18fdc40b5a0d777658c4d309489fa7a2:7)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at kotlinx.coroutines.DispatchedTask.run(go/retraceme c3274dba9613c14089c884cae516646c18fdc40b5a0d777658c4d309489fa7a2:111)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:00:07.893 W/ImageLoader(  959): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:00:07.902 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.902 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.903 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.913 W/chbox:googleapp( 2041): Suspending all threads took: 199.354ms
+11-25 22:00:07.916 I/SceneTransitionLayoutState(  959): snapTo(scene=SceneKey(debugName=QuickQuickSettingsScene), overlays=[])
+11-25 22:00:07.920 W/ChimeraUtils( 1259): Module com.google.android.gms.backup_base missing resource null(0)
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.932 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.944 W/JobInfo ( 2041): Requested important-while-foreground flag for job37 is ignored and takes no effect
+11-25 22:00:07.945 D/WM-SystemJobScheduler( 2041): Scheduling work ID e9b9a26e-3c0f-40b7-8443-bbb4d696d39bJob ID 37
+11-25 22:00:07.974 D/BackupManagerConstants(  680): getFullBackupIntervalMilliseconds(...) returns 86400000
+11-25 22:00:07.974 I/WifiService(  680): is5GHzBandSupported uid=10221
+11-25 22:00:07.975 D/BackupManagerConstants(  680): getFullBackupRequiredNetworkType(...) returns 2
+11-25 22:00:07.975 D/BackupManagerConstants(  680): getFullBackupRequireCharging(...) returns true
+11-25 22:00:07.977 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.978 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.978 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.978 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.978 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.978 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:07.980 W/libbinder.Binder( 1259): Binder transaction to com.google.android.gms.common.internal.IGmsServiceBroker, function: UNKNOWN_FUNCTION_NAME, code: 46, took 1224ms. Data bytes: 964 Reply bytes: 4 Flags: 18
+11-25 22:00:08.013 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:00:08.015 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-25 22:00:08.017 D/ApplicationLoaders( 2502): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-25 22:00:08.017 D/ApplicationLoaders( 2502): Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-25 22:00:08.027 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.028 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.028 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.028 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.028 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.028 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.029 I/alod    ( 2173): #maybeBackupOrRestore
+11-25 22:00:08.030 I/NullBinder( 1259): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-25 22:00:08.030 W/libbinder.Binder( 1259): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-25 22:00:08.033 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-25 22:00:08.047 W/gle.android.gms( 1412): Suspending all threads took: 109.394ms
+11-25 22:00:08.051 D/nativeloader( 2502): InitLlndkLibrariesProduct: libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libRS.so:libandroid_net.so:libapexsupport.so:libavf.so:libbinder_ndk.so:libc.so:libcamera_metadata.so:libcgrouprc.so:libclang_rt.asan-x86_64-android.so:libcom.android.tethering.connectivity_native.so:libdl.so:libft2.so:liblog.so:libm.so:libmediandk.so:libnativewindow.so:libneuralnetworks.so:libnpumanager.so:libselinux.so:libsync.so:libvendorsupport.so:libvndksupport.so:libvulkan.so:libwrapfd.so
+11-25 22:00:08.051 D/nativeloader( 2502): Configuring product-clns-9 for unbundled product apk /product/priv-app/WellbeingPrebuilt/WellbeingPrebuilt.apk. target_sdk_version=36, uses_libraries=, library_path=/product/priv-app/WellbeingPrebuilt/lib/x86_64:/product/priv-app/WellbeingPrebuilt/WellbeingPrebuilt.apk!/lib/x86_64:/product/lib64:/system/product/lib64, permitted_path=/data:/mnt/expand:/data/user/0/com.google.android.apps.wellbeing:/product/lib64:/system/product/lib64
+11-25 22:00:08.053 D/nativeloader( 2502): InitVndkspLibrariesProduct: VNDK is deprecated with product
+11-25 22:00:08.077 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 6
+11-25 22:00:08.077 D/CarrierActionUtils( 2476): onCancelAllNotifications
+11-25 22:00:08.077 D/ImsResolver( 1076): maybeAddedImsService, packageName: net.oreki.antimatterdimensions.debug
+11-25 22:00:08.077 V/ImsResolver( 1076): searchForImsServices: package=net.oreki.antimatterdimensions.debug, users=[UserHandle{0}]
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.080 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.091 I/WifiService(  680): getWifiEnabledState uid=10221 state=3
+11-25 22:00:08.109 I/DownloadManager( 1347): DownloadManager$4.onSuccess():587 download for emoji_kitchen_data is finished with files # rjf@3b8f5282
+11-25 22:00:08.112 I/WM-WorkerWrapper( 1347): Worker result SUCCESS for Work [ id=274f51ff-baee-44f8-b256-8992e77fce07, tags={ com.google.android.libraries.inputmethod.mdd.MDDTaskScheduler$Worker,mdd_download_task_unmetered_battery } ]
+11-25 22:00:08.121 V/ImsResolver( 1076): searchForImsServices: package=net.oreki.antimatterdimensions.debug, users=[UserHandle{0}]
+11-25 22:00:08.121 I/WifiService(  680): is6GHzBandSupported uid=10221
+11-25 22:00:08.123 I/alqn    ( 2173): Robin eligibility : Account is Pseudonymous type.
+11-25 22:00:08.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.133 I/Dtdi    ( 1259): [LifecycleService] Initializing lifecycle service [CONTEXT service_id=312 ]
+11-25 22:00:08.133 D/BoundBrokerSvc( 1259): onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-25 22:00:08.139 I/BackupManagerService(  680): No delayed restore requests for the given dependency: net.oreki.antimatterdimensions.debug
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.149 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.159 V/GraphicsEnvironment( 2502): Currently set values for:
+11-25 22:00:08.159 V/GraphicsEnvironment( 2502):   angle_gl_driver_selection_pkgs=[]
+11-25 22:00:08.160 V/GraphicsEnvironment( 2502):   angle_gl_driver_selection_values=[]
+11-25 22:00:08.160 V/GraphicsEnvironment( 2502): com.google.android.apps.wellbeing is not listed in per-application setting
+11-25 22:00:08.161 V/GraphicsEnvironment( 2502): No special selections for ANGLE, returning default driver choice
+11-25 22:00:08.176 V/GraphicsEnvironment( 2502): Neither updatable production driver nor prerelease driver is supported.
+11-25 22:00:08.177 V/ClearcutMetricXmitter( 1462): Transmission is done.
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.183 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.186 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 8
+11-25 22:00:08.186 D/CarrierActionUtils( 2476): onDisableDefaultURLHandler
+11-25 22:00:08.190 I/eody    ( 2173): Validating WorkManager process
+11-25 22:00:08.202 D/CarrierDefaultBroadcastReceiver( 2476): onReceive intent: android.telephony.action.CARRIER_SIGNAL_RESET
+11-25 22:00:08.212 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 6
+11-25 22:00:08.212 D/CarrierActionUtils( 2476): onCancelAllNotifications
+11-25 22:00:08.213 D/CarrierDefaultBroadcastReceiver( 2476): apply carrier action idx: 8
+11-25 22:00:08.213 D/CarrierActionUtils( 2476): onDisableDefaultURLHandler
+11-25 22:00:08.225 I/alqn    ( 2173): User became ineligible due to one of checks failed on client
+11-25 22:00:08.227 I/alod    ( 2173): (REDACTED) optInSettingStatus value %s.
+11-25 22:00:08.240 D/WM-PackageManagerHelper( 2173): Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-25 22:00:08.241 D/WM-Schedulers( 2173): Created SystemJobScheduler and enabled SystemJobService
+11-25 22:00:08.243 I/NearbyDiscovery( 1259): DiscoveryService onStartCommand action: com.google.android.gms.nearby.discovery:ACTION_PERMISSION_CHANGE [CONTEXT service_id=265 ]
+11-25 22:00:08.244 W/Looper  (  680): Slow dispatch took 501ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@b349c1e m=0
+11-25 22:00:08.249 I/eody    ( 2173): (REDACTED) Processes: %s, %s, %s, %s
+11-25 22:00:08.249 W/GmsCoreLogger( 1259): Aggregation config without code definition [CONTEXT service_id=299 ]
+11-25 22:00:08.249 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.250 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.250 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.250 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.250 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.250 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.251 I/MultiDex( 2502): VM with version 2.1.0 has multidex support
+11-25 22:00:08.251 I/MultiDex( 2502): Installing application
+11-25 22:00:08.251 I/MultiDex( 2502): VM has multidex support, MultiDex support library is disabled.
+11-25 22:00:08.256 D/BoundBrokerSvc( 1259): onBind: Intent { act=com.google.android.gms.findmydevice.spot.service.locationreport.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-25 22:00:08.256 D/BoundBrokerSvc( 1259): Loading bound service for intent: Intent { act=com.google.android.gms.findmydevice.spot.service.locationreport.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-25 22:00:08.259 I/Nearby  ( 1259): is blocked device type false, isAuto=false, isIot=false, isLatchsky=false, isChinaWearable=false, isTv=false, isWearable=false (supportWearOs=false), isChromeOsDevice=false (supportChromeOs=false) [CONTEXT service_id=49 ]
+11-25 22:00:08.269 W/.android.dialer( 1587): Suspending all threads took: 595.706ms
+11-25 22:00:08.272 D/AS.AudioService(  680): received android.intent.action.PACKAGE_REPLACED replacing: true archival: false for package net.oreki.antimatterdimensions.debug with uid 10235
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.277 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.289 W/system_server(  680): Long monitor contention with owner RoleControllerService (2488) at int android.content.res.AssetManager.getResourceIdentifier(java.lang.String, java.lang.String, java.lang.String)(AssetManager.java:905) waiters=1 in android.content.res.ApkAssets[] android.content.res.AssetManager.getApkAssets() for 426ms
+11-25 22:00:08.303 I/apfn    ( 2173): OptInSetting is UNKNOWN or UNRECOGNIZED [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:08.320 D/ActivityManager(  680): sync unfroze 2091 com.google.android.apps.restore for 3
+11-25 22:00:08.332 I/alod    ( 2173): (REDACTED) oobeCompleted %s
+11-25 22:00:08.333 I/aknh    ( 2173): Device not matched [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:08.334 I/alqn    ( 2173): Robin eligibility : Account is Pseudonymous type.
+11-25 22:00:08.334 I/alqn    ( 2173): User became ineligible due to one of checks failed on client
+11-25 22:00:08.340 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.340 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.341 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.343 D/WM-ForceStopRunnable( 2173): Is default app process = true
+11-25 22:00:08.343 D/WM-ForceStopRunnable( 2173): Performing cleanup operations.
+11-25 22:00:08.343 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.343 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.344 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.345 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.345 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.345 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.371 V/Backup  ( 1259): [BackupAccountNotifier] Handling new intent. Show notification: true
+11-25 22:00:08.381 W/system_server(  680): Long monitor contention with owner shortcut (904) at android.util.Pair android.app.ResourcesManager.updateResourceImplAssetsWithRegisteredLibs(android.content.res.AssetManager, boolean)(ResourcesManager.java:195) waiters=0 in android.content.res.Resources android.app.ResourcesManager.createResources(android.content.res.ResourcesKey, java.lang.ClassLoader, android.app.ResourcesManager$ApkAssetsSupplier) for 438ms
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.405 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.427 I/DialerSystemBlockedNumberPhoneLookupContributor( 1587): com.android.dialer.phonelookup.blockednumber.SystemBlockedNumberPhoneLookupContributor.getMostRecentInfo:106 getMostRecentInfo
+11-25 22:00:08.446 I/WM-GreedyScheduler( 2041): Ignoring schedule request in a secondary process
+11-25 22:00:08.474 W/VvmPkgInstalledRcvr( 1076): carrierVvmPkgAdded: carrier vvm packages doesn't contain net.oreki.antimatterdimensions.debug
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.475 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.484 I/DialerLegacyCountryDetector( 1587): com.android.dialer.location.LegacyCountryDetector.getCurrentCountryIso:98 returning Redacted-2-chars
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 5bfff9a9-9ec3-4f86-9ae0-69c68e3799d8}. Requires device idle.
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 208cad7a-83d4-4292-be66-3cfb6cbbd306}. Requires device idle.
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: b98cec78-eaf0-49b3-9131-a83b8bc7678b}. Requires device idle.
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 04e84561-b593-48fe-bbcb-d562f886beb6}. Requires device idle.
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 992c884f-c0df-476f-9e02-6431caba33bf}. Requires device idle.
+11-25 22:00:08.506 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 750f69f5-6c69-4c51-8cdc-9b6b68bb4927}. Requires device idle.
+11-25 22:00:08.519 W/WearableService( 1259): onGetService: Wear is not available on this device.
+11-25 22:00:08.521 I/HWUI    (  959): Davey! duration=9438ms; Flags=0, FrameTimelineVsyncId=8973, IntendedVsync=53660631382, Vsync=62460630502, InputEventId=0, HandleInputStart=62475057800, AnimationStart=62475084700, PerformTraversalsStart=62639695800, DrawStart=62640651600, FrameDeadline=57727297886, FrameStartTime=62473043500, FrameInterval=16666665, WorkloadTarget=16666666, AnimationTime=62460630502, SyncQueued=62640997500, SyncStart=62659901100, IssueDrawCommandsStart=62660006000, SwapBuffers=62983585800, FrameCompleted=63117651200, DequeueBufferDuration=28800, QueueBufferDuration=512800, GpuCompleted=63117460200, SwapBuffersCompleted=63117651200, DisplayPresentTime=0, CommandSubmissionCompleted=62983585800, 
+11-25 22:00:08.522 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.522 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.522 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.526 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.526 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.527 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.549 I/Nearby  ( 1259): is blocked device type false, isAuto=false, isIot=false, isLatchsky=false, isChinaWearable=false, isTv=false, isWearable=false (supportWearOs=false), isChromeOsDevice=false (supportChromeOs=false) [CONTEXT service_id=49 ]
+11-25 22:00:08.551 I/NearbyDiscovery( 1259): DiscoveryController, showNotification, itemSize=0 [CONTEXT service_id=265 ]
+11-25 22:00:08.552 I/NearbyDiscovery( 1259): Show notifications: 0 total, no changes since last shown, no-op. [CONTEXT service_id=265 ]
+11-25 22:00:08.557 I/PackageManager(  680): getInstalledPackages: callingUid=1000 flags=0 updatedFlags=786432 userId=0
+11-25 22:00:08.558 E/system_server(  680): No package ID 7f found for resource ID 0x7f080620.
+11-25 22:00:08.558 E/system_server(  680): No package ID 7f found for resource ID 0x7f140cdf.
+11-25 22:00:08.558 E/system_server(  680): No package ID 7f found for resource ID 0x7f08061e.
+11-25 22:00:08.558 E/system_server(  680): No package ID 7f found for resource ID 0x7f140c96.
+11-25 22:00:08.559 E/system_server(  680): No package ID 7f found for resource ID 0x7f080622.
+11-25 22:00:08.559 E/system_server(  680): No package ID 7f found for resource ID 0x7f140e40.
+11-25 22:00:08.586 W/Looper  (  680): Slow dispatch took 237ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ServiceDispatcher$RunConnection@c59e00b m=0
+11-25 22:00:08.587 W/system_server(  680): Long monitor contention with owner main (680) at void com.android.server.job.JobServiceContext.onServiceConnected(android.content.ComponentName, android.os.IBinder)(JobServiceContext.java:1126) waiters=0 in void com.android.server.job.JobSchedulerService$JobHandler.handleMessage(android.os.Message) for 216ms
+11-25 22:00:08.588 I/bgzr    ( 2173): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:08.588 I/apfn    ( 2173): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:08.589 I/apfn    ( 2173): #getOobeStatus: BeforeOobe [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:00:08.589 I/agsd    ( 2173): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.604 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.606 I/drbo    ( 1462): (REDACTED) Initializing managed lifecycle(%s)
+11-25 22:00:08.607 I/drbo    ( 1462): (REDACTED) Initializing managed lifecycle(%s)
+11-25 22:00:08.607 I/agsd    ( 1462): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:08.607 I/agsd    ( 1462): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:08.608 W/system_server(  680): Long monitor contention with owner main (680) at void com.android.server.job.JobServiceContext.onServiceConnected(android.content.ComponentName, android.os.IBinder)(JobServiceContext.java:1126) waiters=1 in java.util.List com.android.server.job.JobSchedulerService.getPendingJobsInNamespace(int, java.lang.String) for 193ms
+11-25 22:00:08.609 W/system_server(  680): Long monitor contention with owner binder:680_C (1241) at void com.android.server.am.ActivityManagerService.publishService(android.os.IBinder, android.os.IBinder, android.os.IBinder)(ActivityManagerService.java:14850) waiters=1 in android.content.Intent com.android.server.am.BroadcastController.registerReceiverWithFeatureTraced(android.app.IApplicationThread, java.lang.String, java.lang.String, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int) for 234ms
+11-25 22:00:08.609 I/agiy    ( 1462): Listening for setting changes changes
+11-25 22:00:08.617 W/ActivityThread( 2091): getPackageInfo() called with an older ApplicationInfo than the cached version for package com.google.android.apps.restore
+11-25 22:00:08.619 I/agsd    ( 2173): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:08.619 I/agzn    ( 2173): #isGeminiDefaultSystemFeatureEnabled: false
+11-25 22:00:08.620 I/bgzr    ( 2173): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:08.620 I/apfn    ( 2173): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:08.621 I/alqn    ( 2173): (REDACTED) Robin eligibility : Robin is ineligible failure reasons: %s
+11-25 22:00:08.622 I/alqn    ( 2173): (REDACTED) Robin eligibility : Robin is ineligible failure reasons: %s
+11-25 22:00:08.622 I/awic    ( 2173): Live eligibility: Not eligible for Robin
+11-25 22:00:08.627 I/agzr    ( 1462): (REDACTED) Robin eligibility #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:08.627 I/agoc    ( 1462): Robin not enabled
+11-25 22:00:08.627 I/agfj    ( 1462): Assistant backend selected for headphone invocations.
+11-25 22:00:08.631 I/agrm    ( 1462): (REDACTED) #FCF: Preferred assistant locale set %s 
+11-25 22:00:08.631 I/agrm    ( 1462): (REDACTED) #FCF: Preferred assistant locale set %s 
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.645 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.665 D/SystemServerTiming(  680): getUserSwitchability-0
+11-25 22:00:08.665 D/SystemServerTiming(  680): TM.isInCall
+11-25 22:00:08.665 W/system_server(  680): Long monitor contention with owner binder:680_C (1241) at void com.android.server.am.ActivityManagerService.publishService(android.os.IBinder, android.os.IBinder, android.os.IBinder)(ActivityManagerService.java:14850) waiters=2 in void com.android.server.am.BroadcastQueueImpl.updateRunningList() for 288ms
+11-25 22:00:08.665 V/SystemServerTiming(  680): TM.isInCall took to complete: 0ms
+11-25 22:00:08.665 D/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH
+11-25 22:00:08.665 V/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH took to complete: 0ms
+11-25 22:00:08.665 D/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED
+11-25 22:00:08.670 V/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED took to complete: 4ms
+11-25 22:00:08.670 D/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM
+11-25 22:00:08.670 V/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM took to complete: 0ms
+11-25 22:00:08.670 V/SystemServerTiming(  680): getUserSwitchability-0 took to complete: 5ms
+11-25 22:00:08.670 D/SystemServerTiming(  680): getUserSwitchability-0
+11-25 22:00:08.671 D/SystemServerTiming(  680): TM.isInCall
+11-25 22:00:08.671 V/SystemServerTiming(  680): TM.isInCall took to complete: 0ms
+11-25 22:00:08.671 D/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH
+11-25 22:00:08.671 V/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH took to complete: 0ms
+11-25 22:00:08.671 D/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED
+11-25 22:00:08.671 V/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED took to complete: 0ms
+11-25 22:00:08.671 D/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM
+11-25 22:00:08.671 V/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM took to complete: 0ms
+11-25 22:00:08.671 V/SystemServerTiming(  680): getUserSwitchability-0 took to complete: 1ms
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.704 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.721 I/DialerDataStoreReverseLookupSettings( 1587): com.android.dialer.reverselookup.settings.DataStoreReverseLookupSettings.isAapmEnabledByUser:145 Darpa is present
+11-25 22:00:08.721 I/DialerDataStoreReverseLookupSettings( 1587): com.android.dialer.reverselookup.settings.DataStoreReverseLookupSettings.isAapmEnabledByUser:145 Darpa is present
+11-25 22:00:08.743 E/RoleControllerServiceImpl(  680): Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.WALLET, user: 0
+11-25 22:00:08.749 D/WM-SystemJobService( 2173): onStartJob for WorkGenerationalId(workSpecId=e9b9a26e-3c0f-40b7-8443-bbb4d696d39b, generation=0)
+11-25 22:00:08.758 W/ActivityThread( 1950): getPackageInfo() called with an older ApplicationInfo than the cached version for package com.google.android.as.oss
+11-25 22:00:08.760 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.760 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.760 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.760 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.760 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.761 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.770 I/BootCompletedBroadcastReceiver( 1950): Received intent: android.intent.action.BOOT_COMPLETED
+11-25 22:00:08.792 W/SignedPackage(  680): Cannot get ApplicationInfo for package: com.google.android.devicelockcontroller
+11-25 22:00:08.808 D/SatelliteController( 1076): packageStateChanged: package:net.oreki.antimatterdimensions.debug defaultSmsPackageName: com.google.android.apps.messaging satelliteGatewayServicePackageName: 
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.815 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.849 W/ActivityThread( 2173): getPackageInfo() called with an older ApplicationInfo than the cached version for package com.google.android.googlequicksearchbox
+11-25 22:00:08.851 W/system_server(  680): Long monitor contention with owner shortcut (904) at void com.android.server.pm.ShortcutService.addDirtyUserId(int)(ShortcutService.java:1317) waiters=0 in void com.android.server.pm.ShortcutService.lambda$handleUnlockUser$3(long, int) for 33.796s
+11-25 22:00:08.858 I/DialerDataStoreReverseLookupSettings( 1587): com.android.dialer.reverselookup.settings.DataStoreReverseLookupSettings.isAapmEnabledByUser:145 Darpa is present
+11-25 22:00:08.861 W/system_server(  680): Long monitor contention with owner shortcut (904) at void com.android.server.pm.ShortcutService.addDirtyUserId(int)(ShortcutService.java:1317) waiters=1 in java.util.List com.android.server.pm.ShortcutService$LocalService.getShortcuts(int, java.lang.String, long, java.lang.String, java.util.List, java.util.List, android.content.ComponentName, int, int, int, int) for 18.039s
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.869 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.871 W/libbinder.Binder(  680): Binder transaction to android.content.pm.ILauncherApps, function: UNKNOWN_FUNCTION_NAME, code: 18, took 18051ms. Data bytes: 192 Reply bytes: 12 Flags: 18
+11-25 22:00:08.872 D/LoaderTask( 1092): No pinned shortcuts found for user UserHandle{0}
+11-25 22:00:08.872 W/LoaderTask( 1092): loadWorkspaceImpl: Loader stopped, skipping item processing
+11-25 22:00:08.873 D/LoaderTask( 1092): loadWorkspace finished
+11-25 22:00:08.903 W/LoaderTask( 1092): LoaderTask cancelled
+11-25 22:00:08.904 I/GridSizeMigrationDBController( 1092): Migration is not needed. destDeviceState: DeviceGridState{mGridSizeString='4,6', mNumHotseat=4, mDeviceType=0, mDbFile=launcher_4_by_6.db, mGridType=1}, srcDeviceState: DeviceGridState{mGridSizeString='4,6', mNumHotseat=4, mDeviceType=0, mDbFile=launcher_4_by_6.db, mGridType=1}
+11-25 22:00:08.904 D/ModelDbController( 1092): isGridMigrationNecessary: no grid migration needed
+11-25 22:00:08.909 D/ControlsListingControllerImpl(  959): ServiceConfig reloaded, count: 0
+11-25 22:00:08.910 I/GridSizeMigrationDBController( 1092): Migration is not needed. destDeviceState: DeviceGridState{mGridSizeString='4,6', mNumHotseat=4, mDeviceType=0, mDbFile=launcher_4_by_6.db, mGridType=1}, srcDeviceState: DeviceGridState{mGridSizeString='4,6', mNumHotseat=4, mDeviceType=0, mDbFile=launcher_4_by_6.db, mGridType=1}
+11-25 22:00:08.911 D/LoaderTask( 1092): loadWorkspace: loading default favorites if necessary
+11-25 22:00:08.917 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.917 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.917 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.924 I/netd    (  471): tetherGetStats() -> {[]} <6.14ms>
+11-25 22:00:08.926 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.926 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.927 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.927 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.927 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.927 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.928 D/LoaderTask( 1092): loadWorkspace: Packages with active install/update sessions: []
+11-25 22:00:08.934 D/LoaderTask( 1092): No pinned shortcuts found for user UserHandle{0}
+11-25 22:00:08.939 D/ControlsListingControllerImpl(  959): ServiceConfig reloaded, count: 0
+11-25 22:00:08.959 W/.gms.persistent( 1259): Long monitor contention with owner lowpool[12] (2330) at void ezoc.e(ezks, ezks, int)(:com.google.android.gms@261136038@26.11.36 (260800-892401869):48) waiters=0 in int ezoc.a(eznn, cane) for 697ms
+11-25 22:00:08.961 W/Looper  (  680): Drained
+11-25 22:00:08.967 W/Looper  (  680): Slow dispatch took 213ms android.ui app=system_server main=false group=TOP_APP h=com.android.server.am.ActivityManagerService$UiHandler c=null m=68
+11-25 22:00:08.975 I/WifiService(  680): getWifiEnabledState uid=10221 state=3
+11-25 22:00:08.977 I/GmsCoreXrpcWrapper( 1412): Creating a custom channel provider with trafficStatsTag=6150 trafficStatsUid=-1
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.979 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:08.990 I/WifiService(  680): getWifiEnabledState uid=10221 state=3
+11-25 22:00:08.991 W/.gms.persistent( 1259): Long monitor contention with owner highpool[5] (1632) at void bike.execute(java.lang.Runnable)(:com.google.android.gms@261136038@26.11.36 (260800-892401869):12) waiters=0 in void bike.execute(java.lang.Runnable) for 446ms
+11-25 22:00:08.996 D/ControlsListingControllerImpl(  959): ServiceConfig reloaded, count: 0
+11-25 22:00:09.010 I/GCoreUlr( 1259): Unbound from all signal providers.
+11-25 22:00:09.035 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.035 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.036 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.036 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.036 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.036 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.078 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.google.android.dialer, itemType=0, restoreFlag=0
+11-25 22:00:09.082 I/Fitness ( 1259): OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x5000010 xflg=0x4 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-25 22:00:09.085 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.085 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.085 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.085 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.086 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.086 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.086 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.google.android.apps.messaging, itemType=0, restoreFlag=0
+11-25 22:00:09.108 W/earchbox:search( 2173): Suspending all threads took: 244.645ms
+11-25 22:00:09.135 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.135 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.135 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.145 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.145 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.147 V/ClearcutMetricXmitter( 2091): Transmission is done.
+11-25 22:00:09.180 D/WM-Processor( 1587): Processor cancelling 1ea37961-a0f3-44bf-8c4c-be5980ce7df9
+11-25 22:00:09.180 D/WM-Processor( 1587): WorkerWrapper could not be found for 1ea37961-a0f3-44bf-8c4c-be5980ce7df9
+11-25 22:00:09.189 I/Choreographer(  959): Skipped 81 frames!  The application may be doing too much work on its main thread.
+11-25 22:00:09.195 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.195 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.195 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.195 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.196 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.196 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.226 W/putmethod.latin( 1347): Long monitor contention with owner arch_disk_io_0 (2513) at java.lang.Object zkv.a()(PG:32) waiters=0 in java.lang.Object zkv.a() for 640ms
+11-25 22:00:09.236 I/EmojiKitchenDataCleanupWorker( 1347): EmojiKitchenDataCleanupWorker.enqueueWork():174 Scheduling emoji kitchen data cleanup work.
+11-25 22:00:09.237 I/EmojiKitchenDataMddDownloader( 1347): EmojiKitchenDataMddDownloader.initInBackgroundAndAddCallback():241 Successfully initialize emoji kitchen dabatase: true
+11-25 22:00:09.237 D/WM-GreedyScheduler( 1587): Cancelling work ID 1ea37961-a0f3-44bf-8c4c-be5980ce7df9
+11-25 22:00:09.243 W/JobInfo ( 1587): Requested important-while-foreground flag for job41 is ignored and takes no effect
+11-25 22:00:09.243 D/WM-SystemJobScheduler( 1587): Scheduling work ID 794b25d5-eabe-48b2-bc72-50e630881981Job ID 41
+11-25 22:00:09.248 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.android.chrome, itemType=0, restoreFlag=0
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.260 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.263 I/AggregationService( 1412): Starting finalization task for expired aggregation windows. Total number of expired files: 0 [CONTEXT service_id=446 ]
+11-25 22:00:09.281 D/WM-SystemJobScheduler( 2173): Reconciling jobs
+11-25 22:00:09.303 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.google.android.gm, itemType=0, restoreFlag=0
+11-25 22:00:09.306 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.307 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.307 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.307 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.307 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.307 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.338 I/Dtdi    ( 1259): [CallTransferLifecycleDelegate] Starting the call transfer state monitor in the background [CONTEXT service_id=312 ]
+11-25 22:00:09.354 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.354 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.354 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.362 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.364 W/chbox:googleapp( 2041): Suspending all threads took: 376.743ms
+11-25 22:00:09.365 I/DialerSingletonScopedExternalsLogging( 1587): com.google.android.dialershared.externals.logging.SingletonScopedExternalsLogging.recordCallMethodInvocation:75 event: TIKTOK_WORK_MANAGER_ENQUEUE, function parameters: [com.android.dialer.eligibilityexpansion.EligibilityExpansionDatabaseWorker], return value: f700433c-1a11-48e0-9c63-66a0ed988934
+11-25 22:00:09.369 I/DialerEligibilityExpansionStartupListener( 1587): com.android.dialer.eligibilityexpansion.EligibilityExpansionStartupListener$1.onSuccess:49 Enqueued eligibility expansion database worker.
+11-25 22:00:09.376 W/View    (  959): requestLayout() improperly called by ModernStatusBarMobileView(slot='mobile', subId=1, isCollecting=true, visibleState=ICON); viewString=com.android.systemui.statusbar.pipeline.mobile.ui.view.ModernStatusBarMobileView{4645a4d V.E...... ......ID 0,0-61,58 #7f0a059d app:id/mobile_combo} during layout: running second layout pass
+11-25 22:00:09.378 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.google.android.apps.photos, itemType=0, restoreFlag=0
+11-25 22:00:09.381 D/WorkspaceItemProcessor( 1092): valid target true, marking restored: com.google.android.youtube, itemType=0, restoreFlag=0
+11-25 22:00:09.384 D/DownloadManager( 2044): [19] Starting
+11-25 22:00:09.392 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.393 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.393 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.407 W/MDM     ( 1412): [72] dcyq.d: No accounts found for FMD API
+11-25 22:00:09.423 I/cvgn    ( 2041): (REDACTED) Device Compliance Fetch time taken = %sms
+11-25 22:00:09.423 I/cvgn    ( 2041): Device is compliant!
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.448 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.459 W/libc    ( 1092): Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-25 22:00:09.491 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.492 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.492 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.492 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.492 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.492 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.533 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 1c3e2a3f-7e7d-4a87-aacf-d6b543758fe6}. Requires device idle.
+11-25 22:00:09.533 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 5bfff9a9-9ec3-4f86-9ae0-69c68e3799d8}. Requires device idle.
+11-25 22:00:09.533 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 208cad7a-83d4-4292-be66-3cfb6cbbd306}. Requires device idle.
+11-25 22:00:09.541 W/.gms.persistent( 1259): Suspending all threads took: 178.388ms
+11-25 22:00:09.542 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: b98cec78-eaf0-49b3-9131-a83b8bc7678b}. Requires device idle.
+11-25 22:00:09.542 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 04e84561-b593-48fe-bbcb-d562f886beb6}. Requires device idle.
+11-25 22:00:09.542 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 992c884f-c0df-476f-9e02-6431caba33bf}. Requires device idle.
+11-25 22:00:09.542 D/WM-GreedyScheduler( 1587): Ignoring {WorkSpec: 750f69f5-6c69-4c51-8cdc-9b6b68bb4927}. Requires device idle.
+11-25 22:00:09.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.546 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.547 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.547 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.547 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.589 W/JobInfo ( 1347): Requested important-while-foreground flag for job28 is ignored and takes no effect
+11-25 22:00:09.596 I/HWUI    (  959): Davey! duration=1707ms; Flags=0, FrameTimelineVsyncId=12579, IntendedVsync=62477308798, Vsync=63827308744, InputEventId=0, HandleInputStart=63878850600, AnimationStart=63878893300, PerformTraversalsStart=63880077500, DrawStart=64117371500, FrameDeadline=63143963768, FrameStartTime=63841582200, FrameInterval=16666666, WorkloadTarget=16666666, AnimationTime=63827308744, SyncQueued=64120370800, SyncStart=64121388200, IssueDrawCommandsStart=64121594300, SwapBuffers=64171936600, FrameCompleted=64185460000, DequeueBufferDuration=38500, QueueBufferDuration=621200, GpuCompleted=64184232200, SwapBuffersCompleted=64185460000, DisplayPresentTime=0, CommandSubmissionCompleted=64171936600, 
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.597 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.643 I/PersonalSafety( 1412): ConnectivityProtectionLockingIntentOperation: cancelled task [CONTEXT service_id=310 ]
+11-25 22:00:09.647 D/WM-GreedyScheduler( 1587): Starting work for 794b25d5-eabe-48b2-bc72-50e630881981
+11-25 22:00:09.648 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.648 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.649 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.649 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.649 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.649 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.668 W/ApplicationInfo(  680): Large ApplicationInfo parcel: size=17500 package=com.google.android.googlequicksearchbox sharedLibs=3 resDirs=2 overlayPaths=2
+11-25 22:00:09.671 W/Looper  (  680): Slow delivery took 253ms main app=system_server main=true group=FOREGROUND h=com.android.server.power.Notifier$NotifierHandler c=null m=7
+11-25 22:00:09.679 W/ApplicationInfo(  680): Large ApplicationInfo parcel: size=17500 package=com.google.android.googlequicksearchbox sharedLibs=3 resDirs=2 overlayPaths=2
+11-25 22:00:09.705 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.705 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.705 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.711 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.713 I/resolv  (  471): GetAddrInfoHandler::run: {100 983140 100 983140 10112 0}
+11-25 22:00:09.714 I/resolv  (  471): res_nmkquery: (QUERY, IN, AAAA)
+11-25 22:00:09.715 I/resolv  (  471): res_nmkquery: (QUERY, IN, A)
+11-25 22:00:09.755 I/resolv  (  471): res_nsend: used send_dg 61 terrno: 0
+11-25 22:00:09.755 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=61
+11-25 22:00:09.759 I/resolv  (  471): res_nsend: used send_dg 49 terrno: 0
+11-25 22:00:09.759 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=49
+11-25 22:00:09.762 D/WM-GreedyScheduler( 1587): Cancelling work ID 3f7cfea2-5c80-4b7d-acf4-c118840320ba
+11-25 22:00:09.773 D/CompatChangeReporter( 2044): Compat change id reported: 418924588; UID 10112; state: ENABLED
+11-25 22:00:09.774 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.774 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.774 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.786 W/Looper  (  680): Drained
+11-25 22:00:09.788 W/libbinder.Binder(  680): Binder transaction to android.os.IRemoteCallback, function: UNKNOWN_FUNCTION_NAME, code: 1, took 2164ms. Data bytes: 74280 Reply bytes: 0 Flags: 17
+11-25 22:00:09.803 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.804 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.804 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.804 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.804 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.804 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.807 W/HWUI    ( 1092): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.835 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.865 I/Fitness ( 1259): OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x5000010 xflg=0x4 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-25 22:00:09.885 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.886 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.886 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.886 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.886 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.886 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.893 I/EmojiKitchenDataCleanupWorker( 1347): EmojiKitchenDataCleanupWorker.enqueueWork():182 Successfully enqueued emoji kitchen data cleanup work.
+11-25 22:00:09.898 W/AodBurnInViewModel(  959): minViewY is below topInset: BurnInParameters(topInset=com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder$OnLayoutChange$$ExternalSyntheticLambda0@c256e40, minViewY=com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder$OnLayoutChange$$ExternalSyntheticLambda0@907a179, translationY=com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder$$ExternalSyntheticLambda1@808cebe, translationX=com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder$$ExternalSyntheticLambda1@fb21b1f) minViewY=0 topInset=128
+11-25 22:00:09.909 D/BoundBrokerSvc( 1259): onBind: Intent { act=com.google.android.gms.cast.firstparty.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-25 22:00:09.909 D/BoundBrokerSvc( 1259): Loading bound service for intent: Intent { act=com.google.android.gms.cast.firstparty.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-25 22:00:09.913 W/system_server(  680): Long monitor contention with owner shortcut (904) at boolean com.android.server.pm.ShortcutPackageItem.waitForBitmapSaves()(ShortcutPackageItem.java:225) waiters=0 in void com.android.server.pm.ShortcutPackage.forEachShortcutStopWhen(java.util.function.Function) for 374ms
+11-25 22:00:09.932 I/Dtdi    ( 1259): [TidepoolSettingsSubDelegate] registering tidepool listeners [CONTEXT service_id=312 ]
+11-25 22:00:09.935 I/Dtdi    ( 1259): [NearbyShareSettingsSubDelegate] Registering NS state observer [CONTEXT service_id=312 ]
+11-25 22:00:09.940 D/WM-SystemJobService( 1587): onStartJob for WorkGenerationalId(workSpecId=794b25d5-eabe-48b2-bc72-50e630881981, generation=0)
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.946 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.947 W/libc    ( 1092): Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-25 22:00:09.949 D/SystemServerTiming(  680): getUserSwitchability-0
+11-25 22:00:09.949 D/SystemServerTiming(  680): TM.isInCall
+11-25 22:00:09.950 V/SystemServerTiming(  680): TM.isInCall took to complete: 2ms
+11-25 22:00:09.951 D/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH
+11-25 22:00:09.951 V/SystemServerTiming(  680): hasUserRestriction-DISALLOW_USER_SWITCH took to complete: 0ms
+11-25 22:00:09.951 D/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED
+11-25 22:00:09.951 V/SystemServerTiming(  680): getInt-ALLOW_USER_SWITCHING_WHEN_SYSTEM_USER_LOCKED took to complete: 0ms
+11-25 22:00:09.951 D/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM
+11-25 22:00:09.951 V/SystemServerTiming(  680): isUserUnlocked-USER_SYSTEM took to complete: 0ms
+11-25 22:00:09.951 V/SystemServerTiming(  680): getUserSwitchability-0 took to complete: 2ms
+11-25 22:00:09.990 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.990 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.990 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.993 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.993 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.994 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.994 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.994 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:09.994 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.022 I/WestworldConfigUtils( 1259): Early collection is not enabled [CONTEXT service_id=251 ]
+11-25 22:00:10.049 I/cvgn    ( 2041): Invoking "compliant" action...
+11-25 22:00:10.061 I/AiAiCaptions( 1488): maybeUpdateComponentsManagerAndRegisterListeners(): registering receivers
+11-25 22:00:10.063 I/cprf    ( 2173): (REDACTED) #onReceive: %s
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.077 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.109 D/ConnectivityService(  680): NetReassign [no changes] [c 0] [a 2] [i 1]
+11-25 22:00:10.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.130 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.133 I/Surface ( 1092): Creating surface for consumer unnamed-1092-11 with slotExpansion=1 for 64 slots
+11-25 22:00:10.145 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.145 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.145 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.146 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.148 I/agsd    ( 1462): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:10.149 I/agsd    ( 1462): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:10.149 I/agys    ( 1462): (REDACTED) #evaluate: isEnabled[ = %s failure reasons: %s
+11-25 22:00:10.150 I/agyr    ( 1462): (REDACTED) #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:10.150 I/agsd    ( 1462): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:10.150 I/agsd    ( 1462): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:10.150 I/agsd    ( 1462): (REDACTED) FCF System FeatureName to check: %s
+11-25 22:00:10.150 I/agsd    ( 1462): (REDACTED) FCF: Device model check status : %s
+11-25 22:00:10.150 I/agyg    ( 1462): (REDACTED) #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:10.151 I/agyi    ( 1462): (REDACTED) #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:10.151 I/agym    ( 1462): (REDACTED) #evaluate: isEnabled = %s failure reasons: %s
+11-25 22:00:10.164 D/ZenModeController(  959): Added callback class com.android.keyguard.ClockEventController$zenModeCallback$1
+11-25 22:00:10.188 I/agfj    ( 1462): (REDACTED) Needs to download files: %s
+11-25 22:00:10.190 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.200 I/adbd    (  541): adbd service requested 'shell,v2,raw:dumpsys window'
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.200 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.209 W/m.android.phone( 1076): Long monitor contention with owner binder:1076_4 (1200) at void com.android.internal.telephony.RIL.decrementWakeLock(com.android.internal.telephony.RILRequest)(RIL.java:5694) waiters=0 in void com.android.internal.telephony.RIL.acquireWakeLock(com.android.internal.telephony.RILRequest, int) for 274ms
+11-25 22:00:10.224 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:10.224 I/agzg    ( 1462): User not OptedIn. Skipping Eligibility Checks.
+11-25 22:00:10.226 I/aggn    ( 1462): (REDACTED) Updated config based on request %s, currentClient %s
+11-25 22:00:10.228 I/Choreographer(  959): Skipped 59 frames!  The application may be doing too much work on its main thread.
+11-25 22:00:10.231 I/dqod    ( 1462): (REDACTED) New message(%s, @%s) received at connection(%s).
+11-25 22:00:10.254 D/WifiClientModeImpl[18222:wlan0](  680): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2447 RxLinkSpeed=2
+11-25 22:00:10.255 D/WifiDataStall(  680): tx tput in kbps: 11000
+11-25 22:00:10.255 D/WifiDataStall(  680): rx tput in kbps: 11000
+11-25 22:00:10.255 V/WifiConfigManager(  680): Updating scan detail cache freq=2447 BSSID=00:13:10:85:fe:01 RSSI=-50 for "AndroidWifi"NONE
+11-25 22:00:10.256 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:10.256 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:10.256 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:10.256 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:10.257 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:10.257 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:10.257 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:00:10.257 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:00:10.261 I/HalDevMgr(  680): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-25 22:00:10.265 I/AiAiCaptions( 1488): TtsLangFetcherImpl::fetch(). Fetching locales en_US
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.267 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.269 D/WM-ForceStopRunnable( 2173): Found unfinished work, scheduling it.
+11-25 22:00:10.269 I/agri    ( 1462): #getEarcons
+11-25 22:00:10.269 I/ahpq    ( 1462): (REDACTED) #isBluetoothOrWiredHeadsetConnected Number of connected audio devices: %s
+11-25 22:00:10.269 I/TextToSpeech( 1488): Sucessfully bound to com.google.android.tts
+11-25 22:00:10.270 I/akpd    ( 1462): (REDACTED) #isRobinOnlyLocale checkedLocale:%s language:%s list:%s
+11-25 22:00:10.278 I/CastDatabase( 1259): Loading the database
+11-25 22:00:10.286 D/TextToSpeechManagerPerUserService(  680): Trying to start connection to TTS engine: com.google.android.tts
+11-25 22:00:10.287 I/.gms.persistent( 1259): Compiler allocated 4756KB to compile void ezjk.run()
+11-25 22:00:10.289 W/ActivityThread( 2173): getPackageInfo() called with an older ApplicationInfo than the cached version for package com.google.android.googlequicksearchbox
+11-25 22:00:10.292 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.292 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.292 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.300 I/PowerManagerService.WLLog(  680): Changing the tag database size from 64 to  128
+11-25 22:00:10.303 V/GrammaticalInflectionUtils(  680): AttributionSource: AttributionSource { uid = 10181, packageName = null, attributionTag = null, token = android.os.Binder@d6d71ca, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-25 22:00:10.332 D/Zygote  (  473): Forked child process 2542
+11-25 22:00:10.337 I/ActivityManager(  680): Start proc 2542:com.google.android.tts/u0a181 for bound-service {com.google.android.tts/com.google.android.apps.speech.tts.googletts.service.GoogleTtsService}
+11-25 22:00:10.338 D/WifiScoreCard(  680): BSSID update SIGNAL_POLL ID: 561269453 SSID: "AndroidWifi", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 11Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Calculated Rx : 0Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-25 22:00:10.338 I/libprocessgroup( 2542): Created cgroup /sys/fs/cgroup/apps/uid_10181
+11-25 22:00:10.338 D/WifiScoreCard(  680): txRate: 8 txSpeed: 1
+11-25 22:00:10.338 D/WifiScoreCard(  680): network update SIGNAL_POLL "AndroidWifi" ID: 4768197 RSSI -50 txSpeed 1
+11-25 22:00:10.339 D/WifiClientModeImpl[18222:wlan0](  680):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 00:13:10:85:fe:01 rssi=-50 f=2447 sc=100 link=1 tx=7.7, 0.0, 0.0 rx=20.8 bcn=0 [on:0 tx:0 rx:0 period:3085] from screen [on:0 period:318880610] score=100
+11-25 22:00:10.339 I/libprocessgroup( 2542): Created cgroup /sys/fs/cgroup/apps/uid_10181/pid_2542
+11-25 22:00:10.344 I/dqod    ( 1462): (REDACTED) Message(%s, @%s) has been successfully processed at connection(%s).
+11-25 22:00:10.345 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:10.345 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:10.345 I/agzg    ( 1462): User not OptedIn. Skipping Eligibility Checks.
+11-25 22:00:10.350 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:10.353 I/bgzr    ( 1462): (REDACTED) getInitialSimplifiedOobeViaDeeplinkUser: %b
+11-25 22:00:10.356 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:10.391 I/dqif    ( 1462): (REDACTED) Connection state changed: %s.
+11-25 22:00:10.394 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.394 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.394 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.403 I/apfn    ( 1462): (REDACTED) isDeeplinkEnabled %s, isInitialSimplifiedOobeViaDeeplinkUser %s
+11-25 22:00:10.403 I/agzg    ( 1462): User not OptedIn. Skipping Eligibility Checks.
+11-25 22:00:10.403 I/agxo    ( 1462): Robin is not eligible or not opted-in
+11-25 22:00:10.403 I/agxo    ( 1462): (REDACTED) Headphone Integration status: %s
+11-25 22:00:10.403 W/(setupdesign) Partner( 1462): No partner package found!
+11-25 22:00:10.409 I/aohp    ( 1462): (REDACTED) DelegationStatus: %s
+11-25 22:00:10.410 W/ActivityManager(  680): Slow operation: 106ms so far, now at startProcess: done updating pids map
+11-25 22:00:10.410 E/ConsumerBase( 1092): [ImageReader-173x173f1u2816m2-1092-7] abandonLocked: ConsumerBase is abandoned!
+11-25 22:00:10.427 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.427 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.427 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.439 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.440 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.440 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.465 E/WorkSourceUtil( 1259): Could not find package: com.google.android.gms.westworld
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.486 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.520 D/WM-SystemJobScheduler( 1587): Scheduling work ID 3f7cfea2-5c80-4b7d-acf4-c118840320baJob ID 42
+11-25 22:00:10.558 I/dqif    ( 1462): (REDACTED) Invocations routing has changed
+11-25 22:00:10.558 I/dqif    ( 1462): %s
+11-25 22:00:10.561 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.562 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.562 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.562 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.562 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.562 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.621 I/adbd    (  541): adbd service requested 'shell,v2,raw:logcat -d -v time'
+11-25 22:00:10.627 I/dqqh    ( 1462): (REDACTED) Platform configuration for connection(%s) has changed(@%s):%s
+11-25 22:00:10.627 I/dqod    ( 1462): (REDACTED) On platform configuration update(@%s) in connection(%s).
+11-25 22:00:10.629 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.629 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.629 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.630 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.670 I/aggn    ( 1462): (REDACTED) On platform configuration update(%s).
+11-25 22:00:10.671 I/agfv    ( 1462): Received ConfigurationUpdate from Triggering API
+11-25 22:00:10.671 I/duql    ( 1462): (REDACTED) #gestureInvocationsEnabled: %b
+11-25 22:00:10.671 I/duql    ( 1462): (REDACTED) #readNotificationsEnabled: %b
+11-25 22:00:10.671 I/dqwv    ( 1462): (REDACTED) On hotword consumer changed: %s.
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.678 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.729 W/libbinder.Binder( 1076): Binder transaction to android.content.IContentProvider, function: UNKNOWN_FUNCTION_NAME, code: 1, took 1794ms. Data bytes: 332 Reply bytes: 136 Flags: 16
+11-25 22:00:10.731 I/.android.dialer( 1587): Background concurrent mark compact GC freed 61MB AllocSpace bytes, 2(40KB) LOS objects, 28% free, 59MB/83MB, paused 746.334ms,1.546ms total 5.767s
+--------- beginning of kernel
+11-25 22:00:10.711 I/logd    (    0): logdr: UID=2000 GID=2000 PID=2545 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-25 22:00:10.740 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.740 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.741 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.741 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.741 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:00:10.741 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159

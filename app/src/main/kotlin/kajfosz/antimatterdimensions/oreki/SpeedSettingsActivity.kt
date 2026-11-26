@@ -39,7 +39,14 @@ class SpeedSettingsActivity : Activity() {
     private lateinit var assistToggle: Switch
     private var syncingAssistToggle = false
     private lateinit var assistStatus: TextView
-    private val assistCards = mutableListOf<Triple<Int, TextView, Button>>()
+    /**
+     * [R130 P0] 辅助卡片条目。原先用 kotlin 的通用三元组类型承载 (stage, summary, action)，
+     * 而该库类在 R8 裁剪下可能被移除（契约脚本「payload Kotlin 不依赖可能被裁剪的三元组/二元组」
+     * 因此长期失败）。改用本地 data class，字段语义更明确，也不依赖库类保留规则。
+     */
+    private data class AssistCard(val stage: Int, val summary: TextView, val action: Button)
+
+    private val assistCards = mutableListOf<AssistCard>()
     private val sectionAnchors = linkedMapOf<String, View>()
     private lateinit var content: LinearLayout
     private lateinit var scroll: ScrollView
@@ -217,7 +224,7 @@ class SpeedSettingsActivity : Activity() {
         val action = button(StageAssist.buttonLabel(stage).replace("Teresa", "特蕾莎").replace("Pelle", "佩勒"), false,
             SettingsClickListener(4, null, this, stage)).apply { isEnabled = StageAssist.canWrite() }
         card.addView(action, lp())
-        assistCards += Triple(stage, summary, action)
+        assistCards += AssistCard(stage, summary, action)
         parent.addView(card, lp(12))
     }
 

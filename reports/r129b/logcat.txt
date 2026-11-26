@@ -1,0 +1,865 @@
+--------- beginning of system
+11-25 22:02:35.381 W/ContentProviderHelper(  680): Slow operation: 66ms so far, now at getContentProviderImpl: after updateOomAdj
+11-25 22:02:35.381 W/ContentProviderHelper(  680): Slow operation: 66ms so far, now at getContentProviderImpl: done!
+--------- beginning of main
+11-25 22:02:35.392 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:35.406 W/system_server(  680): Long monitor contention with owner AccessibilityManagerService PackageMonitor (816) at void android.app.ResourcesManager.registerAllResourcesReference(android.content.res.Resources)(ResourcesManager.java:2099) waiters=2 in android.content.res.Resources android.app.ResourcesManager.createResources(android.content.res.ResourcesKey, java.lang.ClassLoader, android.app.ResourcesManager$ApkAssetsSupplier) for 265ms
+11-25 22:02:35.406 W/Looper  (  680): Slow dispatch took 269ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@bf08b1b m=0
+11-25 22:02:35.406 I/PackageManager(  680): getInstalledPackages: callingUid=1000 flags=134217728 updatedFlags=135004160 userId=0
+11-25 22:02:35.409 W/system_server(  680): Long monitor contention with owner AccessibilityManagerService PackageMonitor (816) at void android.app.ResourcesManager.registerAllResourcesReference(android.content.res.Resources)(ResourcesManager.java:2099) waiters=1 in android.content.res.Resources android.app.ResourcesManager.createResources(android.content.res.ResourcesKey, java.lang.ClassLoader, android.app.ResourcesManager$ApkAssetsSupplier) for 271ms
+11-25 22:02:35.433 W/SignedPackage(  680): Cannot get ApplicationInfo for package: com.google.android.devicelockcontroller
+11-25 22:02:35.437 W/ActivityTaskManager(  680): Activity top resumed state loss timeout for ActivityRecord{172086083 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t-1 f}}
+11-25 22:02:35.444 D/CorePackageUpdate(  680): Package update finished for pkg= net.oreki.antimatterdimensions.debug
+11-25 22:02:35.445 D/CorePackageUpdate(  680): Notifying for task: 9
+11-25 22:02:35.456 D/ShellPackageUpdate(  959): PackageUpdateController: onPackageUpdateFinished for task: [9]
+11-25 22:02:35.456 D/ShellPackageUpdate(  959): PackageUpdateController: task 9, launching the base intent and removing placeholder. 
+11-25 22:02:35.468 D/BackupManagerConstants(  680): getFullBackupIntervalMilliseconds(...) returns 86400000
+11-25 22:02:35.468 D/BackupManagerConstants(  680): getFullBackupRequiredNetworkType(...) returns 2
+11-25 22:02:35.468 D/BackupManagerConstants(  680): getFullBackupRequireCharging(...) returns true
+11-25 22:02:35.473 I/ImeTracker(  680): system_server:58982b76: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false displayId 0
+11-25 22:02:35.476 V/WindowManagerShell(  959): Directly starting a new transition type=CHANGE wct=WindowContainerTransaction { changes= {} hops= [{pendingIntent: options=Bundle[{android.activity.splashScreenStyle=-1, android.pendingIntent.backgroundActivityAllowed=3, android.activity.avoidMoveToFront=true, android.activity.launchTaskId=9, android:activity.animAbortListener=null}]}] flags= 0 errorCallbackToken=null taskFragmentOrganizer=null } handler=com.android.wm.shell.packageupdate.PackageUpdateTransitionHandler@8c1433b
+11-25 22:02:35.478 V/WindowManager(  680): deferTransitionReady deferReadyDepth=1 stack=com.android.server.wm.WindowOrganizerController.applyTransaction:717 com.android.server.wm.WindowOrganizerController.applyTransaction:651 com.android.server.wm.WindowOrganizerController.lambda$startTransition$3:388 com.android.server.wm.WindowOrganizerController.$r8$lambda$PHnU0rj5Bcvaq0dL-Wi7kOJt8bo:0 com.android.server.wm.WindowOrganizerController$$ExternalSyntheticLambda5.onCollectStarted:0 
+11-25 22:02:35.487 I/ImeTracker(  680): system_server:bac8616d: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-25 22:02:35.490 I/DisplayDeviceRepository(  680): Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[]
+11-25 22:02:35.494 I/BackupManagerService(  680): No delayed restore requests for the given dependency: net.oreki.antimatterdimensions.debug
+11-25 22:02:35.495 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:35.496 I/ImeTracker(  680): system_server:58982b76: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.525 V/AccessibilityManagerService(  680): onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-25 22:02:35.527 W/ActivityTaskManager(  680): callingPackage for (uid=1000, pid=680) is ambiguous: [android, com.android.providers.settings, com.android.server.telecom, com.android.location.fused]
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.528 W/MagnificationConnectionManager(  680): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.528 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.535 V/GrammaticalInflectionUtils(  680): AttributionSource: AttributionSource { uid = 10235, packageName = null, attributionTag = null, token = android.os.Binder@d6d71ca, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-25 22:02:35.538 W/TransitionChain(  680): Combining startAct into #12(CHANGE||0x0) from startNewTransit
+11-25 22:02:35.540 I/adbd    (  541): adbd service requested 'shell,v2,raw:am start -W -n net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity'
+11-25 22:02:35.540 W/ActivityTaskManager(  680): startActivity called from non-Activity context; forcing Intent.FLAG_ACTIVITY_NEW_TASK for: Intent { flg=0x8000 xflg=0x5 cmp=net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity }
+11-25 22:02:35.542 W/TransitionChain(  680): Combining AR.finish-clear-task-all into #12(CHANGE||0x0) from startNewTransit
+11-25 22:02:35.545 W/ogle.android.as( 1488): Suspending all threads took: 233.752ms
+11-25 22:02:35.551 V/ActivityTaskManager(  680): TaskLaunchParamsModifier: phase=3 task=Task{1855db5 #9 type=standard A=10235:net.oreki.antimatterdimensions.debug} activity=ActivityRecord{199820580 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t-1} display-from-task=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@99494819 inherit-from-task=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@99494819 skip-bounds-fullscreen
+11-25 22:02:35.551 I/ActivityTaskManager(  680): START u0 {flg=0x8000 xflg=0x5 cmp=net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity} with LAUNCH_MULTIPLE from uid 10189 (com.android.systemui) (realCallingUid=1000) (BAL_ALLOW_PERMISSION [realCaller]) result code=0
+11-25 22:02:35.582 D/AS.AudioService(  680): received android.intent.action.PACKAGE_REPLACED replacing: true archival: false for package net.oreki.antimatterdimensions.debug with uid 10235
+11-25 22:02:35.586 V/WindowManager(  680): continueTransitionReady deferReadyDepth=0 stack=com.android.server.wm.WindowOrganizerController.applyTransaction:864 com.android.server.wm.WindowOrganizerController.applyTransaction:651 com.android.server.wm.WindowOrganizerController.lambda$startTransition$3:388 com.android.server.wm.WindowOrganizerController.$r8$lambda$PHnU0rj5Bcvaq0dL-Wi7kOJt8bo:0 com.android.server.wm.WindowOrganizerController$$ExternalSyntheticLambda5.onCollectStarted:0 
+11-25 22:02:35.590 W/AlarmManager(  680): Package net.oreki.antimatterdimensions.debug, uid 10235 lost permission to set exact alarms!
+11-25 22:02:35.594 W/Looper  (  680): Slow dispatch took 104ms android.ui app=system_server main=false group=TOP_APP h=com.android.server.am.ActivityManagerService$UiHandler c=com.android.server.am.UidObserverController$$ExternalSyntheticLambda0@4f20a11 m=0
+11-25 22:02:35.594 W/Looper  (  959): Slow dispatch took 138ms wmshell.main app=com.android.systemui main=false group=TOP_APP h=android.os.Handler c=android.window.TaskOrganizer$1$$ExternalSyntheticLambda12@353111c m=0
+11-25 22:02:35.594 W/Looper  (  959): Slow delivery took 139ms wmshell.main app=com.android.systemui main=false group=TOP_APP h=android.content.pm.LauncherApps$CallbackMessageHandler c=null m=8
+11-25 22:02:35.594 W/Looper  (  959): Drained
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.594 V/AccessibilityManagerService(  680): onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-25 22:02:35.623 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:35.632 W/libc    ( 1092): Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-25 22:02:35.640 D/DownloadManager( 2044): [23] Starting
+11-25 22:02:35.643 I/SP.AiAi ( 1488): ====> Starting job {W:b:u:l, bg}
+11-25 22:02:35.643 W/HWUI    ( 1092): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-25 22:02:35.647 I/DropBoxManagerService(  680): add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-25 22:02:35.657 I/AiAiEcho( 1488): AppIndexer Package:[net.oreki.antimatterdimensions.debug] UserProfile:[0] Enabled:[true].
+11-25 22:02:35.657 I/AiAiEcho( 1488): AppFetcherImplV2 updateApps package:[net.oreki.antimatterdimensions.debug], userId:[0], reason:[package is updated.].
+11-25 22:02:35.661 D/AlphabeticIndexCompat( 1092): computeSectionName: cs: 反物质维度 sectionName: …
+11-25 22:02:35.665 I/AiAiEcho( 1488): Settings changed for uri: content://settings/secure/accessibility_enabled
+11-25 22:02:35.669 I/AppsFilter(  680): interaction: PackageSetting{843c566 com.android.microdroid.empty_payload/10207} -> PackageSetting{5ab9b9f net.oreki.antimatterdimensions.debug/10235} BLOCKED
+11-25 22:02:35.669 D/AllAppsStore( 1092): setApps: apps.length=20
+11-25 22:02:35.669 D/AllAppsStore( 1092): notifyUpdate: notifying listeners
+11-25 22:02:35.669 D/AllAppsStore( 1092): setApps: apps.length=20
+11-25 22:02:35.669 D/AllAppsStore( 1092): notifyUpdate: notifying listeners
+11-25 22:02:35.669 D/ActivityAllAppsContainerView( 1092): onAppsUpdated; number of apps: 20
+11-25 22:02:35.670 D/ActivityAllAppsContainerView( 1092): rebindAdapters: force: false
+11-25 22:02:35.670 D/ActivityAllAppsContainerView( 1092): rebindAdapters: Not needed.
+11-25 22:02:35.670 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:02:35.670 D/StatsLog( 1092): LAUNCHER_ALLAPPS_COUNT
+11-25 22:02:35.670 D/AlphabeticalAppsList( 1092): Clearing FastScrollerSections.
+11-25 22:02:35.676 D/AlphabeticalAppsList( 1092): Adding apps with sections. HasPrivateApps: false
+11-25 22:02:35.676 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: C with appInfoTitle: Calendar
+11-25 22:02:35.676 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: D with appInfoTitle: Drive
+11-25 22:02:35.676 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: F with appInfoTitle: Files
+11-25 22:02:35.676 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: G with appInfoTitle: Gemini
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: M with appInfoTitle: Maps
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: P with appInfoTitle: Phone
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: S with appInfoTitle: Safety
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: T with appInfoTitle: TMoble
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: Y with appInfoTitle: YouTube
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: … with appInfoTitle: 反物质维度
+11-25 22:02:35.680 D/AlphabeticalAppsList( 1092): Adding FastScrollSection duplicate to scroll to the bottom.
+11-25 22:02:35.681 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:02:35.681 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:02:35.681 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:02:35.681 E/AppOps  (  680): attributionTag VCN not declared in manifest of android
+11-25 22:02:35.681 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:02:35.682 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:02:35.682 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:02:35.682 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:02:35.682 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:02:35.683 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): Clearing FastScrollerSections.
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): Adding apps with sections. HasPrivateApps: false
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: C with appInfoTitle: Calendar
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: D with appInfoTitle: Drive
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: F with appInfoTitle: Files
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: G with appInfoTitle: Gemini
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: M with appInfoTitle: Maps
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: P with appInfoTitle: Phone
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: S with appInfoTitle: Safety
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: T with appInfoTitle: TMoble
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: Y with appInfoTitle: YouTube
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): addAppsWithSections: adding sectionName: … with appInfoTitle: 反物质维度
+11-25 22:02:35.687 D/AlphabeticalAppsList( 1092): Adding FastScrollSection duplicate to scroll to the bottom.
+11-25 22:02:35.689 W/ActivityTaskManager(  680): callingPackage for (uid=2000, pid=4003) has no WPC
+11-25 22:02:35.690 V/GrammaticalInflectionUtils(  680): AttributionSource: AttributionSource { uid = 10235, packageName = null, attributionTag = null, token = android.os.Binder@d6d71ca, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-25 22:02:35.698 I/libbinder.BpBinder(  537): onLastStrongRef automatically unlinking death recipients for binder (0x7f966645a880) with descriptor: '(not cached)'
+11-25 22:02:35.705 I/AiAiEcho( 1488): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-25 22:02:35.705 I/AiAiEcho( 1488): EchoTargets: 
+11-25 22:02:35.705 I/AiAiEcho( 1488): Filtered by AiAi flag check: 
+11-25 22:02:35.705 I/AiAiEcho( 1488): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-25 22:02:35.705 I/AiAiEcho( 1488): #remoteViewsTwiddler: feature disabled.
+11-25 22:02:35.706 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface ambientcue with targets# 0 (types=[])
+11-25 22:02:35.708 I/ShortcutsDataManager( 1347): AbstractContentDataManager.importRecords():348 importRecords() : Success : Count = 0
+11-25 22:02:35.709 I/AmbientCueRepository(  959): Receiving SmartSpace targets # 0
+11-25 22:02:35.715 I/.apps.wellbeing( 2502): Waiting for a blocking GC ProfileSaver
+11-25 22:02:35.715 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-25 22:02:35.721 I/AiAiEcho( 1488): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-25 22:02:35.727 W/TransitionChain(  680): Combining startAct into #12(CHANGE||0x10000) from startNewTransit
+11-25 22:02:35.733 V/ActivityTaskManager(  680): TaskLaunchParamsModifier: phase=3 task=Task{1855db5 #9 type=standard A=10235:net.oreki.antimatterdimensions.debug} activity=ActivityRecord{24503684 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t-1} display-from-task=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@99494819 inherit-from-task=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@99494819 skip-bounds-fullscreen
+11-25 22:02:35.735 I/ActivityTaskManager(  680): START u0 {flg=0x10000000 xflg=0x5 cmp=net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity} with LAUNCH_MULTIPLE from uid 2000 (com.android.shell) (BAL_ALLOW_PERMISSION) result code=3
+11-25 22:02:35.771 V/GrammaticalInflectionUtils(  680): AttributionSource: AttributionSource { uid = 10235, packageName = null, attributionTag = null, token = android.os.Binder@d6d71ca, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.779 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.780 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.780 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.780 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.780 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.787 I/ShortcutsDataManager( 1347): AbstractContentDataManager.importContentData():297 importContentData() : Ending import process
+11-25 22:02:35.787 W/System  ( 1488): A resource failed to call close. 
+11-25 22:02:35.803 I/Surface (  959): Creating surface for consumer unnamed-959-8 with slotExpansion=1 for 64 slots
+11-25 22:02:35.805 D/Zygote  (  473): Forked child process 4016
+11-25 22:02:35.811 I/libprocessgroup( 4016): Created cgroup /sys/fs/cgroup/apps/uid_10235/pid_4016
+11-25 22:02:35.812 W/system_server(  680): Suspending all threads took: 23.768ms
+11-25 22:02:35.829 I/Zygote  ( 4016): Process 4016 created for net.oreki.antimatterdimensions.debug
+11-25 22:02:35.831 I/imensions.debug( 4016): Late-enabling -Xcheck:jni
+11-25 22:02:35.831 I/PersonalLanguageModelUpdater( 1347): PersonalLanguageModelUpdater$UpdateOperation.performInternal():165 run() : Added 0 words and 0 shortcuts
+11-25 22:02:35.831 I/DynamicLanguageModelOperation( 1347): DynamicLanguageModelOperation.perform():43 perform() : 4 : exo : Completed
+11-25 22:02:35.833 I/ShortcutsDataManager( 1347): AbstractContentDataManager$ImportContentTask.onPostExecute():268 onPostExecute() : Result = [2,0]
+11-25 22:02:35.834 I/ShortcutsDataManager( 1347): ShortcutsDataManager.onImportFinished():82 onImportFinished() : Result = 2 : Count = 0
+11-25 22:02:35.841 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.842 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.842 W/MagnificationConnectionManager(  680): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-25 22:02:35.845 W/system_server(  680): Long monitor contention with owner AccessibilityManagerService PackageMonitor (816) at java.util.ArrayList com.android.server.accessibility.AccessibilityManagerService$AccessibilityDisplayListener.getValidDisplayList()(AccessibilityManagerService.java:6061) waiters=0 in void com.android.server.accessibility.AccessibilityManagerService.createImeSession(android.util.ArraySet) for 235ms
+11-25 22:02:35.862 I/imensions.debug( 4016): Using generational CollectorTypeCMC GC.
+11-25 22:02:35.863 I/AppWidgetServiceImpl(  680): Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-25 22:02:35.863 W/imensions.debug( 4016): Unexpected CPU variant for x86: x86_64.
+11-25 22:02:35.863 W/imensions.debug( 4016): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-25 22:02:35.863 I/AppWidgetServiceImpl(  680): Updating package stopped masked state for uid 10235 package net.oreki.antimatterdimensions.debug isStopped false
+11-25 22:02:35.866 I/adbd    (  541): jdwp connection from 4016
+11-25 22:02:35.866 I/.apps.wellbeing( 2502): WaitForGcToComplete blocked ProfileSaver on Background for 151.789ms
+11-25 22:02:35.868 D/WifiClientModeImpl[18222:wlan0](  680): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2447 RxLinkSpeed=2
+11-25 22:02:35.870 D/WifiClientModeImpl[18222:wlan0](  680): reported txKbps 12000 rxKbps 30000
+11-25 22:02:35.870 D/WifiDataStall(  680): tx tput in kbps: 11000
+11-25 22:02:35.870 D/WifiDataStall(  680): rx tput in kbps: 11000
+11-25 22:02:35.870 V/WifiConfigManager(  680): Updating scan detail cache freq=2447 BSSID=00:13:10:85:fe:01 RSSI=-50 for "AndroidWifi"NONE
+11-25 22:02:35.870 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:35.871 W/InputChannel-JNI(  680): Channel already disposed.
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:35.871 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:35.871 W/Looper  (  680): Slow dispatch took 261ms main app=system_server main=true group=FOREGROUND h=com.android.server.accessibility.AccessibilityManagerService$MainHandler c=<recycled PooledLambda@32c9d7c> m=0
+11-25 22:02:35.873 I/AdbWifiNetworkMonitor(  680): Wi-Fi network available
+11-25 22:02:35.873 I/AdbWifiNetworkMonitor(  680): Received the same Wi-Fi SSID. Ignoring.
+11-25 22:02:35.874 W/ActivityManager(  680): Slow operation: 104ms so far, now at startProcess: returned from zygote!
+11-25 22:02:35.877 I/HalDevMgr(  680): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-25 22:02:35.878 D/WifiScoreCard(  680): BSSID update SIGNAL_POLL ID: 561269453 SSID: "AndroidWifi", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 11Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Calculated Rx : 0Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-25 22:02:35.878 D/WifiScoreCard(  680): txRate: 1 txSpeed: 1
+11-25 22:02:35.878 D/WifiScoreCard(  680): network update SIGNAL_POLL "AndroidWifi" ID: 4768197 RSSI -50 txSpeed -1
+11-25 22:02:35.878 D/WifiClientModeImpl[18222:wlan0](  680):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 00:13:10:85:fe:01 rssi=-50 f=2447 sc=100 link=1 tx=0.2, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3015] from screen [on:0 period:319026150] score=100
+11-25 22:02:35.880 I/resolv  (  471): GetAddrInfoHandler::run: {100 983140 100 983140 10112 0}
+11-25 22:02:35.881 I/resolv  (  471): res_nmkquery: (QUERY, IN, A)
+11-25 22:02:35.882 I/resolv  (  471): res_nmkquery: (QUERY, IN, AAAA)
+11-25 22:02:35.886 I/resolv  (  471): res_nsend: used send_dg 61 terrno: 0
+11-25 22:02:35.887 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=61
+11-25 22:02:35.887 I/resolv  (  471): res_nsend: used send_dg 49 terrno: 0
+11-25 22:02:35.887 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=49
+11-25 22:02:35.892 W/JobService( 2044): onNetworkChanged() not implemented in com.android.providers.downloads.DownloadJobService. Must override in a subclass.
+11-25 22:02:35.892 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.893 W/JobService( 1488): onNetworkChanged() not implemented in com.google.android.apps.miphone.aiai.common.superpacks.impl.AiAiPersistentDownloadJobService. Must override in a subclass.
+11-25 22:02:35.894 I/WifiService(  680): getConnectionInfo uid=10221
+11-25 22:02:35.894 V/WifiService(  680): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10221)
+11-25 22:02:35.895 V/WifiPermissionsUtil(  680): checkCallersLocationPermission(com.google.android.gms): ok because uid 10221 has app-op android:fine_location
+11-25 22:02:35.895 V/WifiService(  680): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10221)
+11-25 22:02:35.894 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.897 V/AccessibilityManagerService(  680): onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-25 22:02:35.897 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.898 W/ActivityManager(  680): Slow operation: 127ms so far, now at startProcess: done updating battery stats
+11-25 22:02:35.898 W/ActivityManager(  680): Slow operation: 127ms so far, now at startProcess: building log message
+11-25 22:02:35.898 I/ActivityManager(  680): Start proc 4016:net.oreki.antimatterdimensions.debug/u0a235 for top-activity {net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}
+11-25 22:02:35.898 W/ActivityManager(  680): Slow operation: 128ms so far, now at startProcess: starting to update pids map
+11-25 22:02:35.899 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.903 W/ActivityManager(  680): Slow operation: 133ms so far, now at startProcess: done updating pids map
+11-25 22:02:35.904 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.904 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.906 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.906 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.906 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.906 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.906 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.908 I/Fitness ( 1259): FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+11-25 22:02:35.912 W/MagnificationConnectionManager(  680): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-25 22:02:35.912 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.915 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:35.921 I/SP.AiAi ( 1488): Scheduling job with delay of 0s for {W:b:u:l, bg}, 2 candidates
+11-25 22:02:35.923 V/AccessibilityManagerService(  680): onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-25 22:02:35.925 I/Auth    ( 1412): [SupervisedAccountIntentOperation] onHandleIntent: android.intent.action.PACKAGE_ADDED [CONTEXT service_id=42 ]
+11-25 22:02:35.938 E/ConsumerBase(  959): [ImageReader-420x420f1u2816m2-959-1] abandonLocked: ConsumerBase is abandoned!
+11-25 22:02:35.946 D/SplashScreenView(  959): Build android.window.SplashScreenView{f3e577 V.E...... ......ID 0,0-0,0}
+11-25 22:02:35.946 D/SplashScreenView(  959): Icon: view: android.widget.ImageView{8cd25e4 V.ED..... ......I. 0,0-0,0 #1020575 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@33cca4d size: 420
+11-25 22:02:35.946 D/SplashScreenView(  959): Branding: view: android.view.View{b13c902 G.ED..... ......I. 0,0-0,0 #1020574 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-25 22:02:35.960 D/nativeloader( 4016): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-25 22:02:35.972 W/SQLiteLog( 1412): (28) double-quoted string literal: "net.oreki.antimatterdimensions.debug"
+11-25 22:02:35.981 D/WindowManager(  680): setClientSurface Surface(name=VRI-Splash Screen net.oreki.antimatterdimensions.debug#125)/@0x69548f1 for ef15c87 Splash Screen net.oreki.antimatterdimensions.debug
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-25 22:02:35.986 V/AccessibilityUserState(  680): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-25 22:02:35.986 W/MagnificationConnectionManager(  680): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-25 22:02:35.996 E/jnec    ( 1412): *~*~*~ Previous channel {0} was garbage collected without being shut down! ~*~*~*
+11-25 22:02:35.996 E/jnec    ( 1412):     Make sure to call shutdown()/shutdownNow()
+11-25 22:02:35.996 E/jnec    ( 1412): java.lang.RuntimeException: ManagedChannel allocation site
+11-25 22:02:35.996 E/jnec    ( 1412): 	at jneb.<init>(:com.google.android.gms@261136038@26.11.36 (260800-892401869):21)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at jnec.<init>(:com.google.android.gms@261136038@26.11.36 (260800-892401869):10)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at jnea.a(:com.google.android.gms@261136038@26.11.36 (260800-892401869):296)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at jmlt.a(:com.google.android.gms@261136038@26.11.36 (260800-892401869):5)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at biee.a(:com.google.android.gms@261136038@26.11.36 (260800-892401869):85)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bidv.t(:com.google.android.gms@261136038@26.11.36 (260800-892401869):119)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bidv.G(:com.google.android.gms@261136038@26.11.36 (260800-892401869):5)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at fhig.a(:com.google.android.gms@261136038@26.11.36 (260800-892401869):45)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at fhhl.c(:com.google.android.gms@261136038@26.11.36 (260800-892401869):20)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at fhhl.a(:com.google.android.gms@261136038@26.11.36 (260800-892401869):3)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bbyg.run(:com.google.android.gms@261136038@26.11.36 (260800-892401869):5)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bikh.c(:com.google.android.gms@261136038@26.11.36 (260800-892401869):50)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bikh.run(:com.google.android.gms@261136038@26.11.36 (260800-892401869):73)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at bipy.run(:com.google.android.gms@261136038@26.11.36 (260800-892401869):8)
+11-25 22:02:35.996 E/jnec    ( 1412): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:36.001 I/WifiService(  680): getWifiEnabledState uid=10189 state=3
+11-25 22:02:36.007 I/NullBinder( 1259): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-25 22:02:36.008 W/libbinder.Binder( 1259): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-25 22:02:36.024 W/system_server(  680): Long monitor contention with owner binder:680_1C (1742) at void com.android.server.am.psc.OomAdjusterImpl.performUpdateOomAdjPendingTargetsLocked(int)(OomAdjusterImpl.java:737) waiters=0 in boolean com.android.server.am.ActivityManagerService.isAppStartModeDisabled(int, java.lang.String) for 101ms
+11-25 22:02:36.025 I/resolv  (  471): GetAddrInfoHandler::run: {100 786532 100 983140 10221 0}
+11-25 22:02:36.026 I/resolv  (  471): res_nmkquery: (QUERY, IN, AAAA)
+11-25 22:02:36.032 I/resolv  (  471): res_nmkquery: (QUERY, IN, A)
+11-25 22:02:36.033 I/Surface (  959): Creating surface for consumer unnamed-959-9 with slotExpansion=1 for 64 slots
+11-25 22:02:36.033 I/Surface (  959): Creating surface for consumer VRI[debug]#7(BLAST Consumer)7 with slotExpansion=1 for 64 slots
+11-25 22:02:36.036 I/resolv  (  471): res_nsend: used send_dg 76 terrno: 0
+11-25 22:02:36.036 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=76
+11-25 22:02:36.037 I/resolv  (  471): res_nsend: used send_dg 64 terrno: 0
+11-25 22:02:36.037 I/resolv  (  471): doQuery: rcode=0, ancount=1, return value=64
+11-25 22:02:36.041 D/WindowManagerShell(  959): onActivityRestartAttempt: topActivity=ComponentInfo{net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}, wasVisible=false, displayId=0, pipDisplayLayoutState#displayId=0
+11-25 22:02:36.042 V/RecentTasksController(  959): Notify recent tasks changed
+11-25 22:02:36.043 D/RecentTasksList( 1092): invalidateLoadedTasks - previous requestLoadId: -1
+11-25 22:02:36.051 V/RecentTasksController(  959): generateList(getRecentTasks)
+11-25 22:02:36.052 V/RecentTasksController(  959): initializeDesksMap - allDeskIds: []
+11-25 22:02:36.053 V/RecentTasksController(  959): Task 9 is not an active desktop task
+11-25 22:02:36.053 V/RecentTasksController(  959): Added fullscreen task: 9
+11-25 22:02:36.053 V/RecentTasksController(  959): generateList - complete
+11-25 22:02:36.066 D/PreloadThumbnailUseCase( 1092): Preloading thumbnails for task ids: [[id=9 windowingMode=1 user=0 lastActiveTime=210196] null]
+11-25 22:02:36.067 I/NearbyDiscovery( 1412): processGrantSlicePermission: net.oreki.antimatterdimensions.debug [CONTEXT service_id=265 ]
+11-25 22:02:36.068 I/ndroid.systemui(  959): Background concurrent mark compact GC freed 3052KB AllocSpace bytes, 0(0B) LOS objects, 47% free, 26MB/50MB, paused 5.472ms,4.765ms total 1.020s
+11-25 22:02:36.075 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.089 D/BoundBrokerSvc( 1412): onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-25 22:02:36.089 D/BoundBrokerSvc( 1412): Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-25 22:02:36.094 W/ActivityManager(  680): Skipping manifest association check for null package. SourceUid: 10221, SourcePkg: null, TargetUid: 10221, TargetPkg: com.google.android.gms
+11-25 22:02:36.094 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.118 V/GameManagerService(  680): Game power mode ON (first game in foreground)
+11-25 22:02:36.123 V/GameManagerService(  680): setDefaultFrameRateOverride : 10235 , 60.0
+11-25 22:02:36.130 I/ProximityAuth( 1259): [RecentAppsMediator] Package added: (user=UserHandle{0}) net.oreki.antimatterdimensions.debug
+11-25 22:02:36.171 D/CompatChangeReporter( 4016): Compat change id reported: 333566037; UID 10235; state: ENABLED
+11-25 22:02:36.173 D/ApplicationLoaders( 4016): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-25 22:02:36.173 D/ApplicationLoaders( 4016): Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-25 22:02:36.190 D/ActivityManager(  680): freezing 1950 com.google.android.as.oss
+11-25 22:02:36.194 D/DownloadManager( 2044): [23] Finished with status SUCCESS
+11-25 22:02:36.218 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-25 22:02:36.219 D/InetDiagMessage(  680): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-25 22:02:36.221 D/InetDiagMessage(  680): Destroyed live tcp sockets for uids={10163} in 6ms
+11-25 22:02:36.233 W/system_server(  680): Long monitor contention with owner binder:680_17 (1730) at boolean com.android.server.job.JobSchedulerService.isBatteryCharging()(JobSchedulerService.java:5949) waiters=0 in void com.android.server.job.controllers.BackgroundJobsController$1.onReceive(android.content.Context, android.content.Intent) for 119ms
+11-25 22:02:36.234 W/Looper  (  680): Slow dispatch took 132ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@646d23b m=0
+11-25 22:02:36.260 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.261 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.262 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.262 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:36.366 W/ActivityManager(  680): Skipping manifest association check for null package. SourceUid: 10221, SourcePkg: null, TargetUid: 10221, TargetPkg: com.google.android.gms
+11-25 22:02:36.367 D/nativeloader( 4016): Configuring clns-9 for other apk /data/app/~~KGrq_HApIhf9lOvBxP4E2A==/net.oreki.antimatterdimensions.debug-Ywj5BqN3sBsU3SDYszClgg==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~KGrq_HApIhf9lOvBxP4E2A==/net.oreki.antimatterdimensions.debug-Ywj5BqN3sBsU3SDYszClgg==/lib/x86_64:/data/app/~~KGrq_HApIhf9lOvBxP4E2A==/net.oreki.antimatterdimensions.debug-Ywj5BqN3sBsU3SDYszClgg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/net.oreki.antimatterdimensions.debug
+11-25 22:02:36.394 V/GraphicsEnvironment( 4016): Currently set values for:
+11-25 22:02:36.395 V/GraphicsEnvironment( 4016):   angle_gl_driver_selection_pkgs=[]
+11-25 22:02:36.395 V/GraphicsEnvironment( 4016):   angle_gl_driver_selection_values=[]
+11-25 22:02:36.395 V/GraphicsEnvironment( 4016): net.oreki.antimatterdimensions.debug is not listed in per-application setting
+11-25 22:02:36.395 V/GraphicsEnvironment( 4016): No special selections for ANGLE, returning default driver choice
+11-25 22:02:36.404 V/GraphicsEnvironment( 4016): Neither updatable production driver nor prerelease driver is supported.
+11-25 22:02:36.418 D/CompatChangeReporter( 4016): Compat change id reported: 407952621; UID 10235; state: ENABLED
+11-25 22:02:36.418 D/CompatChangeReporter( 4016): Compat change id reported: 419020719; UID 10235; state: ENABLED
+11-25 22:02:36.457 W/Looper  (  680): Slow dispatch took 194ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ServiceDispatcher$RunConnection@dcac5d0 m=0
+11-25 22:02:36.473 I/SP.AiAi ( 1488): ====> Starting job {W:b:u:l, bg}
+11-25 22:02:36.478 D/SatelliteController( 1076): isInCarrierRoamingNbIotNtn: satellite is disabled
+11-25 22:02:36.478 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-25 22:02:36.478 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.478 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.478 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:02:36.509 D/SatelliteController( 1076): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-25 22:02:36.509 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: config: null
+11-25 22:02:36.509 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.509 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.509 D/SatelliteController( 1076): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-25 22:02:36.514 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-25 22:02:36.514 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.514 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.514 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:02:36.516 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-25 22:02:36.516 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.516 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.516 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:02:36.516 D/SatelliteController( 1076): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-25 22:02:36.516 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: config: null
+11-25 22:02:36.516 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.516 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.516 D/SatelliteController( 1076): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-25 22:02:36.533 D/SatelliteController( 1076): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-25 22:02:36.533 D/TelephonyConfigUpdateInstallReceiver( 1076): getConfigParser: domain=satellite
+11-25 22:02:36.533 V/SatelliteController( 1076): satelliteConfigParser is not ready
+11-25 22:02:36.533 D/SatelliteController( 1076): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-25 22:02:36.542 I/cn_CronetUrlRequestContext( 1412): destroyNativeStreamLocked org.chromium.net.impl.CronetBidirectionalStream@80734d1
+11-25 22:02:36.716 I/system_server(  680): Background concurrent mark compact GC freed 19MB AllocSpace bytes, 56(1408KB) LOS objects, 39% free, 36MB/60MB, paused 42.008ms,46.632ms total 2.027s
+11-25 22:02:36.753 I/libbinder.BpBinder(  680): onLastStrongRef automatically unlinking death recipients for binder (0x7077e9a0dbe0) with descriptor: '(not cached)'
+11-25 22:02:36.756 I/CertificateTransparency(  680): /data/misc/keychain/ct/v3/logs-98.5 already exists, skipping install.
+11-25 22:02:36.758 I/PackageManager(  680): getInstalledPackages: callingUid=1000 flags=134217856 updatedFlags=135004288 userId=0
+11-25 22:02:36.760 W/ContextImpl(  680): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcast:1325 com.android.server.net.ct.CertificateTransparencyDownloader.handleContentDownloadCompleted:206 com.android.server.net.ct.CertificateTransparencyDownloader.onReceive:129 android.app.LoadedApk$ReceiverDispatcher$Args.lambda$getRunnable$0:2050 android.app.LoadedApk$ReceiverDispatcher$Args.$r8$lambda$mcNAAl1SQ4MyJPyDg8TJ2x2h0Rk:0 
+11-25 22:02:36.770 W/Looper  (  680): Slow dispatch took 282ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@56e4516 m=0
+11-25 22:02:36.940 D/FirebaseSessions( 4016): Dependency to CRASHLYTICS added.
+11-25 22:02:36.952 I/DropBoxManagerService(  680): add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-25 22:02:36.979 I/SP.AiAi ( 1488): Scheduling: job start, 0 started, 0 paused, 2 scheduled, 7 pending: manifests:kg_collections_table-21051103 {W:C:I:l, bg}, manifests:spelling_correction-22110320 {W:C:I:l, bg}, captions_i18n_v0_mandatory:sound_recognition_v7 * {W:b:u:l, bg}, captions_i18n_v0_mandatory:emotion_recognition_v4 * {W:b:u:l, bg}, manifests:text-classifier-annotator-272525175 {W:C:I:l, bg}, manifests:text-classifier-actions-1140547708 {W:C:I:l, bg}, manifests:text-classifier-langid-1941001461 {W:C:I:l, bg}
+11-25 22:02:36.984 I/FirebaseApp( 4016): Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+11-25 22:02:36.990 W/Looper  (  680): Drained
+11-25 22:02:36.996 I/SP.AiAi ( 1488): Scheduling: job start ({W:b:u:l, bg}), 2 started, 0 paused, 0 scheduled, 7 pending: manifests:kg_collections_table-21051103 {W:C:I:l, bg}, manifests:spelling_correction-22110320 {W:C:I:l, bg}, captions_i18n_v0_mandatory:sound_recognition_v7 @ * {W:b:u:l, bg}, captions_i18n_v0_mandatory:emotion_recognition_v4 @ * {W:b:u:l, bg}, manifests:text-classifier-annotator-272525175 {W:C:I:l, bg}, manifests:text-classifier-actions-1140547708 {W:C:I:l, bg}, manifests:text-classifier-langid-1941001461 {W:C:I:l, bg}
+11-25 22:02:36.996 I/SP.AiAi ( 1488): Requesting download of URL https://storage.googleapis.com/captions/sound_recognition_v7.zip to sound_recognition_v7.zip.fetched (constraints: W:b:u:l)
+11-25 22:02:36.997 I/SP.AiAi ( 1488): Requesting download of URL https://storage.googleapis.com/captions/emotion_recognition_v4.zip to emotion_recognition_v4.zip.fetched (constraints: W:b:u:l)
+11-25 22:02:36.997 I/SP.AiAi ( 1488): <==== Finishing job {W:b:u:l, bg}, 524 ms. elapsed since start
+11-25 22:02:37.014 D/ActivityManager(  680): sync unfroze 1950 com.google.android.as.oss for 6
+11-25 22:02:37.030 I/netd    (  471): tetherGetStats() -> {[]} <0.70ms>
+11-25 22:02:37.050 I/FirebaseCrashlytics( 4016): Initializing Firebase Crashlytics 21.0.1 for net.oreki.antimatterdimensions.debug
+11-25 22:02:37.121 D/CompatChangeReporter( 4016): Compat change id reported: 418924588; UID 10235; state: ENABLED
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/sound_recognition_v7.zip'
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.165 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/emotion_recognition_v4.zip'
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.183 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/sound_recognition_v7.zip'
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.193 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/emotion_recognition_v4.zip'
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.204 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/sound_recognition_v7.zip'
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.213 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.298 W/srr     ( 1488): Request failed for unknown reason, see exception: 
+11-25 22:02:37.298 W/srr     ( 1488): srq: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.298 W/srr     ( 1488): 	at srn.run(PG:1055)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.298 W/srr     ( 1488): 	at xjo.a(PG:3)
+11-25 22:02:37.298 W/srr     ( 1488): 	at xir.run(PG:19)
+11-25 22:02:37.298 W/srr     ( 1488): 	at xjp.run(PG:5)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:323)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.298 W/srr     ( 1488): 	at hxw.run(PG:221)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.298 W/srr     ( 1488): Caused by: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.298 W/srr     ( 1488): 	at qpm.b(PG:322)
+11-25 22:02:37.298 W/srr     ( 1488): 	at qpg.b(PG:27)
+11-25 22:02:37.298 W/srr     ( 1488): 	at abbn.s(PG:20)
+11-25 22:02:37.298 W/srr     ( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.298 W/srr     ( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.298 W/srr     ( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.298 W/srr     ( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.298 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.298 W/srr     ( 1488): 	... 1 more
+11-25 22:02:37.298 W/srr     ( 1488): Caused by: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.298 W/srr     ( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.298 W/srr     ( 1488): 	... 7 more
+11-25 22:02:37.306 W/SP.AiAi ( 1488): Error downloading: captions_i18n_v0_mandatory:sound_recognition_v7
+11-25 22:02:37.306 W/SP.AiAi ( 1488): sli: REQUEST_ERROR: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy, url: https://storage.googleapis.com/captions/sound_recognition_v7.zip
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at slg.b(PG:5)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at srr.n(PG:60)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at srn.run(PG:654)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at xjo.a(PG:3)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at xir.run(PG:19)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at xjp.run(PG:5)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:323)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at hxw.run(PG:221)
+11-25 22:02:37.306 W/SP.AiAi ( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.306 I/SP.AiAi ( 1488): Download stopped: captions_i18n_v0_mandatory:sound_recognition_v7, failed (retriable), size: 0
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): Service error while downloading from url='https://storage.googleapis.com/captions/emotion_recognition_v4.zip'
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.309 E/AstreaHttpConnection( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.327 I/SP.AiAi ( 1488): Setting next retry time for captions_i18n_v0_mandatory:sound_recognition_v7 to 11/25/26 10:04 PM (126000 ms from now)
+11-25 22:02:37.352 D/FirebaseSessions( 4016): Subscriber CRASHLYTICS registered.
+11-25 22:02:37.361 I/SP.AiAi ( 1488): Skipping download: captions_i18n_v0_mandatory:sound_recognition_v7, next retry: 11/25/26 10:04 PM, now: 11/25/26 10:02 PM
+11-25 22:02:37.361 I/SP.AiAi ( 1488): Scheduling job with delay of 126s for {W:b:u:l, bg}, 1 candidates
+11-25 22:02:37.393 W/srr     ( 1488): Request failed for unknown reason, see exception: 
+11-25 22:02:37.393 W/srr     ( 1488): srq: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.393 W/srr     ( 1488): 	at srn.run(PG:1055)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.393 W/srr     ( 1488): 	at xjo.a(PG:3)
+11-25 22:02:37.393 W/srr     ( 1488): 	at xir.run(PG:19)
+11-25 22:02:37.393 W/srr     ( 1488): 	at xjp.run(PG:5)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:323)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.393 W/srr     ( 1488): 	at hxw.run(PG:221)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.393 W/srr     ( 1488): Caused by: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.393 W/srr     ( 1488): 	at qpm.b(PG:322)
+11-25 22:02:37.393 W/srr     ( 1488): 	at qpg.b(PG:27)
+11-25 22:02:37.393 W/srr     ( 1488): 	at abbn.s(PG:20)
+11-25 22:02:37.393 W/srr     ( 1488): 	at aapu.g(PG:1)
+11-25 22:02:37.393 W/srr     ( 1488): 	at aapr.a(PG:32)
+11-25 22:02:37.393 W/srr     ( 1488): 	at aaqj.run(PG:7)
+11-25 22:02:37.393 W/srr     ( 1488): 	at aaxd.run(PG:18)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.393 W/srr     ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.393 W/srr     ( 1488): 	... 1 more
+11-25 22:02:37.393 W/srr     ( 1488): Caused by: aalc: PERMISSION_DENIED: Permission denied by security policy
+11-25 22:02:37.393 W/srr     ( 1488): 	at abbn.s(PG:17)
+11-25 22:02:37.393 W/srr     ( 1488): 	... 7 more
+11-25 22:02:37.406 I/DynamiteModule( 4016): Considering local module com.google.android.gms.measurement.dynamite:216 and remote module com.google.android.gms.measurement.dynamite:182
+11-25 22:02:37.407 I/DynamiteModule( 4016): Selected local version of com.google.android.gms.measurement.dynamite
+11-25 22:02:37.467 I/SP.AiAi ( 1488): Scheduling: download stopped, 0 started, 0 paused, 1 scheduled, 7 pending: manifests:kg_collections_table-21051103 {W:C:I:l, bg}, manifests:spelling_correction-22110320 {W:C:I:l, bg}, captions_i18n_v0_mandatory:sound_recognition_v7 * {W:b:u:l, bg}, captions_i18n_v0_mandatory:emotion_recognition_v4 @ {W:b:u:l, bg}, manifests:text-classifier-annotator-272525175 {W:C:I:l, bg}, manifests:text-classifier-actions-1140547708 {W:C:I:l, bg}, manifests:text-classifier-langid-1941001461 {W:C:I:l, bg}
+11-25 22:02:37.473 W/SP.AiAi ( 1488): Error downloading: captions_i18n_v0_mandatory:emotion_recognition_v4
+11-25 22:02:37.473 W/SP.AiAi ( 1488): sli: REQUEST_ERROR: java.io.IOException: aalc: PERMISSION_DENIED: Permission denied by security policy, url: https://storage.googleapis.com/captions/emotion_recognition_v4.zip
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at slg.b(PG:5)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at srr.n(PG:60)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at srn.run(PG:654)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at xjo.a(PG:3)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at xir.run(PG:19)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at xjp.run(PG:5)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:323)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1100)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at hxw.run(PG:221)
+11-25 22:02:37.473 W/SP.AiAi ( 1488): 	at java.lang.Thread.run(Thread.java:1572)
+11-25 22:02:37.473 I/SP.AiAi ( 1488): <==== Finishing job {W:b:u:l, bg}, 999 ms. elapsed since start
+11-25 22:02:37.473 I/SP.AiAi ( 1488): Download stopped: captions_i18n_v0_mandatory:emotion_recognition_v4, failed (retriable), size: 0
+11-25 22:02:37.473 I/SP.AiAi ( 1488): Setting next retry time for captions_i18n_v0_mandatory:emotion_recognition_v4 to 11/25/26 10:04 PM (121000 ms from now)
+11-25 22:02:37.483 W/BLASTSyncEngine(  680): Sync group 12 timeout
+11-25 22:02:37.483 W/BLASTSyncEngine(  680): Sync group 12 timed-out because not ready. If you see this, please file a bug.
+11-25 22:02:37.483 E/Transition(  680): #12 readiness timeout. state=1
+11-25 22:02:37.483 E/Transition(  680):    met conditions: [{start WCT appliedIGNORED}]
+11-25 22:02:37.483 E/Transition(  680):    unmet conditions: [{Legacy: used=true deferDepth=0 group={Display{#0 state=ON size=1080x2400 ROTATION_0}=false}}]
+11-25 22:02:37.503 V/WindowManager(  680): Sent Transition (#12) createdAt=11-25 22:02:35.477
+11-25 22:02:37.503 V/WindowManager(  680):     startWCT=WindowContainerTransaction { changes= {} hops= [{pendingIntent: options=Bundle[{android.activity.splashScreenStyle=-1, android.pendingIntent.backgroundActivityAllowed=3, android.activity.avoidMoveToFront=true, android.activity.launchTaskId=9, android:activity.animAbortListener=null}]}] flags= 0 errorCallbackToken=null taskFragmentOrganizer=null }
+11-25 22:02:37.503 V/WindowManager(  680):     info={id=12 t=CHANGE f=0x10000 trk=0 r=[0@Point(0, 0)] c=[
+11-25 22:02:37.503 V/WindowManager(  680):         {m=OPEN f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{199820580 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t9}#123)/@0xe27c625 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=-1->0 r=-1->0:-1 bc=ff000000 activity=ActivityTransitionInfo { component = ComponentInfo{net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}, taskId = 9, appCompatTransitionInfo = null }},
+11-25 22:02:37.503 V/WindowManager(  680):         {m=CLOSE f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{183684251 u0 com.android.systemui/com.android.wm.shell.packageupdate.PackageUpdateActivity t9}#115)/@0xd3934b4 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 bc=ff000000 activity=ActivityTransitionInfo { component = ComponentInfo{com.android.systemui/com.android.wm.shell.packageupdate.PackageUpdateActivity}, taskId = 9, appCompatTransitionInfo = null }}
+11-25 22:02:37.503 V/WindowManager(  680):     ]}
+11-25 22:02:37.504 V/WindowManagerShell(  959): onTransitionReady(transaction=2920577762375)
+11-25 22:02:37.505 I/SP.AiAi ( 1488): Scheduling job with delay of 121s for {W:b:u:l, bg}, 2 candidates
+11-25 22:02:37.518 V/WindowManagerShell(  959): onTransitionReady (#12) android.os.BinderProxy@22e1a8f: {id=12 t=CHANGE f=0x10000 trk=0 r=[0@Point(0, 0)] c=[
+11-25 22:02:37.518 V/WindowManagerShell(  959):         {m=OPEN f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{199820580 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t9}#123)/@0x394ed81 sb=Rect(0, 0 - 0, 0) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=-1->0 r=-1->0:-1 bc=ff000000 activity=ActivityTransitionInfo { component = ComponentInfo{net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}, taskId = 9, appCompatTransitionInfo = null }},
+11-25 22:02:37.518 V/WindowManagerShell(  959):         {m=CLOSE f=FILLS_TASK|IS_BEHIND_STARTING_WINDOW leash=Surface(name=ActivityRecord{183684251 u0 com.android.systemui/com.android.wm.shell.packageupdate.PackageUpdateActivity t9}#115)/@0x98c9e26 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 bc=ff000000 activity=ActivityTransitionInfo { component = ComponentInfo{com.android.systemui/com.android.wm.shell.packageupdate.PackageUpdateActivity}, taskId = 9, appCompatTransitionInfo = null }}
+11-25 22:02:37.518 V/WindowManagerShell(  959):     ]}
+11-25 22:02:37.519 V/WindowManagerShell(  959): Playing animation for (#12) android.os.BinderProxy@22e1a8f@0
+11-25 22:02:37.519 V/WindowManagerShell(  959):  try firstHandler com.android.wm.shell.packageupdate.PackageUpdateTransitionHandler@8c1433b
+11-25 22:02:37.531 V/WindowManagerShell(  959):  animated by firstHandler
+11-25 22:02:37.575 I/SP.AiAi ( 1488): Scheduling: download stopped, 0 started, 0 paused, 2 scheduled, 7 pending: manifests:kg_collections_table-21051103 {W:C:I:l, bg}, manifests:spelling_correction-22110320 {W:C:I:l, bg}, captions_i18n_v0_mandatory:sound_recognition_v7 * {W:b:u:l, bg}, captions_i18n_v0_mandatory:emotion_recognition_v4 * {W:b:u:l, bg}, manifests:text-classifier-annotator-272525175 {W:C:I:l, bg}, manifests:text-classifier-actions-1140547708 {W:C:I:l, bg}, manifests:text-classifier-langid-1941001461 {W:C:I:l, bg}
+11-25 22:02:37.586 I/FirebaseCrashlytics( 4016): Registering with ProfilingManager; heap dump collection is disabled
+11-25 22:02:37.609 W/imensions.debug( 4016): Verification of void x38.r(kajfosz.antimatterdimensions.MainActivity) took 100.224ms (558.75 bytecodes/s) (0B arena alloc)
+11-25 22:02:37.624 D/FileUtils(  680): Rounded bytes from 4102320128 to 8000000000
+11-25 22:02:37.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:37.631 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:37.648 D/FileUtils(  680): Rounded bytes from 4102320128 to 8000000000
+11-25 22:02:37.667 W/libbinder.Binder( 2502): Binder transaction to android.content.IContentProvider, function: UNKNOWN_FUNCTION_NAME, code: 21, took 2281ms. Data bytes: 516 Reply bytes: 468 Flags: 18
+11-25 22:02:37.738 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:37.763 V/WindowManagerShell(  959): Transition animation finished (aborted=false), notifying core (#12) android.os.BinderProxy@22e1a8f@0
+11-25 22:02:37.771 W/imensions.debug( 4016): Verification of void db1.run() took 112.724ms (7434.05 bytecodes/s) (0B arena alloc)
+11-25 22:02:37.772 V/WindowManager(  680): Finish Transition (#12): created at 11-25 22:02:35.477 collect-started=0.185ms started=0.26ms ready=-210130.127ms sent=2009.817ms commit=39.465ms finished=2293.749ms
+11-25 22:02:37.773 D/OomAdjuster(  680): Not killing cached processes
+11-25 22:02:37.774 V/WindowManagerShell(  959): Track 0 became idle
+11-25 22:02:37.774 V/WindowManagerShell(  959): All active transition animations finished
+11-25 22:02:37.774 D/VRI[PackageUpdateActivity](  959): visibilityChanged oldVisibility=true newVisibility=false
+11-25 22:02:37.779 D/CompatChangeReporter( 4016): Compat change id reported: 458413887; UID 10235; state: ENABLED
+11-25 22:02:37.789 D/nativeloader( 4016): Load /data/app/~~KGrq_HApIhf9lOvBxP4E2A==/net.oreki.antimatterdimensions.debug-Ywj5BqN3sBsU3SDYszClgg==/lib/x86_64/libdatastore_shared_counter.so using class loader ns clns-9 (caller=/data/app/~~KGrq_HApIhf9lOvBxP4E2A==/net.oreki.antimatterdimensions.debug-Ywj5BqN3sBsU3SDYszClgg==/base.apk!classes8.dex): ok
+11-25 22:02:37.792 I/FirebaseCrashlytics( 4016): Saved version control info
+11-25 22:02:37.818 I/imensions.debug( 4016): hiddenapi: Accessing hidden method Ldalvik/system/VMStack;->getStackClass2()Ljava/lang/Class; (runtime_flags=0, domain=core-platform, api=unsupported) from Lyn5; (domain=app, TargetSdkVersion=37) using reflection: allowed
+11-25 22:02:37.834 D/Phlogger( 4016): Application doesn't implement PhenotypeApplication interface, falling back to globally set context. See go/phenotype-flag#process-stable-init for more info.
+11-25 22:02:37.852 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:37.878 D/FirebaseSessions( 4016): Initializing Firebase Sessions 4.0.1.
+11-25 22:02:37.885 I/FirebaseInitProvider( 4016): FirebaseApp initialization successful
+11-25 22:02:37.925 D/FirebaseSessions( 4016): No Sessions subscribers. Not listening to lifecycle events.
+11-25 22:02:37.952 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:37.988 D/DesktopExperienceFlags( 4016): Toggle override initialized to: false
+11-25 22:02:37.996 I/FA      ( 4016): App measurement initialized, version: 192000
+11-25 22:02:37.996 I/FA      ( 4016): To enable debug logging run: adb shell setprop log.tag.FA VERBOSE
+11-25 22:02:37.996 I/FA      ( 4016): To enable faster debug mode event logging run:
+11-25 22:02:37.996 I/FA      ( 4016):   adb shell setprop debug.firebase.analytics.app net.oreki.antimatterdimensions.debug
+11-25 22:02:38.025 E/FA      ( 4016): AppMeasurementReceiver not registered/enabled
+11-25 22:02:38.027 E/FA      ( 4016): AppMeasurementService not registered/enabled
+11-25 22:02:38.027 E/FA      ( 4016): Uploading is not possible. App measurement disabled
+11-25 22:02:38.038 D/FirebaseSessions( 4016): Notified CRASHLYTICS of new session 8628a6937579468f80b438a673d049e1
+11-25 22:02:38.053 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:38.084 I/OREKI_UIFRAME( 4016): UI_FRAME_PUMP_STARTED intervalMs=16
+11-25 22:02:38.084 I/OREKI_SCHED( 4016): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-25 22:02:38.093 D/CorePackageUpdate(  680): Couldn't find a persistent state for task= 9
+11-25 22:02:38.103 I/DisplayManager( 4016): Choreographer implicitly registered for the refresh rate.
+11-25 22:02:38.136 I/GFXSTREAM( 4016): [eglDisplay.cpp(297)] Opening libGLESv1_CM_emulation.so
+11-25 22:02:38.138 I/GFXSTREAM( 4016): [eglDisplay.cpp(297)] Opening libGLESv2_emulation.so
+11-25 22:02:38.140 W/libc    ( 4016): Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-25 22:02:38.151 W/HWUI    ( 4016): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-25 22:02:38.198 I/PhenotypeResourceReader( 1259): unable to find any Phenotype resource metadata for net.oreki.antimatterdimensions.debug
+11-25 22:02:38.216 D/AppCompatDelegate( 4016): Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-25 22:02:38.258 I/imensions.debug( 4016): hiddenapi: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (runtime_flags=0, domain=platform, api=unsupported) from Lce; (domain=app, TargetSdkVersion=37) using reflection: allowed
+11-25 22:02:38.326 I/HWUI    ( 4016): Using FreeType backend (prop=Auto)
+11-25 22:02:38.710 W/TabLayout( 4016): MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-25 22:02:38.711 W/TabLayout( 4016): MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-25 22:02:38.774 E/TaskPersister(  680): File error accessing recents directory (directory doesn't exist?).
+11-25 22:02:38.880 D/WifiClientModeImpl[18222:wlan0](  680): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=2 freq=2447 RxLinkSpeed=2
+11-25 22:02:38.880 D/WifiClientModeImpl[18222:wlan0](  680): reported txKbps 12000 rxKbps 30000
+11-25 22:02:38.881 D/WifiDataStall(  680): tx tput in kbps: 11000
+11-25 22:02:38.881 D/WifiDataStall(  680): rx tput in kbps: 11000
+11-25 22:02:38.881 V/WifiConfigManager(  680): Updating scan detail cache freq=2447 BSSID=00:13:10:85:fe:01 RSSI=-50 for "AndroidWifi"NONE
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-25 22:02:38.881 D/WifiThroughputPredictor(  680):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 11
+11-25 22:02:38.883 I/AdbWifiNetworkMonitor(  680): Wi-Fi network available
+11-25 22:02:38.883 I/AdbWifiNetworkMonitor(  680): Received the same Wi-Fi SSID. Ignoring.
+11-25 22:02:38.885 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:38.885 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:38.886 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:38.886 W/libbinder.IPCThreadState(  680): Sending oneway calls to frozen process.
+11-25 22:02:38.887 I/WifiService(  680): getWifiEnabledState uid=10189 state=3
+11-25 22:02:38.889 I/WifiService(  680): getConnectionInfo uid=10221
+11-25 22:02:38.889 V/WifiService(  680): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10221)
+11-25 22:02:38.889 V/WifiPermissionsUtil(  680): checkCallersLocationPermission(com.google.android.gms): ok because uid 10221 has app-op android:fine_location
+11-25 22:02:38.889 V/WifiService(  680): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10221)
+11-25 22:02:38.896 I/NullBinder( 1259): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-25 22:02:38.896 W/libbinder.Binder( 1259): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-25 22:02:38.901 I/HalDevMgr(  680): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-25 22:02:38.901 D/WifiScoreCard(  680): BSSID update SIGNAL_POLL ID: 561269453 SSID: "AndroidWifi", BSSID: 00:13:10:85:fe:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 11Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 11Mbps, Calculated Rx : 0Mbps, Frequency: 2447MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-25 22:02:38.901 D/WifiScoreCard(  680): txRate: 9 txSpeed: 2
+11-25 22:02:38.901 D/WifiScoreCard(  680): network update SIGNAL_POLL "AndroidWifi" ID: 4768197 RSSI -50 txSpeed 2
+11-25 22:02:38.901 D/WifiClientModeImpl[18222:wlan0](  680):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 00:13:10:85:fe:01 rssi=-50 f=2447 sc=100 link=2 tx=8.3, 0.0, 0.0 rx=10.3 bcn=0 [on:0 tx:0 rx:0 period:3023] from screen [on:0 period:319029173] score=100
+11-25 22:02:39.084 I/OREKI_TABGATE( 4016): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-25 22:02:39.141 W/LibraryVersion( 4016): Failed to get app version for libraryName: firebase-auth
+11-25 22:02:39.216 W/System.err( 4016): java.io.FileNotFoundException: /data/user/0/net.oreki.antimatterdimensions.debug/files/player2.json: open failed: ENOENT (No such file or directory)
+11-25 22:02:39.217 W/System.err( 4016): 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-25 22:02:39.217 W/System.err( 4016): 	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.ContextImpl.openFileInput(ContextImpl.java:818)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-25 22:02:39.217 W/System.err( 4016): 	at kajfosz.antimatterdimensions.player.h.d(dex-id-b29a2f3f87668a48326d23a1b0f1890796aa134a:62)
+11-25 22:02:39.217 W/System.err( 4016): 	at kajfosz.antimatterdimensions.MainActivity.onCreate(dex-id-b29a2f3f87668a48326d23a1b0f1890796aa134a:2034)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.Activity.performCreate(Activity.java:9340)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.Activity.performCreate(Activity.java:9318)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1543)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4559)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4781)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:224)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3032)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.os.Handler.dispatchMessageImpl(Handler.java:142)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.os.Looper.loopOnce(Looper.java:296)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.os.Looper.loop(Looper.java:397)
+11-25 22:02:39.217 W/System.err( 4016): 	at android.app.ActivityThread.main(ActivityThread.java:9523)
+11-25 22:02:39.218 W/System.err( 4016): 	at java.lang.reflect.Method.invoke(Native Method)
+11-25 22:02:39.218 W/System.err( 4016): 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+11-25 22:02:39.218 W/System.err( 4016): 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:939)
+11-25 22:02:39.218 W/System.err( 4016): Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+11-25 22:02:39.218 W/System.err( 4016): 	at libcore.io.Linux.open(Native Method)
+11-25 22:02:39.218 W/System.err( 4016): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-25 22:02:39.218 W/System.err( 4016): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-25 22:02:39.218 W/System.err( 4016): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-25 22:02:39.218 W/System.err( 4016): 	at android.app.AndroidForwardingOs.open(AndroidForwardingOs.java:120)
+11-25 22:02:39.218 W/System.err( 4016): 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-25 22:02:39.219 W/System.err( 4016): 	... 25 more
+11-25 22:02:39.226 I/OrekiTutorial( 4016): 3
+11-25 22:02:39.227 I/OrekiTutorial( 4016): 3
+11-25 22:02:39.228 I/OrekiTutorial( 4016): 3
+11-25 22:02:39.228 I/OrekiTutorial( 4016): 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-25 22:02:39.232 D/FirebaseSessions( 4016): App foregrounded on net.oreki.antimatterdimensions.debug
+11-25 22:02:39.233 D/FirebaseSessions( 4016): Session 8628a6937579468f80b438a673d049e1 has not backgrounded yet
+11-25 22:02:39.233 D/FirebaseSessions( 4016): Process net.oreki.antimatterdimensions.debug is stale
+11-25 22:02:39.234 I/OrekiTutorial( 4016): 容器里已有入口按钮，跳过
+11-25 22:02:39.234 I/OrekiTutorial( 4016): 容器里已有入口按钮，跳过
+11-25 22:02:39.234 I/OrekiTutorial( 4016): 容器里已有入口按钮，跳过
+11-25 22:02:39.234 I/OrekiTutorial( 4016): 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-25 22:02:39.267 I/FA      ( 4016): Tag Manager is not found and thus will not be used
+11-25 22:02:39.269 D/MediaCodecList( 4016): codecHandlesFormat: no format, so no extra checks
+11-25 22:02:39.270 D/MediaCodecList( 4016): codecHandlesFormat: no format, so no extra checks
+11-25 22:02:39.271 I/MediaCodec( 4016): Retry enabled for HDCP failure
+11-25 22:02:39.271 I/MediaCodec( 4016): Retry enabled for HDCP failure
+11-25 22:02:39.275 D/FirebaseSessions( 4016): Session 8628a6937579468f80b438a673d049e1 has not backgrounded yet
+11-25 22:02:39.275 D/FirebaseSessions( 4016): Cold app start detected
+11-25 22:02:39.275 D/FirebaseSessions( 4016): Process net.oreki.antimatterdimensions.debug is stale
+11-25 22:02:39.276 W/HWUI    ( 4016): Unknown dataspace 0
+11-25 22:02:39.277 D/FirebaseSessions( 4016): Sessions SDK disabled through data collection. Events will not be sent.
+--------- beginning of kernel
+11-25 22:02:39.261 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-25 22:02:39.285 D/InsetsController( 4016): Setting requestedVisibleTypes to 496 (was 503)
+11-25 22:02:39.286 D/BoundBrokerSvc( 1259): onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-25 22:02:39.289 W/InputChannel-JNI(  680): Channel already disposed.
+11-25 22:02:39.301 I/Choreographer( 4016): Skipped 71 frames!  The application may be doing too much work on its main thread.
+11-25 22:02:39.301 W/skia    (  537): AGTM parsing failed flags.readFromStream(s) at 159
+11-25 22:02:39.311 D/WindowOnBackDispatcher( 4016): setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@3fada11
+11-25 22:02:39.292 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-25 22:02:39.313 D/WindowOnBackDispatcher( 4016): setTopOnBackInvokedCallback (unwrapped): r83@dafc177
+11-25 22:02:39.314 D/CoreBackPreview(  680): Window{1616198 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@bc1c857, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+11-25 22:02:39.314 D/CoreBackPreview(  680): Window{1616198 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6d6ff44, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+11-25 22:02:39.302 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found mapper/ranchu in device VINTF manifest.
+11-25 22:02:39.341 D/VRI[MainActivity]( 4016): WindowInsets changed: 1080x2400 statusBars:[0,128,0,0] navigationBars:[0,0,0,63] mandatorySystemGestures:[0,160,0,84] 
+11-25 22:02:39.342 D/BoundBrokerSvc( 1412): onBind: Intent { act=com.google.android.gms.measurement.START xflg=0x4 pkg=com.google.android.gms }
+11-25 22:02:39.342 D/BoundBrokerSvc( 1412): Loading bound service for intent: Intent { act=com.google.android.gms.measurement.START xflg=0x4 pkg=com.google.android.gms }
+11-25 22:02:39.381 D/WindowManager(  680): setClientSurface Surface(name=VRI-net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity#131)/@0x6e6cbb0 for 1616198 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity
+11-25 22:02:39.386 I/Surface ( 4016): Creating surface for consumer unnamed-4016-0 with slotExpansion=1 for 64 slots
+11-25 22:02:39.387 I/Surface ( 4016): Creating surface for consumer VRI[MainActivity]#0(BLAST Consumer)0 with slotExpansion=1 for 64 slots
+11-25 22:02:39.387 I/libbinder.BpBinder(  537): onLastStrongRef automatically unlinking death recipients for binder (0x7f9666462860) with descriptor: '(not cached)'
+11-25 22:02:39.389 D/VRI[MainActivity]( 4016): WindowInsets changed: statusBars:null navigationBars:null 
+11-25 22:02:39.430 I/ApexCodecsLazy( 4016): ApexCodecs loaded
+11-25 22:02:39.430 I/Codec2Client( 4016): Available Codec2 services: "default" "software" "__ApexCodecs__"
+11-25 22:02:39.412 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-25 22:02:39.414 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-25 22:02:39.439 W/imensions.debug( 4016): Failed to query component store for system resources: 6
+11-25 22:02:39.439 W/imensions.debug( 4016): Failed to query component store for system resources: 6
+11-25 22:02:39.448 D/CCodec  ( 4016): allocate(c2.android.mp3.decoder)
+11-25 22:02:39.448 D/CCodec  ( 4016): allocate(c2.android.mp3.decoder)
+11-25 22:02:39.449 W/libc    ( 4016): Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-25 22:02:39.430 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-25 22:02:39.453 D/FirebaseSessions( 4016): Notified CRASHLYTICS of new session 48935372ed1b441387fcdff1c5bf0ba1
+11-25 22:02:39.454 I/CCodec  ( 4016): setting up 'default' as default (vendor) store
+11-25 22:02:39.455 I/CCodec  ( 4016): setting up 'default' as default (vendor) store
+11-25 22:02:39.434 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-25 22:02:39.436 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-25 22:02:39.441 I/servicemanager(    0): Caller(pid=4016,uid=10235,sid=u:r:untrusted_app:s0:c235,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/software in framework VINTF manifest.
+11-25 22:02:39.469 I/CCodec  ( 4016): Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-25 22:02:39.470 D/CCodecConfig( 4016): read media type: audio/mpeg
+11-25 22:02:39.470 I/Surface ( 4016): Creating surface for consumer unnamed-4016-1 with slotExpansion=1 for 64 slots
+11-25 22:02:39.471 I/Surface ( 4016): Creating surface for consumer SurfaceTexture-0-4016-0 with slotExpansion=0 for 64 slots
+11-25 22:02:39.471 W/imensions.debug( 4016): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.471 I/CCodec  ( 4016): Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-25 22:02:39.472 D/CCodecConfig( 4016): read media type: audio/mpeg
+11-25 22:02:39.477 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.max-count.values
+11-25 22:02:39.479 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.max-count.values
+11-25 22:02:39.480 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.subscribed-indices.values
+11-25 22:02:39.480 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-25 22:02:39.480 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-25 22:02:39.481 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-25 22:02:39.481 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-25 22:02:39.481 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.subscribed-indices.values
+11-25 22:02:39.481 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-25 22:02:39.482 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-25 22:02:39.484 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-25 22:02:39.485 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-25 22:02:39.486 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-25 22:02:39.486 D/ReflectedParamUpdater( 4016): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-25 22:02:39.486 I/CCodecConfig( 4016): query failed after returning 8 values (BAD_INDEX)
+11-25 22:02:39.486 D/CCodecConfig( 4016): c2 config diff is Dict {
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 coded.bitrate.value = 64000
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 input.buffers.max-size.value = 8192
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 input.delay.value = 0
+11-25 22:02:39.486 D/CCodecConfig( 4016):   string input.media-type.value = "audio/mpeg"
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 output.large-frame.max-size = 0
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 output.large-frame.threshold-size = 0
+11-25 22:02:39.486 D/CCodecConfig( 4016):   string output.media-type.value = "audio/raw"
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 raw.channel-count.value = 2
+11-25 22:02:39.486 D/CCodecConfig( 4016):   c2::u32 raw.sample-rate.value = 44100
+11-25 22:02:39.486 D/CCodecConfig( 4016): }
+11-25 22:02:39.489 I/CCodecConfig( 4016): query failed after returning 8 values (BAD_INDEX)
+11-25 22:02:39.490 D/CCodecConfig( 4016): c2 config diff is Dict {
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 coded.bitrate.value = 64000
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 input.buffers.max-size.value = 8192
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 input.delay.value = 0
+11-25 22:02:39.490 D/CCodecConfig( 4016):   string input.media-type.value = "audio/mpeg"
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 output.large-frame.max-size = 0
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 output.large-frame.threshold-size = 0
+11-25 22:02:39.490 D/CCodecConfig( 4016):   string output.media-type.value = "audio/raw"
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 raw.channel-count.value = 2
+11-25 22:02:39.490 D/CCodecConfig( 4016):   c2::u32 raw.sample-rate.value = 44100
+11-25 22:02:39.490 D/CCodecConfig( 4016): }
+11-25 22:02:39.491 I/MediaCodec( 4016): media_quality service unavailable, skipping updatePictureProfile
+11-25 22:02:39.492 D/CCodec  ( 4016): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-25 22:02:39.493 D/CCodecConfig( 4016): no c2 equivalents for durationUs
+11-25 22:02:39.493 D/CCodecConfig( 4016): no c2 equivalents for track-id
+11-25 22:02:39.493 D/CCodecConfig( 4016): no c2 equivalents for encoder-delay
+11-25 22:02:39.493 D/CCodecConfig( 4016): no c2 equivalents for encoder-padding
+11-25 22:02:39.493 D/CCodecConfig( 4016): no c2 equivalents for flags
+11-25 22:02:39.493 I/MediaCodec( 4016): media_quality service unavailable, skipping updatePictureProfile
+11-25 22:02:39.494 D/CCodec  ( 4016): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-25 22:02:39.494 D/CCodecConfig( 4016): no c2 equivalents for durationUs
+11-25 22:02:39.494 D/CCodecConfig( 4016): no c2 equivalents for track-id
+11-25 22:02:39.494 D/CCodecConfig( 4016): no c2 equivalents for encoder-delay
+11-25 22:02:39.494 D/CCodecConfig( 4016): no c2 equivalents for encoder-padding
+11-25 22:02:39.494 D/CCodecConfig( 4016): no c2 equivalents for flags
+11-25 22:02:39.494 D/CCodecConfig( 4016): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-25 22:02:39.494 D/CCodec  ( 4016): encoding statistics level = 0
+11-25 22:02:39.494 D/CCodec  ( 4016): setup formats input: AMessage(what = 0x00000000) = {
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t bitrate = 224000
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t channel-count = 2
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t max-input-size = 8192
+11-25 22:02:39.494 D/CCodec  ( 4016):   string mime = "audio/mpeg"
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t sample-rate = 44100
+11-25 22:02:39.494 D/CCodec  ( 4016): }
+11-25 22:02:39.494 D/CCodec  ( 4016): setup formats output: AMessage(what = 0x00000000) = {
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t buffer-batch-max-output-size = 0
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t buffer-batch-threshold-output-size = 0
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t channel-count = 2
+11-25 22:02:39.494 D/CCodec  ( 4016):   string mime = "audio/raw"
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t sample-rate = 44100
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t encoder-delay = 576
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t encoder-padding = 1536
+11-25 22:02:39.494 D/CCodec  ( 4016):   int32_t android._config-pcm-encoding = 2
+11-25 22:02:39.494 D/CCodec  ( 4016): }
+11-25 22:02:39.495 I/CCodecConfig( 4016): query failed after returning 8 values (BAD_INDEX)
+11-25 22:02:39.495 E/imensions.debug( 4016): Failed to query component interface for required system resources: 6
+11-25 22:02:39.495 D/CCodecConfig( 4016): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-25 22:02:39.497 D/CCodec  ( 4016): encoding statistics level = 0
+11-25 22:02:39.497 D/CCodec  ( 4016): setup formats input: AMessage(what = 0x00000000) = {
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t bitrate = 224000
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t channel-count = 2
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t max-input-size = 8192
+11-25 22:02:39.497 D/CCodec  ( 4016):   string mime = "audio/mpeg"
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t sample-rate = 44100
+11-25 22:02:39.497 D/CCodec  ( 4016): }
+11-25 22:02:39.497 D/CCodec  ( 4016): setup formats output: AMessage(what = 0x00000000) = {
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t buffer-batch-max-output-size = 0
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t buffer-batch-threshold-output-size = 0
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t channel-count = 2
+11-25 22:02:39.497 D/CCodec  ( 4016):   string mime = "audio/raw"
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t sample-rate = 44100
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t encoder-delay = 576
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t encoder-padding = 1536
+11-25 22:02:39.497 D/CCodec  ( 4016):   int32_t android._config-pcm-encoding = 2
+11-25 22:02:39.497 D/CCodec  ( 4016): }
+11-25 22:02:39.498 D/C2Store ( 4016): Using DMABUF Heaps
+11-25 22:02:39.498 I/CCodecConfig( 4016): query failed after returning 8 values (BAD_INDEX)
+11-25 22:02:39.499 E/imensions.debug( 4016): Failed to query component interface for required system resources: 6
+11-25 22:02:39.500 D/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#861] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+11-25 22:02:39.502 D/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#334] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+11-25 22:02:39.502 I/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#861] Created output block pool with allocatorID 16 => poolID 57 - OK
+11-25 22:02:39.502 D/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#861] Configured output block pool ids 57 => OK
+11-25 22:02:39.502 E/Codec2-ComponentInterface(  605): We have a failed config
+11-25 22:02:39.504 I/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#334] Created output block pool with allocatorID 16 => poolID 58 - OK
+11-25 22:02:39.504 D/SimpleC2Component(  605): Using output block pool with poolID 57 => got 57 - 0
+11-25 22:02:39.505 D/CCodecBufferChannel( 4016): [c2.android.mp3.decoder#334] Configured output block pool ids 58 => OK
+11-25 22:02:39.505 E/Codec2-ComponentInterface(  605): We have a failed config
+11-25 22:02:39.506 D/SimpleC2Component(  605): Using output block pool with poolID 58 => got 58 - 0
+11-25 22:02:39.514 W/mediaswcodec(  605): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.514 W/imensions.debug( 4016): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.514 W/mediaswcodec(  605): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.514 W/imensions.debug( 4016): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.515 I/C2SoftMp3Dec(  605): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-25 22:02:39.516 I/C2SoftMp3Dec(  605): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-25 22:02:39.519 W/imensions.debug( 4016): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.519 W/mediaswcodec(  605): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.521 W/imensions.debug( 4016): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.522 W/mediaswcodec(  605): AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-25 22:02:39.741 D/AidlBufferPoolAcc(  605): evictor expired: 10, evicted: 0
+11-25 22:02:39.842 I/adbd    (  541): adbd service requested 'shell,v2,raw:dumpsys window'
+11-25 22:02:39.919 I/HWUI    ( 4016): Davey! duration=1799ms; Flags=1, FrameTimelineVsyncId=64276, IntendedVsync=212760625018, Vsync=213943958304, InputEventId=0, HandleInputStart=213955560000, AnimationStart=213955582800, PerformTraversalsStart=213956222600, DrawStart=214120112300, FrameDeadline=212777291684, FrameStartTime=213954008800, FrameInterval=16666666, WorkloadTarget=16666666, AnimationTime=213943958304, SyncQueued=214124667600, SyncStart=214125838600, IssueDrawCommandsStart=214126106900, SwapBuffers=214441923900, FrameCompleted=214561145300, DequeueBufferDuration=33100, QueueBufferDuration=326500, GpuCompleted=214561145300, SwapBuffersCompleted=214553990100, DisplayPresentTime=8173322766190, CommandSubmissionCompleted=214441923900, 
+11-25 22:02:39.965 I/DisplayDeviceRepository(  680): Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[{uid=10235 frameRateHz=60.000004}]
+11-25 22:02:40.034 I/adbd    (  541): adbd service requested 'shell,v2,raw:logcat -d -v time'
+11-25 22:02:40.052 I/logd    (    0): logdr: UID=2000 GID=2000 PID=4100 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

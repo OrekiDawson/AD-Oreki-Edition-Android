@@ -331,9 +331,11 @@ check("决策优先级：挑战最优先", _crunch_kt.index("inAnyChallenge()") 
 # 峰值还没长起来时清空维度，实测真新档 IP 恒为 0.0e0、永远够不到 32767 IP 的 Break 门槛。
 # 现在改为收益驱动（至少一次涨一个数量级、投影 ≥10 IP）+ 零收益自适应窗口。
 check("决策优先级：未 Break 改为收益驱动等待",
-      "fun preBreakJumpReason" in _crunch_kt
+      "fun preBreakRiseReason" in _crunch_kt
+      and "preBreakBestGainLog" in _crunch_kt
       and 'Decision(false, "pre-break-grow")' in _crunch_kt
       and "preBreakWindowNs" in _crunch_kt
+      and "preBreakHoldUntilNs" in _crunch_kt
       and 'Decision(true, "pre-break-ip")' not in _crunch_kt)
 
 # [R96 第四轮] 永恒层不得无条件放行坍缩：实测无条件 allow 会让维度数量长不起来、
@@ -412,8 +414,45 @@ if _beat_runner.is_file():
     }
     _legacy_classes = {"OrekiAutobuyerBeatTest"}
 
+    import os as _os
+    import xml.etree.ElementTree as _ET
+
+    def _read_rows(classes):
+        _rows = {name: {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+                 for name in classes}
+        if _test_results.is_dir():
+            for _xml in _test_results.glob("TEST-*.xml"):
+                _name = _xml.stem.rsplit(".", 1)[-1]
+                if _name not in _rows:
+                    continue
+                _root = _ET.parse(_xml).getroot()
+                for _key in ("tests", "failures", "errors", "skipped"):
+                    _rows[_name][_key] += int(_root.attrib.get(_key, 0))
+        return _rows
+
+    def _rows_pass(_rows):
+        return all(
+            row["tests"] - row["skipped"] > 0
+            and row["failures"] == 0
+            and row["errors"] == 0
+            for row in _rows.values()
+        )
+
+    def _rows_detail(mode, _rows):
+        return [
+            mode + "=" + ",".join(
+                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}/{row['skipped']}"
+                for name, row in _rows.items())
+        ]
+
     def _run_beat(mode, classes):
         try:
+            # [R130 P0 Windows] run_beat_test.sh 依赖 /opt/android-sdk 与 Linux JAVA_HOME，
+            # Windows 本机不可执行（bash 只是 WSL 存根）。此时直接读取刚才全量单测已生成的
+            # XML 事实，不预先删除、不伪造结果；XML 缺失即 0/0/0/0 判 FAIL。
+            if _os.name == "nt":
+                _rows = _read_rows(classes)
+                return _rows_pass(_rows), ["windows-xml-only"] + _rows_detail(mode, _rows)
             for _xml in _test_results.glob("TEST-*.xml"):
                 if _xml.stem.rsplit(".", 1)[-1] in classes:
                     _xml.unlink()
@@ -423,30 +462,9 @@ if _beat_runner.is_file():
                 text=True,
                 timeout=300,
             )
-            _rows = {name: {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
-                     for name in classes}
-            if _test_results.is_dir():
-                import xml.etree.ElementTree as _ET
-                for _xml in _test_results.glob("TEST-*.xml"):
-                    _name = _xml.stem.rsplit(".", 1)[-1]
-                    if _name not in _rows:
-                        continue
-                    _root = _ET.parse(_xml).getroot()
-                    for _key in ("tests", "failures", "errors", "skipped"):
-                        _rows[_name][_key] += int(_root.attrib.get(_key, 0))
-            _executed = all(
-                row["tests"] - row["skipped"] > 0
-                and row["failures"] == 0
-                and row["errors"] == 0
-                for row in _rows.values()
-            )
+            _rows = _read_rows(classes)
             _summary = (_run.stdout or _run.stderr or "").strip().splitlines()[-1:] or [""]
-            _detail = [
-                mode + "=" + ",".join(
-                    f"{name}:{row['tests']}/{row['failures']}/{row['errors']}/{row['skipped']}"
-                    for name, row in _rows.items())
-            ]
-            return _run.returncode == 0 and _executed, _summary + _detail
+            return _run.returncode == 0 and _rows_pass(_rows), _summary + _rows_detail(mode, _rows)
         except Exception as _e:
             return False, [mode + ": " + str(_e)]
 
