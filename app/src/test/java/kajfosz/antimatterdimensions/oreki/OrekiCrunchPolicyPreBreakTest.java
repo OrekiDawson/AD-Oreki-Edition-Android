@@ -17,19 +17,28 @@ import org.junit.Test;
 public class OrekiCrunchPolicyPreBreakTest {
 
     @Test
-    public void allowsWhenGainIsAtLeastTenTimes() {
-        assertEquals("pre-break-ip-jump", OrekiCrunchPolicy.preBreakJumpReason(1.0));
-        assertEquals("pre-break-ip-jump", OrekiCrunchPolicy.preBreakJumpReason(3.5));
+    public void allowsWhenGainIsAtLeastTenTimesCurrentIp() {
+        assertEquals("pre-break-ip-jump", OrekiCrunchPolicy.preBreakJumpReason(3.5, 1.0));
+        assertEquals("pre-break-ip-jump", OrekiCrunchPolicy.preBreakJumpReason(5.0, 4.0));
     }
 
     @Test
     public void waitsWhenGainIsSmallerThanTenTimes() {
-        assertNull(OrekiCrunchPolicy.preBreakJumpReason(0.99));
-        assertNull(OrekiCrunchPolicy.preBreakJumpReason(-2.0));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(1.99, 1.0));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(2.5, 2.0));
+    }
+
+    @Test
+    public void waitsWhenAbsoluteGainBelowTenIp() {
+        // IP=0 时 log10(IP)=-inf，不能靠相对比较恒放行；投影 <10 IP 一律等待。
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(0.99, Double.NEGATIVE_INFINITY));
+        assertEquals("pre-break-ip-jump",
+                OrekiCrunchPolicy.preBreakJumpReason(1.0, Double.NEGATIVE_INFINITY));
     }
 
     @Test
     public void waitsWhenProjectionUnavailable() {
-        assertNull(OrekiCrunchPolicy.preBreakJumpReason(null));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(null, 1.0));
+        assertNull(OrekiCrunchPolicy.preBreakJumpReason(Double.NaN, 1.0));
     }
 }

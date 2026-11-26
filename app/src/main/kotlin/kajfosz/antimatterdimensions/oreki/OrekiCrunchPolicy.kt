@@ -148,12 +148,27 @@ object OrekiCrunchPolicy {
     /**
      * [R130 P0] 首次 Break 之前「这一拍坍缩值不值得」的纯函数判据。
      *
-     * 返回非 null 表示放行（一次坍缩至少让 IP 涨一个数量级），null 表示应等待成长。
-     * 拆成纯函数便于单测固定语义，避免把真实状态读取混进断言。
+     * 返回非 null 表示放行，null 表示应等待成长。规则：
+     *   1. 投影必须至少 10 IP（`gainLog >= 1.0`），否则坍缩后仍是 0 IP，纯属清空维度；
+     *   2. 已有 IP（`ipLog` 有限）时还要求相对涨一个数量级（`gainLog - ipLog >= 1.0`）；
+     *   3. 任一投影读不到（null）→ 等待，由 60 秒上限兜底放行一次。
+     *
+     * IP 为 0 时 `log10` 为 -inf，不能直接做相对比较（否则恒放行），故单列绝对下限。
      */
     @JvmStatic
-    fun preBreakJumpReason(leap: Double?): String? =
-        if (leap != null && leap >= 1.0) "pre-break-ip-jump" else null
+    fun preBreakJumpReason(gainLog: Double?, ipLog: Double?): String? {
+        if (gainLog == null || gainLog.isNaN() || gainLog.isInfinite()) return null
+        if (gainLog < PRE_BREAK_MIN_GAIN_LOG10) return null
+        if (ipLog == null) return "pre-break-ip-jump"
+        if (ipLog.isNaN() || ipLog.isInfinite()) {
+            // IP=0（-inf）或读异常：只受绝对下限约束。
+            return if (ipLog == Double.NEGATIVE_INFINITY) "pre-break-ip-jump" else null
+        }
+        return if (gainLog - ipLog >= 1.0) "pre-break-ip-jump" else null
+    }
+
+    /** pre-break 单次坍缩的绝对收益下限：log10(IP) ≥ 1 即至少 10 IP。 */
+    private const val PRE_BREAK_MIN_GAIN_LOG10: Double = 1.0
 
     @JvmStatic
     fun decide(): Decision {
@@ -229,8 +244,14 @@ object OrekiCrunchPolicy {
             // maxAM 永远停在同一量级 ⇒ IP 不可能涨到 Break 门槛，形成 pre-break 死锁。
             // 改为与后续分支一致的收益驱动：一次坍缩至少让 IP 涨一个数量级才放行；
             // 否则按住让反物质成长，并保留 60 秒上限，保证任意窗口内至少一次真实结算。
-            val leap = gainVersusIp()
-            val jumpReason = preBreakJumpReason(leap)
+            // [R130 P0 二修] IP 为 0 时 `log10(IP)=-inf` 会让 gainVersusIp() 恒为 +inf，
+            // 实测 15:00:14 仍放行一次却在 15:01 保持 ip=0.0e0（投影高估、真实收益 0）。
+            // 因此 pre-break 用绝对下限：投影必须 ≥10 IP（gainLog≥1.0），
+            // 且已有 IP 时仍要求相对涨一个数量级，避免回到“每拍清空”的老路径。
+            val gainLog = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
+            val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
+            val ipLog = if (ipNow == null) null else GameApi.log10BigDouble(ipNow)
+            val jumpReason = preBreakJumpReason(gainLog, ipLog)
             if (jumpReason != null) {
                 waitStartedAt = 0L
                 return Decision(true, jumpReason)
