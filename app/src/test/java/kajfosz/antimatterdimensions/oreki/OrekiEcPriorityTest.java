@@ -46,9 +46,10 @@ public class OrekiEcPriorityTest {
   public void entryEternityExemptionCoversEc1AndTtChallengesOnly() {
     assertTrue(OrekiEcAutomation.shouldExemptEntryEternityGainGate(1, false));
     assertTrue(OrekiEcAutomation.shouldExemptEntryEternityGainGate(11, false));
-    assertTrue(OrekiEcAutomation.shouldExemptEntryEternityGainGate(12, false));
     // EC4 的入口资源是无限次数，永恒会清零它，改由 EC4 入口等待门禁处理。
     assertFalse(OrekiEcAutomation.shouldExemptEntryEternityGainGate(4, false));
+    // EC12 的入口资源是 IP，永恒同样清零它；豁免会让入口目标永远达不成。
+    assertFalse(OrekiEcAutomation.shouldExemptEntryEternityGainGate(12, false));
     assertFalse(OrekiEcAutomation.shouldExemptEntryEternityGainGate(2, false));
     assertFalse(OrekiEcAutomation.shouldExemptEntryEternityGainGate(11, true));
   }
