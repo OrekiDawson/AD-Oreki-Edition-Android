@@ -746,9 +746,24 @@ def retire_legacy_stable(root: Path, current_sha: str) -> dict[str, object] | No
         legacy_idsig = legacy.with_name(legacy.name + ".idsig")
         new_idsig = root / "latest" / (STABLE_APK_NAME + ".idsig")
         try:
-            if legacy_idsig.is_file() and not new_idsig.is_file():
-                shutil.copy2(legacy_idsig, new_idsig)
-                say(f"本地：旧名 idsig 已补写为新固定名 {new_idsig}")
+            if legacy_idsig.is_file():
+                # [R130 KODY-FIX] 不能只在「目标不存在」时补写：local_publish 不刷新
+                # `latest/AD-Oreki-Edition-Stable.apk.idsig`，目标一旦存在就可能是旧构建的
+                # 内容；中断留下的截断目标也会被误判为已迁移。这里按内容哈希判定，
+                # 不一致就原子覆盖，覆盖后再次核验，未通过则保留旧文件、不进入 unlink。
+                legacy_idsig_sha = sha256_file(legacy_idsig)
+                need_copy = True
+                if new_idsig.is_file():
+                    try:
+                        need_copy = sha256_file(new_idsig) != legacy_idsig_sha
+                    except OSError:
+                        need_copy = True
+                if need_copy:
+                    atomic_copy(legacy_idsig, new_idsig)
+                    say(f"本地：旧名 idsig 已原子刷新为新固定名 {new_idsig}")
+                if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
+                    say("本地：新固定名 idsig 校验不一致，保留旧文件")
+                    return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
         except OSError as exc:
             say(f"本地：旧名 idsig 补写受阻，保留原文件：{exc}")
             return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}

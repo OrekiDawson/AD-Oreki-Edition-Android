@@ -275,9 +275,23 @@ def retire_legacy_stable(dest: Path, current_sha: str) -> dict[str, object] | No
         legacy_idsig = legacy.with_name(legacy.name + ".idsig")
         new_idsig = dest / "latest" / (DEFAULT_APK_NAME + ".idsig")
         try:
-            if legacy_idsig.is_file() and not new_idsig.is_file():
-                shutil.copy2(legacy_idsig, new_idsig)
-                log(f"已把旧名 idsig 补写为新固定名：{new_idsig}")
+            if legacy_idsig.is_file():
+                # [R130 KODY-FIX] 与 publish_four_channels.retire_legacy_stable 同源：
+                # 目标已存在不代表内容正确，必须按哈希比对并原子刷新，否则旧/截断 idsig
+                # 会与当前 APK 错配，且旧名副本随后被删掉无法自愈。
+                legacy_idsig_sha = sha256_file(legacy_idsig)
+                need_copy = True
+                if new_idsig.is_file():
+                    try:
+                        need_copy = sha256_file(new_idsig) != legacy_idsig_sha
+                    except OSError:
+                        need_copy = True
+                if need_copy:
+                    atomic_replace_bytes(legacy_idsig, new_idsig)
+                    log(f"已把旧名 idsig 原子刷新为新固定名：{new_idsig}")
+                if not new_idsig.is_file() or sha256_file(new_idsig) != legacy_idsig_sha:
+                    log("WARN: 新固定名 idsig 校验不一致，保留旧文件")
+                    return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-verify-failed"}
         except OSError as exc:
             log(f"WARN: 旧名 idsig 补写受阻，保留原文件：{exc}")
             return {"legacy_sha256": legacy_sha, "disposition": "kept-idsig-copy-failed"}
