@@ -1,0 +1,87 @@
+# Android技术与架构
+
+> 现行专项细则，根 AGENTS.md 按任务引用，不全量预载。跨仓统一要求以 Workspace 当前根规则及适用专项为准；本仓最新明确更新及用户授权覆盖旧状态。历史轮次、版本及过期描述不作为当前授权。相对链接按本文件位置调整；路径和章节编号仍以仓库根为基准。
+
+## 2. Android 技术与架构
+
+### 2.1 Android 技术及游戏约束
+
+- **P0 正式 APK V3.0 + V3.2 混合签名及 V4**：minSdk 保持 32，目标为同一 APK 内 V3.0（原 K0 经典密钥，API 32–36）和 V3.2（API 37+，独立新经典 C_K1 与新 ML-DSA PQC_K1 双签名者），外加与该 APK 字节精确绑定的 V4 `.apk.idsig`；禁用 V1/V2/V3.1。K0 保留为经典 fallback 和可信签名谱系根，两把新密钥必须独立生成并共享经 K0 授权的完整前序谱系；不得复用 K0 为混合经典密钥。保留包名、存档、历史 APK，单指纹门禁演进为严格固定的 K0/C_K1/PQC_K1 身份、合法谱系、SDK 范围、抗剥离属性与官方密码学验签；不能任意接受多个证书。优先 Google 官方 AGP/apksig/apksigner；若 AGP 无完整混合 DSL，只允许验证后的官方工具对 AGP 未签名产物一次正式签名并生成 V4 sidecar，禁止重签已签 APK 或手工拼接签名块。先用临时密钥实测 V3.2+V4 组合是否由实际工具及平台支持，验证 API 32/36/37 安装、同包覆盖升级、正常与增量安装、篡改拒绝和经授权的安全回退，再在受保护签名环境迁移生产密钥；不能宣称现有工具已支持该组合。V4 若需官方扩展格式则按真实工具输出核实，不自行编造。四渠道必须交付同一 APK 及配套同一 idsig，各自 SHA-256、原子关联与校验；普通 APK 安装不依赖 idsig。历史资产不改写。Kody、CI、预算与存档门禁不变；原 V3.0-only 路径仅为过渡，不能作为 P0 完成或最终签名策略。
+- 官方 Android 3.21.0 是兼容基线；未经授权不整体升级上游、改变包名/签名或破坏存档。实际 Gradle/AGP/JDK/D8/R8 版本以仓库当前构建配置和已验收证据为准，不使用过期版本快照指挥构建。
+- **新增或修改的游戏业务全部使用 Kotlin**；允许原版 Smali/DEX 在 ABI/行为验证后临时还原为未经业务扩展的 Java，任何对该旧 Java 的实质功能修改都必须先转 Kotlin；不在 Java/Smali 中继续开发业务。修改混淆符号前核实真实签名、调用路径和运行行为；遵守 Kotlin→DEX→APK 构建与签名流程。
+- **AGP/R8 渐进迁移**：标准 Google Android 工程、AGP、R8 和逐步淘汰 apktool 为长期目标；新链路先验证包名、资源、Kotlin→D8→DEX→APK、ABI、混淆/反射、签名、覆盖安装、真实运行及存档，再替换旧环节。禁止 Kotlin 空壳、伪迁移、在过渡 Java/Smali 中新增或修改游戏业务；JADX 使用 `jadx --deobf -d out_folder input.apk`，同一原版基线复用已导出的成果。
+- **游戏进度真实**：不得伪造资源、阶段、成就、挑战结算、存档或终局；首次大坍缩后不能马上非法解锁 Break Infinity，永恒/现实及挑战按合法进度开放。与 Web 的玩家可见机制和中文教程保持一致。
+- **智能自动购买器完整托管（P0）**：MOD 调度器独占全部自动购买器及全局控制项的策略与有效调度，覆盖原版全局启停、批量状态切换、全局购买数量切换及单项启停、模式、数量、限制、阈值、间隔、优先级。MOD 托管开启时允许玩家操作，下一有效 tick 按最新合法阶段、资源、挑战、解锁、冷却、收益重算并恢复全局与逐项配置；不得粗暴全开、沿用过期快照或让批量数量覆盖各项最优模式。只有独立的 MOD 调度器总开关由玩家决定是否托管，关闭立即停止 MOD 自动执行与回写且不得擅自重开；原版全局开关不能关闭 MOD 托管。挑战限制、游戏强制禁用及安全暂停优先。tick 由玩家设置 1～60 秒，默认 10 秒，阶段或主循环不得擅改；保留原版合法冷却与升级条件，但不得存在竞争性独立执行入口、重复调度或虚假间隔。补齐所有阶段实际存在的自动购买及策略缺口，真实购买、扣费、结算，禁止越级、误重置、死锁、无效重试。GUI 全局按钮与各项实际配置/执行同步，保留有趣手动操作。双端逐一枚举所有购买器/控制入口，真实生产路径验收三个全局按钮、单项修改、MOD 总开关、1/10/60 秒、阶段重置、导入存档与挑战限制；策略完整、配置正确、真实执行、GUI 同步及双端等价独立取证，180 分钟通关不能替代。关联 [Android #164](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/164) / [Web #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Web/issues/52)。 单测必须覆盖真实生产路径，不能用死代码冒充验证。
+- **自动化及 GUI**：总开关关闭立即停止对应 MOD 自动化；挑战从原版真实结算入口完成，不直接补完成位或非法解锁。Android 原创页深色、教程按钮 `#0078D7`、顶栏“当前页面”、默认科学记数法；资源、阶段、配置变化实时同步 GUI，省电模式沿用既有例外。中文玩家教程保留原版信息，MOD 独有内容仅放附录 F，双端一致。
+- **五阶段体验契约**：真实新档必须按以下顺序自然展开主要玩法；时间区间是长期体验目标而非按时钟触发的阶段开关。
+
+  | 真实墙钟 | 玩家体验目标（同时作为 `PACING` 阶段—机制映射） |
+  | --- | --- |
+  | 0～30 分钟 | 快速成长，建立基础维度、升级和首次关键突破的理解 |
+  | 30～75 分钟 | 逐步展开无限、Break、永恒、IP/EP、时间研究与挑战 |
+  | 75～130 分钟 | 展开现实、主要天神、现实升级和自动化恢复 |
+  | 130～165 分钟 | 完成后期挑战、Pelle 解锁与终局过程 |
+  | 165～180 分钟 | 完成最终突破、原版真实结算与收尾 |
+
+  上表同时是 `PACING` 的唯一阶段—机制内容判据；`docs/DELIVERY_RULES.md` 与 `docs/SHARED_GAMEPLAY_STANDARD.md` 引用同一映射。
+  每阶段必须有实际游戏内容、合法资源增长和真实推进过程，不能被自动化瞬间跳过；阶段转换必须由真实机制自然决定，不得按墙钟强制锁定/解锁，也不得用固定等待、降低性能、擅改调度 tick 或伪造进度凑时间。阶段边界允许 **±5 分钟**审查容差：边界 ±5 分钟内不得仅凭秒数判失败，超出后仍须结合内容是否被压缩判断。首个 Reality 早于 **70 分钟**（75 分钟边界减 5 分钟）进入即触发 `PACING FAIL` 阻断审查；这是对真实运行结果的判定阈值，不是按时钟解锁条件。
+- **独立验收维度**：候选版本分别记录 `GAMEPLAY LEGALITY`（资源、购买、挑战、结算、解锁、存档、成就合法）、`PACING`（五阶段自然展开且内容未被明显压缩）、`ENDGAME`（真实新档 ≤180 分钟到达原版终局）与 `POST-ENDGAME STABILITY`（终局后状态和存档正常）。以上四项与独立 `SAVE COMPATIBILITY` 共同作为五项门禁，分别使用 `PASS / FAIL / BLOCKED / NOT RUN`；ENDGAME PASS 不代表 PACING PASS，CI、构建、单测或审查完成也不能替代真实玩家体验。
+- **节奏失败快速阻断**：真实新档一旦有可靠证据确认候选严重偏离五阶段目标，立即标记 `PACING FAIL`，最低 P1；同时存在非法解锁、伪造结算、存档损坏或核心玩法不可用时升级 P0。安全保存运行证据与检查点后，暂停该候选的无效长跑、稳定版晋升及稳定发布，优先定位直接根因；**已授权的 Pre-release 测试版不因 PACING FAIL 自动禁止**，但必须满足下述测试发布最低安全门禁并披露失败；修复后先定向验证受影响节奏，恢复后才重启完整新档验收。允许调整有证据支持的倍率、经济曲线、动态速度和阶段自动化策略。
+- **STD/IAP 商店移除与原版存档双向兼容（长期强制）**：Android/Web MOD 都不得提供独立 STD/IAP 商店的正常导航、购买/支付、6h/24h 商店时间跳或任何商店/广告额外游戏倍率；运行时商店乘法效果为 ×1、加法效果为 0，禁止从旧购买态重新激活。正常游戏内 Infinity/Break、Eternity、Time Study、Reality、Teresa Perk Shop 等合法升级/商店不在此范围。
+- **原版存档互通门禁**：每个平台必须通过“同平台官方原版导出 → MOD 导入并合法游玩 → MOD 导出 → 同平台官方原版实际导入”及反向再导入回归。保留官方存档编码、结构、关键字段、槽位、已购历史记录和原版格式兼容；MOD 只在运行时禁用商店效果，不得清零、删除、伪造旧购买记录或以保存 `IAP.enabled=false` 作为关闭商店手段。新增 MOD 专属配置采用不污染原版导出的方式保留，不能让原版读取失败或丢失进度。Android 官方 3.21.0 与 Web 官方冻结基线的存档载体不同，跨 Android/Web 直接互读另须真实格式转换验证，不得推定已经支持。
+- **`SAVE COMPATIBILITY` 独立阻断门禁**：原版→MOD 与 MOD→原版任一方向失败、存档重要信息损坏或历史购买记录被抹掉，均记 `SAVE COMPATIBILITY FAIL`，至少 P1，阻断稳定版合并及发布，先安全留存原始存档再修复；未知或未测记 `NOT RUN` / `BLOCKED`。涉及商店或存档的改动，测试必须覆盖官方新旧档、MOD 新旧档、曾购买商品的档、导入导出及重启保持，不能仅凭结构检查宣称 PASS。
+- **终局硬指标**：新档合法游戏墙钟 ≤180 分钟且终局后状态可确认，运行证据绑定明确源码 Commit、APK SHA-256、签名、安装、运行 ID 与新档起点；旧 APK 的里程碑不得算作当前 APK。
+- **四小时双轨交付**：当前全天已授权且可安全执行时，**每四小时至少发布一份真实的新版本（硬性最低频率）**，经过各自最低门禁的 Stable Release 与明确标记的 Pre-release **同等计入一次**，无需各发一份；五渠道的同一 APK 仅计一份，旧包改名、空版本、仅构建或重复上传不计。取消时段跳过或顺延发布的例外。稳定版仍必须通过全部五项验收，预发布必须通过最低安装、签名、存档安全及 CI/CD 门禁；到期仍无合格候选时报告 `BLOCKED` 并记录频率未达标，不为赶节奏降低质量。合格候选复用同一 APK、SHA-256 交付 GitHub Releases、OneDrive、Google Drive、小米云盘、本地 SSH/SFTP；禁止误发旧包或替换无可取回归档的旧稳定版。已知 PACING FAIL 先短程诊断，禁止无意义反复 180 分钟长跑。
+- **Pre-release 测试包独立放行制度（长期授权）**：允许从当前确切 Git Commit/可验证真实构建链产生**正式签名的 Release APK**，以 `Pre-release` 供用户手机安装复测，**不要求先取得五项完整游戏验收 PASS**。已知非破坏性功能 P0/P1、错误阶段解锁或 `PACING FAIL` 可以作为测试目的披露并暂时保留，未运行内容明确 `NOT RUN`，不能冒充修复或稳定版。最低放行门禁：实际完整游戏 Release 构建、APK 可验签、包名/版本码/必要 DEX/ABI 可信、旧安装签名兼容、可以安装和启动、关键存档导入/导出或不破坏验证、没有已知不可逆存档损坏或安全漏洞；**任何硬门禁失败则 `BLOCKED`**。严格遵守现行 AGP-only、Source Checks、Required Checks、Ruleset、审批、Secrets 和受保护发布链，不得以预发布名义退回未验证旧构建、强推或跳 CI。GitHub Releases 必须 `prerelease=true`，独立唯一 Tag、中文测试说明、真实 Commit/APK SHA-256、已知问题、测试建议及稳定版区别；五渠道均复用**同一 APK**：GitHub Releases、OneDrive、Google Drive、小米云盘、本地 SSH/SFTP，按本地交付口径逐项验证路径与 SHA-256，预发布不覆盖稳定包。**预发布必须走独立且可验证的路径：GitHub Tag 指向实际构建 Commit，创建时使用 `--prerelease --latest=false`，发布命令显式禁止调用稳定版 promotion；OneDrive/Google Drive/小米云盘/本地 SSH 采用独立固定 Pre-release 路径与固定文件名滚动替换，禁止写入稳定 `latest/`。发布后回读确认 `prerelease=true`、不是 `releases/latest`、五渠道文件与源 SHA-256 一致。** 不得在无 180 分钟验收时无限延期已获授权且符合最低门禁的测试包；**预发布计入四小时统一交付节奏，但绝不计入稳定版合格验收**。如已有 R125 这类测试发布授权，无须每次重新询问同类型授权，但用户最新暂停、预算和安全硬限制优先。详见 `docs/DELIVERY_RULES.md` 的预发布章。
+- 定向执行 Kotlin/JVM 单测、调度契约、Release、签名、AVD/真机/KVM 的必要验证；每轮最多一次正式 Release 构建，离线优先。未经真实终局验收，不得把 R8 实验或仅构建通过的 APK 称为稳定版。详见 `docs/DELIVERY_RULES.md`、`docs/FACTS.md`。
+
+### 2.2 标准工程与旧构建链退役
+
+- **明确等级**：将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P1 工程迁移任务（普通目录整理 P2）**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。游戏 P0 优先；仅直接阻断闭包临时升 P0。
+- **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
+- **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
+- **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改的游戏业务只能 Kotlin；原版 Smali/DEX 允许经验证暂时恢复为未扩展业务的 Java 过渡实现，实质修改旧 Java 业务前须先迁 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
+- **本机工具治理**：Google 官方 Android SDK/Emulator/Build Tools 集中在系统根分区专用 `/opt/android-sdk`；仅保留一台 API 37 AVD（`/opt/android-avd`），专用目录属主 `oreki:oreki`。先迁移/验证再清理，不能删除 AGP 实际依赖的版本、共享 JDK/系统 Python、原版基线、密钥、存档、发布包和证据；禁止递归修改整个 `/opt`、`/usr`。最新且兼容的稳定版优先。
+- **每批闭环**：旧生产调用→新实现路径、实际移动/删除文件与工具、剩余消费者、Commit/PR、磁盘释放量、源码/ABI/DEX/资源/必要 AVD 定向证据逐项记录；适用 CI/Kody/Ruleset/签名与 Release 门禁不降，禁止把 Debug 构建或纯迁移 PR 当作完整游戏验收。每轮最多一次正式 Release 构建。规则 PR 实际合并后立即交接本机安全同步，只有本机回读证明才标同步成功。继续 R126，不开新 `/goal` 或 R 编号。
+
+
+> 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
+
+### 2.3 P1 全量 Smali/DEX 源码接管
+
+- **长期源码化目标（P1）**：逐步完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin，切断 Smali 生产补丁/手工 DEX 注入、退役 `scripts/build_mod.py` 与旧 APK 二次拼装。优先复用已有分析成果，按业务需求及最小自洽依赖闭包增量集成；非阻断部分不挤占 P0 游戏业务，不再要求单个历史执行窗口一次性完成。终局未满足原有完成门禁前不得写 PASS。
+- **生产改动规则**：JADX 对受保护原版 XAPK/APK/DEX 一次全量反编译，仅输出研究性 Java 参考；REA/JADX/xref 辅助修复混淆、重载、反射、控制流与 ABI。原版**未实质修改**代码允许暂存 `app/src/main/java`；新增、修复或实质改动业务先迁 `app/src/main/kotlin`。同一 descriptor 仅一个生产实现，不允许把未修复的全量反编译目录直接塞进 Source Set，也不允许用空方法、伪逻辑或跳过功能冒充恢复。
+- **迁移即清理**：Lead 核查现有 worktree/Owner/PR，按现行单一 Lead 规则增量恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
+- **唯一完成门禁**：`PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0`、`MANUAL_DEX_INJECTION_PATHS=0`、`BUILDMOD_PRODUCTION_DEPENDENCIES=0`、`LEGACY_APK_REPACK_PATHS=0`，且 `AGP_FULL_GAME_BUILD`、`GAME_STARTUP_AND_TICK`、`SAVE_COMPATIBILITY`、`REQUIRED_RUNTIME_CHECKS` 真实 PASS。保留资源/ABI、API37、签名、正式包名、Kody/CI/规则集与合法挑战结算；正式 Release 本轮最多一次。失败保留真实 descriptor/调用方/日志，写 BLOCKED/FAIL，不以删除文件制造假零残留。
+- **优先级边界**：全量源码恢复、根级 AGP、旧构建链退役默认 P1，以业务需求驱动，直接阻断 P0 时仅最小闭包临时升级；性能缺陷可直接按玩家影响定向修复，无需等待全量 Smali 清零。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
+
+#### 2.3.1 遗留 Java 与 Kotlin 业务边界
+
+- **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
+- **新增或实质修改必须 Kotlin**：新的游戏业务/功能、修改旧 Java 业务行为、修复旧 Java 的功能缺陷，必须先将该类或最小自洽逻辑闭包迁到 Kotlin，再实现改动；不得直接在过渡 Java 或原始 Smali 上新增业务逻辑、补丁和功能分支。允许保留原样且确有消费者的遗留 Java，不要求无关类提前重写。
+- **规范路径与唯一实现**：标准 `app/src/main/java/` 可暂存已验证可编译的旧 Java，`app/src/main/kotlin/` 存放 Kotlin 业务；同一 descriptor 不得 Java/Kotlin/Smali 双重生产定义。每批登记对应基线证据、Kotlin 接管范围、剩余 Java、实际 DEX/ABI/资源/存档/关键运行证据，随迁移移除无消费者的旧工具和旧调用；过渡 Java 不得演变成永久的新业务开发区。
+
+### 2.3.1 整个原版 APK 全类 Java/Kotlin 源码化（2026-11-24 新长期目标）
+
+- **全量目标**：原版 3.21.0 `classes.dex=10,708`、`classes2.dex=4,611`，合计 **15,319 个 DEX class_def**。以原始 descriptor 全量建立可复算主账，不能再用 `source-takeover.txt` 1665 类和 blocked 356 类合计 2021 类作为整个 APK 分母。PR #300 HEAD 的已接管类比例暂为 **1665/15319≈10.9%**，且仅代表当前 AGP 源码接管，不能自动代表所有类通过语义或源码许可验证。不同 DEX 间重名、反编译遗漏和 SDK 平台类需独立核对，不擅改分母。
+- **逐类可追溯且能重建**：每个原版 APK 内 DEX 类应映射到本仓可编译 Java/Kotlin 源文件，或经核验的第三方/开源项目准确版本及其可获取源码、合法许可证、构建方式和产物映射；第三方优先采用合法标准 Gradle 源码依赖，不为形式批量复制成熟库。**仅在 APK 内保留原版冻结 JAR/DEX，或只有 JADX 输出，或仅声明闭源二进制 Maven 依赖，均不计源码化成功**。由系统 SDK 提供而不在原版 DEX 内的类不纳入此 15,319 分母。
+- **唯一全量类账**：逐 descriptor 维护 DEX 来源、Java/Kotlin/上游源码与版本、编译和 R8 所有者、ABI/语义验收、许可状态及真伪，分类 `LOCAL_SOURCE_COMPILED / UPSTREAM_SOURCE_REPRODUCIBLE / RESEARCH_ONLY / BLOCKED / BINARY_ONLY`，按原始全集校验 `covered+remaining=15319`，不得因包移动、R8 合并、删除依赖、重复类或缩水改写结果。必要时区分嵌入式 Kotlin stdlib、Google/AndroidX 等上游代码及需要保留的 Java 字节码 ABI。
+- **完成门槛**：原版全部类有可合法取得的准确源码且能按 Google 官方 AGP/依赖源码构建与核验，最终安装包无不透明冻结原版 DEX/JAR 生产依赖、无 Smali 文本补丁/手工 DEX 注入/二次 APK 打包，ABI/R8/反射、存档及受影响游戏逻辑经过必要验证。不可因 source coverage 达标就宣称新档 180 分钟游戏五项 PASS，亦不得为补数量写空实现、假映射或非法分发第三方源码。剩余 356 blocked 是部分已登记候选的具体问题，**不代表全部未迁类只有 356 个**。
+- **执行顺序**：先保留现有 1665 接管进展与安全证据；核对 PR #300 `aq.b()`、`wg6` 真实语义，按实际授权、预算及 Provider 可用性决定是否开展新付费迁移。通过自动化一次生成完整 descriptor 分类索引，再按平台/依赖/游戏源码分组，优先可复用官方上游源码/可复现源码构建，最后攻克不合法的 JADX/classfile/构造器边界。正式发布仍依既有 Pre-release/Stable 独立门禁，不能用完整源码迁移阻止已具备最低安全门禁的生日 Pre-release。
+
+- **全 APK 源码转换 Lead 独占、禁止并行 Subagent（2026-11-24 用户最新决定）**：原版 15,319 个 DEX 类的批量反编译/恢复 Java、Kotlin 迁移、descriptor 映射、依赖闭包恢复、ABI/构造器/字节码语义修复以及相关源码接管决策，均由**单一 Lead** 顺序执行和统一保存上下文、日志、清单及工作树。**不得将此类转换工作拆分给多个 Subagent、不得为同一 APK 多路并发调用付费模型、不得并行重复 JADX/REA 扫描、完整编译、R8 或 AVD 测试**。优先一次全量索引、脚本批处理、按根因分组、缓存复用、短程定向测试；先用确定性工具处理简单类，只把疑难闭包交给 Lead 的模型推理。Lead 每次提交按 `新增源码覆盖类数 / 受阻类数 / 当前 15,319 分母占比 / Token 与实际费用 / ABI 与运行验收` 汇报。此规则只限制**源码转换专项**，其他独立且已授权的 Web/Wiki/发布/文档任务按有效预算及 Owner 规则执行；取消余额前置门禁，按实际授权、预算与 Provider 可用性判断。已有 Subagent 转换任务必须先安全交接已产出证据、保留未提交内容并退出，不强杀、不丢进度。
+
+### 2.4 P1 64 位 ABI 与测试设备
+
+- **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
+- **测试设备默认**：日常开发和大多数定向回归使用用户 **x86_64 Linux 电脑上的唯一 Android AVD**（目前目标 API 37），由 AVD Owner 独占；不要求每个普通 PR 都占用用户手机。用户 **Android 真机**（历史设备 Xiaomi 23113RKC6C / Android 16，以实时 ADB 验证为准）仅在可用且用户授权时**偶尔**进行 ARM64 安装、冷启动、原生库/性能、存档与设备差异抽样测试；不默认当成长期 CI 或自动调用设备。
+- **退役任务特殊验收**：需核查原版/生产 `.so` ABI 及必要 64 位替代、`adb shell getprop ro.product.cpu.abilist`，生产 APK 只含两种允许 ABI 的 JNI、无 32 位原生库，x86_64 AVD 安装/启动/Tick/存档 PASS。ARM64 真机证据必须单列 PASS/FAIL/NOT RUN；没测试不得冒充已验证，真机暂不可用不能阻断其他独立工作。Release/签名/Kody/CI/合法结算/存档门禁仍有效。
+- **优先级与协作**：ABI 支持矩阵及验收要求保持不变；非阻断迁移为 P1，直接阻断玩家安全、核心业务或必要交付的最小范围按实际风险升级，避免与源码恢复争用资源。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
+
+### 2.5 P0 应用包名与数据迁移
+
+- **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
+- **真正实施而非只改名称**：按标准 AGP Variant 分别处理正式/Debug 资源 stable IDs、Manifest `${applicationId}` 占位符、Provider/FileProvider authorities、动态快捷方式 targetPackage、权限、App Links/深链、存档导出入、BuildConfig/测试/生成资源、CI 和 provenance、签名/发布清单与发行下载说明。迁移 `com.oreki.antimatterdimensions` 的**生产身份引用**，但保留必要的旧存档识别、原版基线和历史证据。不得用最终 APK 修改/二次拼包替代 AGP 官方机制。
+- **应用身份不可覆盖兼容**：不同 applicationId 是两款系统应用，无法以新包名覆盖安装旧 `com.oreki.antimatterdimensions`；旧版私有数据不会自动进入新包，即使签名相同。**禁止静默卸载旧版、清除数据或承诺自动迁移**；必须提供旧版本导出存档→新版本导入的实际验证，并验证 API 37 AVD 上旧新共存、Debug/Release 变体隔离、包名/签名/Provider/快捷方式及关键真实玩法。
+- **实施与证据**：由 Android R126 Lead 在受保护工作树中执行，保持 Google 官方 AGP Kotlin→D8/R8→DEX→APK、Kotlin-only 新/改业务、临时未改旧 Java 允许的现行规则。每个 P0 闭包记录代码/资源/路径变更、Commit/PR、候选 APK SHA、测试 PASS/FAIL/BLOCKED/NOT RUN；未验证不得把包名切换称为可覆盖升级或 Stable PASS。规则合并后必须立即安全同步本机，只有本机回读 SHA 后才标 `LOCAL_SYNC_VERIFIED`。
+
