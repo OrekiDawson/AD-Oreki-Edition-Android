@@ -1,6 +1,6 @@
 """静态回归：规则文本的 Ready/收费并发口径。
 
-这里只校验 AGENTS.md 文本契约，不声称 GitHub/Kodus 已真实实现三槽门禁。
+这里只校验质量审查专项规则文本契约，不声称 GitHub/Kodus 已真实实现三槽门禁。
 真实收费前的跨仓并发控制由 Workspace Issue #38 单独验证。
 """
 
@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def rule_line(prefix: str) -> str:
-    for line in (ROOT / "AGENTS.md").read_text(encoding="utf-8").splitlines():
+    for line in (ROOT / "docs" / "Agent规则" / "03-质量审查与合并.md").read_text(encoding="utf-8").splitlines():
         if line.startswith(prefix):
             return line
     raise AssertionError(f"未找到规则段：{prefix}")
@@ -33,7 +33,7 @@ class TestReviewReadyPolicy(unittest.TestCase):
         self.assertIn("Wiki 原生审查只占并发槽", self.scheduler)
 
     def test_no_default_two_slot_or_reserved_slot_draft(self):
-        lines = (ROOT / "AGENTS.md").read_text(encoding="utf-8").splitlines()
+        lines = (ROOT / "docs" / "Agent规则" / "03-质量审查与合并.md").read_text(encoding="utf-8").splitlines()
         start = lines.index(self.scheduler)
         while start > 0 and not re.match(r"^#{1,6}\s", lines[start]):
             start -= 1
