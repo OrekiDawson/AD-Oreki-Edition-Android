@@ -187,11 +187,19 @@ object OrekiEternity {
             // tryEternity → eternityTick → tick 会无限递归（Kody PR #324 critical）。
             // VerifyError 已由 ShadowCtorFix 在字节码层修好，直接走原版 confirmEternity
             // 启动器完成真实扣费与结算。
+            // [R131] 不再持久化打开原版 autoEternity：`OrekiEternityLaunch.run()`
+            // 直接构造 confirmEternity 协程并交给游戏 scope，本身不读该开关；
+            // 旧写法会把玩家手动关闭的开关永久改成 true 并随存档保存，
+            // 让原版自动器绕过 holdCrunch/ecHold/RU10 等门槛（Kody PR #327 critical）。
             val etBefore = GameApi.eternities()
-            if (GameApi.autoEternityIsActive() != true) {
-                GameApi.setAutoEternityActive(true)
+            val autoBefore = GameApi.autoEternityIsActive()
+            try {
+                OrekiEternityLaunch.run()
+            } finally {
+                if (autoBefore != null && autoBefore != GameApi.autoEternityIsActive()) {
+                    GameApi.setAutoEternityActive(autoBefore)
+                }
             }
-            OrekiEternityLaunch.run()
             sEtPending = 1
             sEtTtl = 600
             sEtBefore = Player.a.x().log10()

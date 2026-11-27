@@ -35,15 +35,6 @@ GAME_JAR=""
 GAME_JAR_SHA256=""
 OFFICIAL_TREE="work/base_decoded_321"
 SPLIT_TREE="work/mdpi_decoded_321"
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --game-jar) GAME_JAR="$2"; shift 2 ;;
-    --game-jar-sha256) GAME_JAR_SHA256="$2"; shift 2 ;;
-    --official-tree) OFFICIAL_TREE="$2"; shift 2 ;;
-    --split-tree) SPLIT_TREE="$2"; shift 2 ;;
-    *) fail "未知参数 $1" ;;
-  esac
-done
 [ -n "$GAME_JAR" ] || fail "缺少 --game-jar"
 [ -n "$GAME_JAR_SHA256" ] || fail "缺少 --game-jar-sha256"
 [ -f "$OFFICIAL_TREE/AndroidManifest.xml" ] || fail "缺少官方 3.21 Manifest：$OFFICIAL_TREE/AndroidManifest.xml"
@@ -52,6 +43,54 @@ done
 [ -f "$GAME_JAR" ] || fail "缺少 game jar $GAME_JAR"
 ACTUAL_JAR_SHA="$(sha256sum "$GAME_JAR" | cut -d' ' -f1)"
 [ "$ACTUAL_JAR_SHA" = "$GAME_JAR_SHA256" ] || fail "game jar SHA 不符 actual=$ACTUAL_JAR_SHA pinned=$GAME_JAR_SHA256"
+
+# [R131 P0] 构建期确定性字节码工序（ShadowCtorFix → SigAttrFix）。
+#
+# 为什么必须在这里做：此前两道工序只在 agp_gamejar2.py 里以显式参数存在，
+# 本脚本把调用方给的 jar 直接 install 成 build/inputs/game-final.jar，
+# 正式候选因此仍打包未修复 jar：`Eternity$confirmEternity$4` 的 ART VerifyError
+# （永恒永不结算）与导入存档 ClassCastException（泛型 Signature 丢失）依旧存在
+# （Kody PR #327 critical）。
+#
+# 开启方式：OREKI_SHADOW_CTOR_FIX=1，并提供：
+#   --jar-fix-classes <dir>   scripts/dexfix/r107/build 的编译产物目录
+#   --jar-fix-asm-jar <jar>   ASM 9.x
+#   --jar-fix-sigattr-tsv <tsv>  可选；给出则同时回填泛型 Signature
+FIX_CLASSES=""
+FIX_ASM_JAR=""
+FIX_SIGATTR_TSV=""
+FIX_JAVA="${JAVA_HOME:-}/bin/java"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --game-jar) GAME_JAR="$2"; shift 2 ;;
+    --game-jar-sha256) GAME_JAR_SHA256="$2"; shift 2 ;;
+    --official-tree) OFFICIAL_TREE="$2"; shift 2 ;;
+    --split-tree) SPLIT_TREE="$2"; shift 2 ;;
+    --jar-fix-classes) FIX_CLASSES="$2"; shift 2 ;;
+    --jar-fix-asm-jar) FIX_ASM_JAR="$2"; shift 2 ;;
+    --jar-fix-sigattr-tsv) FIX_SIGATTR_TSV="$2"; shift 2 ;;
+    --jar-fix-java) FIX_JAVA="$2"; shift 2 ;;
+    *) fail "未知参数 $1" ;;
+  esac
+done
+if [ "${OREKI_SHADOW_CTOR_FIX:-0}" = "1" ]; then
+  [ -n "$FIX_CLASSES" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-classes"
+  [ -n "$FIX_ASM_JAR" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-asm-jar"
+  [ -x "$FIX_JAVA" ] || FIX_JAVA="java"
+  FIXED_JAR="$ROOT/out/agpdex2/game-fixed.jar"
+  mkdir -p "$ROOT/out/agpdex2"
+  FIX_ARGS=(--in-jar "$GAME_JAR" --out-jar "$FIXED_JAR"
+    --classes-dir "$FIX_CLASSES" --asm-jar "$FIX_ASM_JAR" --java "$FIX_JAVA")
+  if [ -n "$FIX_SIGATTR_TSV" ]; then FIX_ARGS+=(--sigattr-tsv "$FIX_SIGATTR_TSV"); fi
+  echo "[0/3] 字节码工序 ShadowCtorFix${FIX_SIGATTR_TSV:+ + SigAttrFix}"
+  python3 "$ROOT/scripts/agp/apply_jar_fixes.py" "${FIX_ARGS[@]}" \
+    | tee "$ROOT/out/agpdex2/jar-fixes.json" >/dev/null
+  FIXED_SHA="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["out_jar_sha256"])' "$ROOT/out/agpdex2/jar-fixes.json")"
+  [ -n "$FIXED_SHA" ] || fail "工序未产出 out_jar_sha256"
+  echo "[0/3] 修复后 jar sha256=$FIXED_SHA（原 $ACTUAL_JAR_SHA）"
+  GAME_JAR="$FIXED_JAR"
+  GAME_JAR_SHA256="$FIXED_SHA"
+fi
 
 echo "[1/3] AGP 完整游戏构建 variant=$VARIANT jar=$ACTUAL_JAR_SHA"
 mkdir -p "$ROOT/build/inputs"

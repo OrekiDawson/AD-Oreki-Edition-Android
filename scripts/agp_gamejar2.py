@@ -1011,6 +1011,15 @@ def main() -> int:
             report["checks"]["whole_jar_d8_after_sigattr"] = sigattr_d8
             require(sigattr_d8["status"] == "PASS",
                     "SigAttrFix 后整包 D8 失败: %s" % sigattr_d8["stderr_tail"])
+        # 工序后 final_jar 已换成本工序产物，必须同步改写 report["output"]，
+        # 否则下游按报告取产物会记录并打包未修复的旧 jar 与旧 SHA（Kody PR #327）。
+        fixed_hashes = jar_class_hashes(final_jar)
+        report["output"] = {
+            "game_jar": str(final_jar),
+            "game_jar_sha256": sha256_file(final_jar),
+            "game_jar_bytes": final_jar.stat().st_size,
+            "class_count": len(fixed_hashes),
+        }
 
     # 可选：泛型 Signature 回填（enjarify 不输出 DEX 注解；见 docs/AGP_SIGNATURE_BACKFILL.md）
     if args.sigbackfill_ref_jar:

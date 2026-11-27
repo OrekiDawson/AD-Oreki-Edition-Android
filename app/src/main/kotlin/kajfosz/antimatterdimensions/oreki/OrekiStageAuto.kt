@@ -740,10 +740,16 @@ object OrekiStageAuto {
             // `inf` 停在 1、maxAMlog 只在 221~281 间摆动 ⇒ 无限升级拿不到钱、ID 又永远
             // 买不到，AM 乘数链彻底不启动。因此这里加**可买性门禁**：只有当前真的买得起
             // ipMult 时才把名额给 infinityUpgrades，否则让给 idBuy（ID 乘数才是 AM 主动力）。
+            // [R131] pre-Break 禁止把名额判给 idBuy：`tryBuyId1()` 在 `!isBroken()` 下
+            // 第一件事就是 `skip=not-broken; false` ⇒ 必然空转，随后固定顺序里的 bulk
+            // 抢走本拍唯一动作（Kody PR #327 critical）。未 Break 时 ID 不可能购买，
+            // 名额只在真实可执行的「IP 倍率」与「坍缩间隔」之间分配：
+            // ipMult 买得起时优先（成本 ×2 / 收益 ×2，指数成长是 Break 的钱源）；
+            // 否则尝试用真实余额买坍缩间隔（买不起时 noop 不占拍，bulk/sacrifice 照常跑）。
             if (canBuyInfinityUpgradeNow()) {
                 "infinityUpgrades"
-            } else if (!allInfinityDimensionsUnlocked()) {
-                "idBuy"
+            } else if (!crunchIntervalIsMaxed()) {
+                "crunchInterval"
             } else {
                 "infinityUpgrades"
             }
