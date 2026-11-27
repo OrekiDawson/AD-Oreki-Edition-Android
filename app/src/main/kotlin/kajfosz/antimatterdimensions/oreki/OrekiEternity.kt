@@ -38,24 +38,24 @@ object OrekiEternity {
      * 这里加一层深度闩锁：嵌套进入直接返回，绝不重复执行永恒层经济动作。
      */
     @JvmField
-    var sTickDepth: Int = 0
+    var tickDepth: Int = 0
 
     private var stageAutoHoldCrunchMethod: Method? = null
     private var stageAutoHoldCrunchResolved: Boolean = false
 
     @JvmStatic
     fun tick() {
-        if (sTickDepth != 0) {
+        if (tickDepth != 0) {
             return
         }
-        sTickDepth++
+        tickDepth++
         try {
             buyTimeTheorems()
             buyTimeDimensions()
             buyNormalStudies()
             tryEternity()
         } finally {
-            sTickDepth = 0
+            tickDepth = 0
         }
     }
 
