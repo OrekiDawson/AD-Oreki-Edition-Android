@@ -34,6 +34,25 @@ class OrekiDeepEcStudyPolicyTest {
         assertFalse(study(181, targetEcId = 9))
     }
 
+    @Test
+    fun `post EC seed requires every challenge at five completions`() {
+        assertTrue(
+            OrekiEternity.shouldSeedDilationPrerequisite(
+                targetEcId = 0,
+                completions = List(12) { 5 },
+            ),
+        )
+        assertFalse(
+            OrekiEternity.shouldSeedDilationPrerequisite(
+                targetEcId = 0,
+                completions = List(12) { 5 }.toMutableList().also { it[11] = 4 },
+            ),
+        )
+        assertFalse(
+            OrekiEternity.shouldSeedDilationPrerequisite(12, List(12) { 5 }),
+        )
+    }
+
     private fun study(id: Int, targetEcId: Int): Boolean =
         OrekiEternity.shouldConsiderNormalStudy(
             id = id,
