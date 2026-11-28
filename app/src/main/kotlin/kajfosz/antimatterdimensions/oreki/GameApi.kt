@@ -3650,6 +3650,66 @@ internal object GameApi {
     }
 
     /**
+     * 读取原版维度路径偏好（`Player.c0().e().a()`，`List<Integer>`）。
+     * 读不到返回 null；空列表是有效的“尚未选择路径”状态。
+     */
+    private var mTimestudyPreferredPathsGetter: Method? = null
+    private var mTimestudyPreferredPathsGetterResolved: Boolean = false
+    private var mPreferredPathsDimensionGetter: Method? = null
+    private var mPreferredPathsDimensionGetterResolved: Boolean = false
+    @JvmStatic
+    fun preferredDimensionPaths(): List<Int>? = try {
+        val player = player() ?: return null
+        val timestudy = playerTimestudyMethod()?.invoke(player) ?: return null
+        if (!mTimestudyPreferredPathsGetterResolved) {
+            mTimestudyPreferredPathsGetterResolved = true
+            mTimestudyPreferredPathsGetter = timestudy.javaClass.getMethod("e")
+        }
+        val paths = mTimestudyPreferredPathsGetter?.invoke(timestudy) ?: return null
+        if (!mPreferredPathsDimensionGetterResolved) {
+            mPreferredPathsDimensionGetterResolved = true
+            mPreferredPathsDimensionGetter = paths.javaClass.getMethod("a")
+        }
+        val dimensions = mPreferredPathsDimensionGetter?.invoke(paths) as? List<*> ?: return null
+        dimensions.mapNotNull { (it as? Number)?.toInt() }
+    } catch (error: Throwable) {
+        miss("Player.c0().e().a()=preferred dimension paths", error)
+        null
+    }
+
+    /**
+     * 通过原版 `PreferredPaths.c(ArrayList)` 设置维度路径偏好。
+     * 这是时间研究树的选择配置，不是已购买研究或资源；调用方必须先确认为空偏好。
+     */
+    private var mPreferredPathsDimensionSetter: Method? = null
+    private var mPreferredPathsDimensionSetterResolved: Boolean = false
+    @JvmStatic
+    fun setPreferredDimensionPaths(paths: List<Int>): Boolean {
+        return try {
+            val player = player() ?: return false
+            val timestudy = playerTimestudyMethod()?.invoke(player) ?: return false
+            if (!mTimestudyPreferredPathsGetterResolved) {
+                mTimestudyPreferredPathsGetterResolved = true
+                mTimestudyPreferredPathsGetter = timestudy.javaClass.getMethod("e")
+            }
+            val preferred = mTimestudyPreferredPathsGetter?.invoke(timestudy) ?: return false
+            if (!mPreferredPathsDimensionSetterResolved) {
+                mPreferredPathsDimensionSetterResolved = true
+                mPreferredPathsDimensionSetter = preferred.javaClass.methods.firstOrNull {
+                    it.name == "c" && it.parameterCount == 1 &&
+                        it.parameterTypes[0] == ArrayList::class.java
+                }
+            }
+            val value = ArrayList<Int>(paths)
+            mPreferredPathsDimensionSetter?.invoke(preferred, value) ?: return false
+            preferredDimensionPaths() == paths
+        } catch (error: Throwable) {
+            miss("PreferredPaths.c(ArrayList)=set dimension paths", error)
+            false
+        }
+    }
+
+    /**
      * 当前已购买的普通时间研究 ID（原版 `Player.c0().h()`，返回 `List<Integer>`）。
      *
      * 复用已有的 `Player.c0()` 句柄，只新增 `h()` getter 的一次性缓存。
