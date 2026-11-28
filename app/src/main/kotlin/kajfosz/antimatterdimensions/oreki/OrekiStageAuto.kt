@@ -2811,6 +2811,16 @@ object OrekiStageAuto {
             // 接管分支都不触发，AM 会停在上限并复现正文空白。
             reconstructCrunchStateOnColdStart(crunch)
 
+            if (GameApi.ec4RequiresZeroInfinities()) {
+                managedCrunchTarget = false
+                if (GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    markCrunchPausedByMod()
+                }
+                return
+            }
+
             // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。

@@ -2263,6 +2263,15 @@ internal object GameApi {
         return out
     }
 
+    /** EC4 第五次要求零次无限。读不到关号或次数时交给一般挑战策略处理。 */
+    fun ec4RequiresZeroInfinities(): Boolean {
+        val challenges = readGameField(player() ?: return false, "challenge") ?: return false
+        val ec = readGameField(challenges, "eternity") ?: return false
+        if (readGameField(ec, "current") != 4) return false
+        val completions = readGameField(ec, "completions") as? IntArray ?: return false
+        return completions.getOrNull(3) == 4
+    }
+
     fun inAnyChallenge(): Boolean {
         val currentPlayer = player() ?: return true
         val challenges = readGameField(currentPlayer, "challenge") ?: return true
