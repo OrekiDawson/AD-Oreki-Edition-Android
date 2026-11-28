@@ -275,6 +275,15 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                             var data = source.getInputStream(entry).use { it.readBytes() }
                             if (!entry.isDirectory && entry.name in continuationEntries) {
                                 val reader = ClassReader(data)
+                                val superName = reader.superName
+                                val shadowOwner = "oreki/shadow/kotlin/coroutines/jvm/internal/SuspendLambda"
+                                val standardDescriptor = "(ILkotlin/coroutines/Continuation;)V"
+                                val shadowDescriptor = "(ILrj0;)V"
+                                val superDescriptor = when (superName) {
+                                    shadowOwner -> shadowDescriptor
+                                    "kotlin/coroutines/jvm/internal/SuspendLambda" -> standardDescriptor
+                                    else -> throw GradleException("意外的永恒协程超类: ${entry.name} -> $superName")
+                                }
                                 val writer = ClassWriter(reader, 0)
                                 var hasConstructor = false
                                 reader.accept(
@@ -286,19 +295,36 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                             signature: String?,
                                             exceptions: Array<out String>?,
                                         ): MethodVisitor {
-                                            if (name == "<init>" &&
-                                                descriptor ==
-                                                "(ILkotlin/coroutines/Continuation;)V"
-                                            ) {
-                                                hasConstructor = true
-                                            }
-                                            return super.visitMethod(
+                                            val method = super.visitMethod(
                                                 access,
                                                 name,
                                                 descriptor,
                                                 signature,
                                                 exceptions,
                                             )
+                                            if (name != "<init>" || descriptor != standardDescriptor) {
+                                                return method
+                                            }
+                                            hasConstructor = true
+                                            if (superName != shadowOwner) return method
+                                            return object : MethodVisitor(Opcodes.ASM9, method) {
+                                                override fun visitMethodInsn(
+                                                    opcode: Int,
+                                                    owner: String,
+                                                    name: String,
+                                                    descriptor: String,
+                                                    isInterface: Boolean,
+                                                ) {
+                                                    if (opcode == Opcodes.INVOKESPECIAL &&
+                                                        owner == shadowOwner &&
+                                                        name == "<init>" &&
+                                                        descriptor == shadowDescriptor
+                                                    ) {
+                                                        super.visitTypeInsn(Opcodes.CHECKCAST, "rj0")
+                                                    }
+                                                    super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+                                                }
+                                            }
                                         }
 
                                         override fun visitEnd() {
@@ -306,7 +332,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                                 val method = super.visitMethod(
                                                     Opcodes.ACC_PUBLIC,
                                                     "<init>",
-                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    standardDescriptor,
                                                     null,
                                                     null,
                                                 )
@@ -314,12 +340,14 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                                 method.visitVarInsn(Opcodes.ALOAD, 0)
                                                 method.visitVarInsn(Opcodes.ILOAD, 1)
                                                 method.visitVarInsn(Opcodes.ALOAD, 2)
+                                                if (superDescriptor == shadowDescriptor) {
+                                                    method.visitTypeInsn(Opcodes.CHECKCAST, "rj0")
+                                                }
                                                 method.visitMethodInsn(
                                                     Opcodes.INVOKESPECIAL,
-                                                    "kotlin/coroutines/jvm/internal/" +
-                                                        "SuspendLambda",
+                                                    superName,
                                                     "<init>",
-                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    superDescriptor,
                                                     false,
                                                 )
                                                 method.visitInsn(Opcodes.RETURN)

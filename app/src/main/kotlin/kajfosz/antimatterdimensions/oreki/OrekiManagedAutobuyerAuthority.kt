@@ -12,6 +12,17 @@ object OrekiManagedAutobuyerAuthority {
     const val DIMENSION_MODE_BUY_SINGLE: Int = 1
     const val TICKSPEED_MODE_BUY_SINGLE: Int = 1
     const val CRUNCH_THRESHOLD: Double = 10.0
+
+    /**
+     * [R130] pre-Break（尚未完成首次无限/尚未 Break）时托管写入的坍缩阈值。
+     *
+     * 实测：`crunch.amount` 是「本次坍缩收益至少要多少 IP 才允许坍缩」，而收益按
+     * **本次无限**重新累积的 AM 峰值计算。阈值 1e1 时，收益刚好到 10 IP 就坍缩，
+     * 峰值随即归零，于是每 2~5 分钟只在 10 IP 上循环（干净新档 21 分钟 inf=2、
+     * IP 恒 3~10），32767 IP 的 Break 永远不可达。pre-Break 抬高到 1e10 IP，
+     * 强制 AM 先真实成长；首次 Break 之后回到 [CRUNCH_THRESHOLD]。
+     */
+    const val CRUNCH_THRESHOLD_PRE_BREAK: Double = 1.0e10
     const val SACRIFICE_MULTIPLIER: Double = 2.0
     const val C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS: Int = 5
 

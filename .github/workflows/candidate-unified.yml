@@ -28,6 +28,9 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ci/r105-public-build-migration'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
     outputs:
       source_sha: ${{ steps.request.outputs.source_sha }}
       web_ref: ${{ steps.web.outputs.web_ref }}
@@ -70,21 +73,25 @@ jobs:
           }
           echo "source_sha=$sha" >> "$GITHUB_OUTPUT"
           echo "::notice::Validated source $PUBLIC_SOURCE@$sha"
-      - name: Require a successful public Android Source CI run for the exact source SHA
+      - name: Require the successful public source policy check for the exact source SHA
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_SHA: ${{ steps.request.outputs.source_sha }}
         run: |
           set -euo pipefail
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid source SHA from validation"; exit 1; }
-          gh api "repos/$PUBLIC_SOURCE/actions/workflows/ci.yml/runs?head_sha=$SOURCE_SHA&per_page=30" \
-            --jq '.workflow_runs[] | select(.event == "push" and .conclusion == "success") | .head_sha' \
-            > /tmp/oreki-approved-android-ci.txt
-          grep -Fxq "$SOURCE_SHA" /tmp/oreki-approved-android-ci.txt || {
-            echo "::error::No successful Android Source CI push run for exact approved commit $SOURCE_SHA"
-            exit 1
-          }
-          echo "::notice::Android Source CI passed for the exact candidate source SHA"
+          runs="$(gh api "repos/$PUBLIC_SOURCE/actions/workflows/ci.yml/runs?event=push&branch=main&head_sha=$SOURCE_SHA&per_page=30")"
+          run_id="$(jq -er --arg sha "$SOURCE_SHA" \
+            '[.workflow_runs[] | select(.head_sha == $sha and .head_branch == "main" and .event == "push")][0].id' \
+            <<< "$runs")"
+          jobs="$(gh api "repos/$PUBLIC_SOURCE/actions/runs/$run_id/jobs?per_page=100")"
+          jq -e --arg sha "$SOURCE_SHA" 'any(.jobs[]; .head_sha == $sha and
+            .name == "Source checks (no proprietary APK baseline)" and .conclusion == "success")' \
+            <<< "$jobs" >/dev/null || {
+              echo "::error::Required source policy check did not pass for approved commit $SOURCE_SHA"
+              exit 1
+            }
+          echo "::notice::Public source policy passed; full-game build remains required in this workflow"
       - name: Require immutable Web strategy source from Web main
         id: web
         env:
@@ -345,6 +352,7 @@ jobs:
           cp "$RUNNER_TEMP/oreki-keys/oreki.jks" source/keys/oreki.jks
           chmod 600 source/keys/oreki.jks
       - name: Verify pinned AGP full-game inputs
+        working-directory: source
         env:
           GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
         run: |
@@ -362,8 +370,23 @@ jobs:
           [[ "$actual" == "$GAME_JAR_SHA256" ]] || {
             echo "::error::game jar SHA mismatch actual=$actual pinned=$GAME_JAR_SHA256"; exit 1;
           }
-          mkdir -p "$GITHUB_WORKSPACE/source/build/inputs"
-          install -m 0644 "$jar" "$GITHUB_WORKSPACE/source/build/inputs/game-final.jar"
+          mkdir -p build/inputs build/asm-tools "$GITHUB_WORKSPACE/candidate"
+          bash ./gradlew --version >/dev/null
+          gradle_version="$(sed -nE 's@.*gradle-([0-9.]+)-(bin|all)\.zip.*@\1@p' gradle/wrapper/gradle-wrapper.properties)"
+          gradle_lib="$(find "${GRADLE_USER_HOME:-$HOME/.gradle}/wrapper/dists" -type d \
+            -path "*/gradle-$gradle_version/lib" -print -quit)"
+          test -n "$gradle_lib"
+          asm=( "$gradle_lib"/asm-[0-9]*.jar )
+          test "${#asm[@]}" -eq 1 && test -f "${asm[0]}"
+          asm_version="${asm[0]##*/asm-}"
+          asm_commons="$gradle_lib/asm-commons-$asm_version"
+          test -f "$asm_commons"
+          javac -cp "${asm[0]}:$asm_commons" -d build/asm-tools \
+            scripts/dexfix/r107/java/ShadowCtorFix.java
+          python3 scripts/agp/apply_jar_fixes.py --in-jar "$jar" \
+            --out-jar build/inputs/game-final.jar --classes-dir build/asm-tools \
+            --asm-jar "${asm[0]}" --asm-commons-jar "$asm_commons" \
+            > "$GITHUB_WORKSPACE/candidate/jar-fixes.json"
           ln -sfn "$(realpath "$tree")" "$GITHUB_WORKSPACE/source/build/inputs/base_decoded_321"
           ln -sfn "$GITHUB_WORKSPACE/source/work/mdpi_decoded_321" "$GITHUB_WORKSPACE/source/build/inputs/mdpi_decoded_321"
           echo "::notice::AGP native sources verified (jar=$actual; official baseline + mdpi split)"
@@ -449,14 +472,17 @@ jobs:
           cp "$cand/antimatter-dimensions.apk" "release/反物质维度.apk"
           version_name="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
           version_code="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionCode"])')"
+          jq -e --arg pinned "$GAME_JAR_SHA256" '.in_jar_sha256 == $pinned' "$cand/jar-fixes.json" >/dev/null
           python3 scripts/ci/write_agp_provenance.py \
             --candidate-dir "$cand" \
             --apk "$cand/antimatter-dimensions.apk" \
             --source-sha "$SOURCE_SHA" \
             --web-ref "$WEB_REF" \
             --candidate-run-id "$GITHUB_RUN_ID" \
-            --game-jar "$GITHUB_WORKSPACE/.oreki-private/gamejar/game-hybrid-sig.jar" \
-            --game-jar-sha256 "$GAME_JAR_SHA256" \
+            --game-jar build/inputs/game-final.jar \
+            --game-jar-sha256 "$(jq -er '.out_jar_sha256' "$cand/jar-fixes.json")" \
+            --game-jar-source "$GITHUB_WORKSPACE/.oreki-private/gamejar/game-hybrid-sig.jar" \
+            --game-jar-source-sha256 "$GAME_JAR_SHA256" \
             --bundle-sha256 "$OREKI_BUNDLE_SHA256" \
             --version-name "$version_name" \
             --version-code "$version_code" \

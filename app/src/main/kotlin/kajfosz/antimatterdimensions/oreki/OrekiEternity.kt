@@ -31,15 +31,32 @@ object OrekiEternity {
     @JvmField
     var sEcHoldTtl: Int = 0
 
+    /**
+     * [R131-P0] 重入闩锁。`GameApi.eternityTick()` 解析到的 `tick()` 就是本对象的
+     * `OrekiEternity.tick()`，而 `tryEternity()` 一旦回调 `GameApi.eternityTick()`
+     * 就会 tick → tryEternity → tick 无限递归（Kody 在 PR #324 上判为 critical）。
+     * 这里加一层深度闩锁：嵌套进入直接返回，绝不重复执行永恒层经济动作。
+     */
+    @JvmField
+    var tickDepth: Int = 0
+
     private var stageAutoHoldCrunchMethod: Method? = null
     private var stageAutoHoldCrunchResolved: Boolean = false
 
     @JvmStatic
     fun tick() {
-        buyTimeTheorems()
-        buyTimeDimensions()
-        buyNormalStudies()
-        tryEternity()
+        if (tickDepth != 0) {
+            return
+        }
+        tickDepth++
+        try {
+            buyTimeTheorems()
+            buyTimeDimensions()
+            buyNormalStudies()
+            tryEternity()
+        } finally {
+            tickDepth = 0
+        }
     }
 
     @JvmStatic
@@ -161,11 +178,32 @@ object OrekiEternity {
             if (gained.compareTo(threshold) < 0) {
                 return
             }
-            OrekiEternityLaunch.run()
+            // [R130-P0] 3.21 的 `Eternity$confirmEternity$4` 在本构建的合并 DEX 中
+            // superclass 被改写到 `oreki/shadow/kotlin/...SuspendLambda`，而构造器
+            // 调用仍绑定原 `kotlin/...SuspendLambda` ⇒ ART 校验失败
+            // （VerifyError: 'this' 不是 SuspendLambda 实例），永恒永远结算不了。
+            // 原方案「先开 autoEternity 再调 Eternity.tick()」已废弃：
+            // `GameApi.eternityTick()` 解析到的 tick 正是 `OrekiEternity.tick()` 本身，
+            // tryEternity → eternityTick → tick 会无限递归（Kody PR #324 critical）。
+            // VerifyError 已由 ShadowCtorFix 在字节码层修好，直接走原版 confirmEternity
+            // 启动器完成真实扣费与结算。
+            // [R131] 不再持久化打开原版 autoEternity：`OrekiEternityLaunch.run()`
+            // 直接构造 confirmEternity 协程并交给游戏 scope，本身不读该开关；
+            // 旧写法会把玩家手动关闭的开关永久改成 true 并随存档保存，
+            // 让原版自动器绕过 holdCrunch/ecHold/RU10 等门槛（Kody PR #327 critical）。
+            val etBefore = GameApi.eternities()
+            val autoBefore = GameApi.autoEternityIsActive()
+            try {
+                OrekiEternityLaunch.run()
+            } finally {
+                if (autoBefore != null && autoBefore != GameApi.autoEternityIsActive()) {
+                    GameApi.setAutoEternityActive(autoBefore)
+                }
+            }
             sEtPending = 1
             sEtTtl = 600
             sEtBefore = Player.a.x().log10()
-            Log.i("OREKI_ET", "launch via OrekiEternityLaunch (original no-confirm path)")
+            Log.i("OREKI_ET", "launch via OrekiEternityLaunch before=" + etBefore + " after=" + GameApi.eternities())
         } catch (error: Throwable) {
             Log.i("OREKI_ET_EXC", error.message ?: error.javaClass.name)
         }

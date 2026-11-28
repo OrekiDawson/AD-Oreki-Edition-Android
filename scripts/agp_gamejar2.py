@@ -451,8 +451,19 @@ def main() -> int:
                         help="dex2jar 参考 jar（可重复）；提供后对最终 game jar 回填泛型 Signature")
     parser.add_argument("--sigbackfill-asm-jar", default="",
                         help="ASM 9.x jar（Signature 回填工具编译用）")
+    parser.add_argument("--shadow-ctor-asm-commons-jar", default="",
+                        help="与 ASM core 同版本的 ASM Commons jar（ShadowCtorFix 使用）")
     parser.add_argument("--sigbackfill-shadow-remap", action="store_true",
                         help="签名中 Lkotlin/ 前缀替换为 Loreki/shadow/kotlin/（与 RemapSelective 一致）")
+    parser.add_argument("--shadow-ctor-fix", action="store_true",
+                        help="对最终 game jar 执行 ShadowCtorFix：对称化 shadow SuspendLambda "
+                             "超类与构造器 Methodref（R131 P0：ART VerifyError 使永恒永不结算）。"
+                             "幂等，输出前 fail-closed 检查残留原始协程 owner。")
+    parser.add_argument("--sigattr-tsv", default="",
+                        help="官方 DEX 注解导出的泛型签名 TSV（scripts/agp/sig_from_dex.py 产物）；"
+                             "提供后执行 SigAttrFix 回填（仅 kajfosz/ 命名空间，避免第三方类型变量报错）")
+    parser.add_argument("--sigattr-classes-dir", default="",
+                        help="dexfix 工具编译产物目录（缺省 repo/scripts/dexfix/r107/build/classes）")
     args = parser.parse_args()
 
     repo = Path(args.repo).resolve()
@@ -940,6 +951,83 @@ def main() -> int:
                                  out_dir / "d8-m53-after"),
             }
         report["checks"]["m53_d8"] = m53_evidence
+
+    # 可选：R131 P0 两道确定性字节码工序（顺序固定：先 shadow 对称化，再泛型签名回填）
+    #   · ShadowCtorFix：修复 shadow SuspendLambda 超类与 <init> Methodref 不对称导致的
+    #     ART VerifyError（`Eternity$confirmEternity$4` 校验失败 ⇒ eternities 永不增长）。
+    #   · SigAttrFix：从官方 DEX 注解回填泛型 Signature（enjarify 产物丢 Signature ⇒
+    #     导入原版存档时 Gson 把 List 退化成 LinkedTreeMap ⇒ ClassCastException）。
+    # 两道工序都必须走构建脚本，禁止再以手工替换 build/inputs/game-final.jar 的方式交付。
+    if args.shadow_ctor_fix or args.sigattr_tsv:
+        require(bool(args.sigbackfill_asm_jar),
+                "--shadow-ctor-fix/--sigattr-tsv 需要 --sigbackfill-asm-jar（ASM 9.x）")
+        classes_dir = (Path(args.sigattr_classes_dir) if args.sigattr_classes_dir
+                       else repo / "scripts" / "dexfix" / "r107" / "build" / "classes")
+        require(classes_dir.is_dir(), "缺少 dexfix 编译产物目录: %s" % classes_dir)
+        asm_cp = [str(classes_dir), args.sigbackfill_asm_jar]
+        if args.shadow_ctor_fix:
+            commons_jar = Path(args.shadow_ctor_asm_commons_jar)
+            require(commons_jar.is_file(),
+                    "--shadow-ctor-fix 需要 --shadow-ctor-asm-commons-jar")
+            with zipfile.ZipFile(commons_jar) as archive:
+                require("org/objectweb/asm/commons/ClassRemapper.class" in archive.namelist(),
+                        "ASM Commons jar 缺少 ClassRemapper: %s" % commons_jar)
+            shadow_jar = out_dir / "game-shadow-fixed.jar"
+            if shadow_jar.exists():
+                shadow_jar.unlink()
+            shadow_res = java_main(java, [*asm_cp, str(commons_jar)], "ShadowCtorFix",
+                                   [str(final_jar), str(shadow_jar)])
+            require(shadow_res["returncode"] == 0,
+                    "ShadowCtorFix 失败:\n" + shadow_res["stdout"] + shadow_res["stderr"])
+            report["steps"]["shadow_ctor_fix"] = {
+                "jar": str(shadow_jar),
+                "sha256": sha256_file(shadow_jar),
+                "stdout_tail": shadow_res["stdout"].strip().splitlines()[-3:],
+            }
+            require("RESIDUAL_ORIGINAL_COROUTINE_OWNERS=0" in shadow_res["stdout"],
+                    "ShadowCtorFix 仍残留未重命名的协程 owner: " + shadow_res["stdout"])
+            final_jar = shadow_jar
+            shadow_hashes = jar_class_hashes(final_jar)
+            require(set(shadow_hashes) == expected_classes, "ShadowCtorFix 后类集合发生变化")
+            shadow_d8 = d8_compile(args.d8, android_jar, [final_jar],
+                                   out_dir / "d8-whole-shadowfix")
+            report["checks"]["whole_jar_d8_after_shadowfix"] = shadow_d8
+            require(shadow_d8["status"] == "PASS",
+                    "ShadowCtorFix 后整包 D8 失败: %s" % shadow_d8["stderr_tail"])
+        if args.sigattr_tsv:
+            sig_tsv = Path(args.sigattr_tsv)
+            require(sig_tsv.is_file(), "泛型签名 TSV 不存在: %s" % sig_tsv)
+            sigattr_jar = out_dir / "game-sigattr.jar"
+            if sigattr_jar.exists():
+                sigattr_jar.unlink()
+            sigattr_res = java_main(java, asm_cp, "SigAttrFix",
+                                    [str(final_jar), str(sig_tsv), str(sigattr_jar)])
+            require(sigattr_res["returncode"] == 0,
+                    "SigAttrFix 失败:\n" + sigattr_res["stdout"] + sigattr_res["stderr"])
+            require("SIGFIX_OK" in sigattr_res["stdout"],
+                    "SigAttrFix 未完成回填: " + sigattr_res["stdout"])
+            report["steps"]["sigattr_fix"] = {
+                "jar": str(sigattr_jar),
+                "sha256": sha256_file(sigattr_jar),
+                "stdout_tail": sigattr_res["stdout"].strip().splitlines()[-3:],
+            }
+            final_jar = sigattr_jar
+            sigattr_hashes = jar_class_hashes(final_jar)
+            require(set(sigattr_hashes) == expected_classes, "SigAttrFix 后类集合发生变化")
+            sigattr_d8 = d8_compile(args.d8, android_jar, [final_jar],
+                                    out_dir / "d8-whole-sigattr")
+            report["checks"]["whole_jar_d8_after_sigattr"] = sigattr_d8
+            require(sigattr_d8["status"] == "PASS",
+                    "SigAttrFix 后整包 D8 失败: %s" % sigattr_d8["stderr_tail"])
+        # 工序后 final_jar 已换成本工序产物，必须同步改写 report["output"]，
+        # 否则下游按报告取产物会记录并打包未修复的旧 jar 与旧 SHA（Kody PR #327）。
+        fixed_hashes = jar_class_hashes(final_jar)
+        report["output"] = {
+            "game_jar": str(final_jar),
+            "game_jar_sha256": sha256_file(final_jar),
+            "game_jar_bytes": final_jar.stat().st_size,
+            "class_count": len(fixed_hashes),
+        }
 
     # 可选：泛型 Signature 回填（enjarify 不输出 DEX 注解；见 docs/AGP_SIGNATURE_BACKFILL.md）
     if args.sigbackfill_ref_jar:

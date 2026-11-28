@@ -1,0 +1,29 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.9.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/oreki/AD-Oreki-Edition/安卓端-r131/build.gradle.kts' line: 1
+
+* What went wrong:
+Error resolving plugin [id: 'com.android.application', version: '9.5.2', apply: false]
+> A problem occurred configuring project ':build-logic'.
+   > Could not resolve all artifacts for configuration 'classpath'.
+      > Could not resolve org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21.
+        Required by:
+            buildscript of project ':build-logic'
+         > No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21 available for offline mode.
+         > No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21 available for offline mode.
+         > No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21 available for offline mode.
+         > No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21 available for offline mode.
+         > No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21 available for offline mode.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 11s
+EXIT=1

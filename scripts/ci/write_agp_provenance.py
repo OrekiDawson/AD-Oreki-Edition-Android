@@ -58,6 +58,8 @@ def main(argv=None):
     parser.add_argument("--candidate-run-id", required=True, type=int)
     parser.add_argument("--game-jar", required=True)
     parser.add_argument("--game-jar-sha256", required=True)
+    parser.add_argument("--game-jar-source")
+    parser.add_argument("--game-jar-source-sha256")
     parser.add_argument("--bundle-sha256", default="", help="私有构建包 SHA-256（可留空但不推荐）")
     parser.add_argument("--package", default=APPLICATION_ID)
     parser.add_argument("--version-name", required=True)
@@ -94,6 +96,15 @@ def main(argv=None):
     actual_jar_sha = sha256_file(game_jar)
     if actual_jar_sha != args.game_jar_sha256:
         fail("game jar SHA-256 与钉住值不符：actual=" + actual_jar_sha + " pinned=" + args.game_jar_sha256)
+    source_jar_sha = actual_jar_sha
+    if args.game_jar_source is not None or args.game_jar_source_sha256 is not None:
+        if not args.game_jar_source or not SHA256_RE.fullmatch(args.game_jar_source_sha256 or ""):
+            fail("源游戏 JAR 路径与钉住的 SHA-256 必须成对提供")
+        source_jar = pathlib.Path(args.game_jar_source).resolve()
+        require_file(source_jar, "源游戏 JAR")
+        source_jar_sha = sha256_file(source_jar)
+        if source_jar_sha != args.game_jar_source_sha256:
+            fail("源游戏 JAR SHA-256 与钉住值不符")
 
     apk_sha = sha256_file(apk)
     apk_size = apk.stat().st_size
@@ -109,6 +120,7 @@ def main(argv=None):
         "candidate_run_id": args.candidate_run_id,
         "web_ref": args.web_ref,
         "game_jar_sha256": actual_jar_sha,
+        "game_jar_source_sha256": source_jar_sha,
         "game_jar_bytes": game_jar.stat().st_size,
     }
     if args.bundle_sha256:
@@ -132,6 +144,7 @@ def main(argv=None):
         "agp_version": AGP_VERSION,
         "build_task": BUILD_TASK,
         "game_jar_sha256": actual_jar_sha,
+        "game_jar_source_sha256": source_jar_sha,
     }
     if args.bundle_sha256:
         metadata["build_bundle_sha256"] = args.bundle_sha256
