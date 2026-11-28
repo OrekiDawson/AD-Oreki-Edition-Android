@@ -86,6 +86,7 @@ object OrekiEternity {
     @JvmStatic
     private fun buyNormalStudies() {
         try {
+            ensureDimensionPathPreference()
             var targetEc = 0
             for (id in 1..12) {
                 val challenge = eternityChallenge(id)
@@ -131,6 +132,33 @@ object OrekiEternity {
             }
         } catch (_: Throwable) {
         }
+    }
+
+    /**
+     * 首次时间研究维度分叉需要玩家选择一条路径；自动化存档可能留下空偏好，
+     * 原版 DIMENSION_PATH 判据因此永久拒绝 71/72/73，EC6 的 121 列无法购买。
+     * 仅在偏好为空且当前树没有已购维度分叉研究时，通过原版 setter 选择反物质维度路径。
+     */
+    @JvmStatic
+    fun shouldSeedDimensionPathPreference(
+        preferredPaths: List<Int>?,
+        purchasedStudies: List<Int>?,
+    ): Boolean =
+        preferredPaths != null &&
+            preferredPaths.isEmpty() &&
+            purchasedStudies != null &&
+            purchasedStudies.none { it in setOf(71, 72, 73) }
+
+    private fun ensureDimensionPathPreference() {
+        val preferred = GameApi.preferredDimensionPaths()
+        val purchased = GameApi.purchasedNormalStudyIds()
+        if (!shouldSeedDimensionPathPreference(preferred, purchased)) return
+        val changed = GameApi.setPreferredDimensionPaths(listOf(1))
+        Log.i(
+            "OREKI_TS_PATH",
+            "seed dimension preference 1 changed=" + changed +
+                " before=" + preferred + " after=" + GameApi.preferredDimensionPaths(),
+        )
     }
 
     private fun blocked(id: Int, column: Int, dimensionPath: Int): Boolean {
