@@ -248,7 +248,41 @@ object OrekiEcAutomation {
         val ret = Abi.respecTimeStudies()
         note("RESPEC prereq-blocked target=" + target + " unlockedBefore=" + unlocked +
             " ret=" + ret + " unlockedAfter=" + Abi.unlocked() + " tt=" + Abi.theorem())
-        return ret == true
+        return ret
+    }
+
+    /**
+     * [R132 FIRST-ETERNITY-DEADLOCK] EC4/EC8 的 123 列需要清空互斥的 121 列，
+     * 但既有受控 respec 只在首次 Reality 后启用，导致真实 R131 存档
+     * `realities=0 / EC1..3=5 / unlocked=3 / 121 列 / EC4 前置不可买` 永久空转。
+     *
+     * 只在调用方已完整尝试原版 D() 与递归铺路、确认目标前置仍缺失时调用。
+     * 纯判据不读写游戏状态；targetPrereqIds 是原版 EC 研究的 k 字段。
+     * 冻结上游 `purchaseUntil` 的目标列：EC4=143，EC8=123。
+     * 必须实际买到 121/122，且 123/133/143 目标列都买得起；未知或低 TT 一律拒绝。
+     */
+    @JvmStatic
+    fun shouldRespecForTargetColumn(
+        targetEcId: Int,
+        unlockedEcId: Int,
+        targetPrereqOk: Boolean,
+        targetPrereqIds: List<Int>,
+        purchasedStudyIds: List<Int>?,
+        targetColumnAffordable: Boolean,
+        respecAvailable: Boolean,
+    ): Boolean {
+        val targetColumnStudy = when (targetEcId) {
+            4 -> 143
+            8 -> 123
+            else -> return false
+        }
+        val hasIncompatiblePurchasedStudy = purchasedStudyIds?.any { it == 121 || it == 122 } == true
+        return respecAvailable &&
+            unlockedEcId in 0 until targetEcId &&
+            !targetPrereqOk &&
+            hasIncompatiblePurchasedStudy &&
+            targetColumnAffordable &&
+            targetPrereqIds.contains(targetColumnStudy)
     }
 
     /**
@@ -519,14 +553,25 @@ object OrekiEcAutomation {
             note("PREPARE id=" + target + " prereq=missing k=" + k + " purchaseUntil=" + pu +
                 " pave=none tt=" + Abi.theorem() + " " + Abi.tsChain(k))
             // 铺路已完整失败（原版 D() 与递归 pave 都无法买下前置），此时才允许一次受控
-            // respec：Reality 后 unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
+            // respec：unlocked 与目标列互斥的场景（EC4 的 123 列 vs 已买 121 列）
             // 只能靠清空旧研究树重铺。闸门用 30 秒，避免与 EC 单拍周期抖动互相覆盖。
             //
-            // [R130 KODY-FIX] 只对「Reality 后需要 123 列的目标」生效：EC4/EC8 共用 123/133/143
+            // [R130 KODY-FIX] 只对需要 123 列的目标生效：EC4/EC8 共用 123/133/143
             // 族（OrekiEternity 的 targetEc == 4 || targetEc == 8 选 123 列），其余目标不受
             // 此分支影响，避免对无关目标整树 respec；闸门仍为同一目标 30 秒一次。
-            if ((target == 4 || target == 8) && afterFirstReality() && unlocked != target &&
-                respecIfTargetPrereqBlocked(target, unlocked, 30000L)) {
+            // [R132] 该互斥同样存在于首次 Reality 前；真实 R131 存档已复现 realities=0
+            // 的 EC4 空转，因此由纯判据校验目标列、缺失前置、真实 Abi 与 respec 入口。
+            if (shouldRespecForTargetColumn(
+                    targetEcId = target,
+                    unlockedEcId = unlocked,
+                    targetPrereqOk = false,
+                    targetPrereqIds = k,
+                    purchasedStudyIds = GameApi.purchasedNormalStudyIds(),
+                    targetColumnAffordable = Abi.targetColumnAffordable(target),
+                    respecAvailable = Abi.respecAvailable(),
+                ) &&
+                respecIfTargetPrereqBlocked(target, unlocked, 30000L)
+            ) {
                 // respec 只清空研究树，若当拍直接退出，兄弟模块（OrekiEternity.buyNormalStudies）
                 // 会按 challenge.y() 的旧值选 121 列重新填满，导致目标列 123 仍被互斥挡住、
                 // 下一拍再次 respec 的周期性清树。这里在 respec 后立即按目标列自行补买，
@@ -710,6 +755,9 @@ object OrekiEcAutomation {
     //   e51 → eternity/studies/b → qu4 → na4 → is3 → in1，
     //   `D/a/z` 在 is3，`A/B/E/O/T` 在 b 与 e51 覆盖，`y` 在 qu4 覆盖。
     private object Abi {
+
+        private var respecMethodResolved = false
+        private var respecMethod: java.lang.reflect.Method? = null
 
         private const val STUDY_FACTORY = "d51"                 // 默认包：EC 研究工厂
         private const val EC_REGISTRY = "x81"                   // 默认包：永恒挑战注册表
@@ -1021,34 +1069,50 @@ object OrekiEcAutomation {
         /** 时间研究的行内前置数组（`qu4.k`）。 */
         fun tsPrereqs(ts: Any?): List<Int>? = intArray(ts, "k")
 
+        /** EC4/EC8 共用的 123 列完整链；每项都按原版 z() 校验 TT 足够。 */
+        fun targetColumnAffordable(target: Int): Boolean {
+            if (target != 4 && target != 8) return false
+            return listOf(123, 133, 143).all { id ->
+                val study = ts(id) ?: return false
+                tsZ(study) == true
+            }
+        }
 
-        /** 原版 respecTimeStudies：`kajfosz/antimatterdimensions/eternity/studies/d;->c(Z)V`。
-         * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。 */
-        fun respecTimeStudies(): Boolean? {
-            return try {
+
+        /**
+         * 原版 respecTimeStudies：`kajfosz/antimatterdimensions/eternity/studies/d;->c(Z)V`。
+         * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。
+         * 可用性与调用共享同一个缓存句柄，避免每拍重复扫描方法。
+         */
+        fun respecAvailable(): Boolean = respecMethod() != null
+
+        fun respecTimeStudies(): Boolean = try {
+            val method = respecMethod() ?: return false
+            method.invoke(null, false)
+            true
+        } catch (t: Throwable) {
+            Log.i(TAG, "respecTimeStudies failed: " + t)
+            false
+        }
+
+        private fun respecMethod(): java.lang.reflect.Method? {
+            if (respecMethodResolved) return respecMethod
+            respecMethodResolved = true
             val clazz = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
-            var method: java.lang.reflect.Method? = null
-            for (x in clazz.declaredMethods) {
-                if (x.name == "c" && x.parameterCount == 1 &&
-                    x.parameterTypes[0] == java.lang.Boolean.TYPE) {
-                    method = x
-                    try {
-                        x.isAccessible = true
-                    } catch (_: Throwable) {
-                    }
-                    break
-                }
+            val method = clazz.declaredMethods.firstOrNull {
+                it.name == "c" && it.parameterCount == 1 &&
+                    it.parameterTypes[0] == java.lang.Boolean.TYPE
             }
             if (method == null) {
                 Log.i(TAG, "respecTimeStudies: d.c(Z)V not found")
                 return null
             }
-            method.invoke(null, false)
-            true
-            } catch (t: Throwable) {
-                Log.i(TAG, "respecTimeStudies failed: " + t)
-                null
+            try {
+                method.isAccessible = true
+            } catch (_: Throwable) {
             }
+            respecMethod = method
+            return method
         }
 
         // ------------------------------------------------ [R107-01 EC4-DIAG] 只读诊断
