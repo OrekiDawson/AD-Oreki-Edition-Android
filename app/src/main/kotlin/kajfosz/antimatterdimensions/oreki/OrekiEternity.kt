@@ -121,7 +121,14 @@ object OrekiEternity {
             )
             for (index in OrekiEternityRules.normalStudyIndexRange(ids.size())) {
                 val id = ids.keyAt(index)
-                if (!blocked(id, column, path)) {
+                if (!shouldConsiderNormalStudy(
+                        id,
+                        column,
+                        path,
+                        targetEc,
+                        GameApi.ec4RequiresZeroInfinities(),
+                    )
+                ) {
                     continue
                 }
                 val study = lookup.invoke(null, singleton, id) as? c ?: continue
@@ -176,7 +183,18 @@ object OrekiEternity {
         else -> emptySet()
     }
 
-    private fun blocked(id: Int, column: Int, dimensionPath: Int): Boolean {
+    /**
+     * 普通研究购买范围的纯判据：只保留当前 EC 目标列/维度分叉，以及该目标
+     * 明确需要的深层研究；EC4 零次无限仍只开放被动 IP 所需研究。
+     */
+    @JvmStatic
+    fun shouldConsiderNormalStudy(
+        id: Int,
+        column: Int,
+        dimensionPath: Int,
+        targetEcId: Int,
+        ec4RequiresZeroInfinities: Boolean,
+    ): Boolean {
         val categoryA = id - 121
         if (categoryA in 0..2) {
             return categoryA == column - 121
@@ -193,8 +211,8 @@ object OrekiEternity {
         if (categoryDimension in 0..2) {
             return categoryDimension == dimensionPath - 71
         }
-        // The final EC4 clear needs passive IP because any Infinity fails the run.
-        return id in 151..181 && id in ec4PassiveIpStudies && GameApi.ec4RequiresZeroInfinities()
+        if (id in deepEcStudyIds(targetEcId)) return true
+        return id in 151..181 && id in ec4PassiveIpStudies && ec4RequiresZeroInfinities
     }
 
     private val ec4PassiveIpStudies = setOf(151, 161, 162, 171, 181)
