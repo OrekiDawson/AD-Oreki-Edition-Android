@@ -138,7 +138,13 @@ object OrekiEternity {
             // EC9+ 的原版入口只认深层研究 151/161/171/181。先按目标关补齐这条
             // 前置链，再购买普通目标列；否则每轮退出后的 11/21/31 树会先占满
             // 普通列，深层入口继续等待到下一轮。
-            val deepIds = deepEcStudyIds(targetEc).toList().sorted()
+            val studyIdsToSeed =
+                if (shouldSeedDilationPrerequisite(targetEc, eternityChallengeCompletions())) {
+                    setOf(231, 233)
+                } else {
+                    deepEcStudyIds(targetEc)
+                }
+            val deepIds = studyIdsToSeed.toList().sorted()
             for (id in deepIds) {
                 if (purchaseDeepStudy(id)) break
             }
@@ -205,6 +211,30 @@ object OrekiEternity {
         targetEcId == 9 -> ec9Prerequisites
         targetEcId in 10..12 -> ec10To12Prerequisites
         else -> emptySet()
+    }
+
+    /** EC1–EC12 全部完成后，DS1 仍要求至少购买 231–234 中的一项。 */
+    @JvmStatic
+    fun shouldSeedDilationPrerequisite(
+        targetEcId: Int,
+        completions: List<Int>?,
+    ): Boolean =
+        targetEcId == 0 && completions != null && completions.size == 12 &&
+            completions.all { it >= 5 }
+
+    private fun eternityChallengeCompletions(): List<Int>? {
+        val completions = ArrayList<Int>(12)
+        for (id in 1..12) {
+            val challenge = eternityChallenge(id) ?: return null
+            completions.add(
+                try {
+                    challenge.javaClass.getMethod("I").invoke(challenge) as Int
+                } catch (_: Throwable) {
+                    return null
+                },
+            )
+        }
+        return completions
     }
 
     /**
