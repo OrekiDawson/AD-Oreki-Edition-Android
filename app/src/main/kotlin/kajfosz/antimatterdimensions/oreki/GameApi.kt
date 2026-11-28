@@ -3871,6 +3871,12 @@ internal object GameApi {
     /** 原版 `Player.canEternity`：本永恒 `maxIP` 已达到永恒门槛。 */
     fun canEternity(): Boolean = (call(mCanEternity(), null) as? Boolean) ?: false
 
+    private val eternityGoalMethod by lazy {
+        method(prestigeCCls(), "h", 0, "prestige.c.h()=eternityGoal")
+    }
+
+    fun eternityGoal(): Any? = call(eternityGoalMethod, null)
+
     private var mGainedEternityPoints: Method? = null
     private var mGainedEternityPointsResolved: Boolean = false
     private fun mGainedEternityPoints(): Method? {
