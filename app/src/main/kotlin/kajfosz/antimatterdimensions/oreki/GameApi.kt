@@ -2151,6 +2151,15 @@ internal object GameApi {
         }
         return mIdM
     }
+    private var mIdD: Method? = null
+    private var mIdDResolved: Boolean = false
+    private fun mIdD(): Method? {
+        if (!mIdDResolved) {
+            mIdDResolved = true
+            mIdD = method(idStateCls(), "D", 0, "ID.D()=isAvailableForPurchase")
+        }
+        return mIdD
+    }
     private var mIdH: Method? = null
     private var mIdHResolved: Boolean = false
     private fun mIdH(): Method? {
@@ -2185,9 +2194,66 @@ internal object GameApi {
     fun idRequirement(id: Any?): Any? = call(mIdK(), id)
     fun idUnlocked(id: Any?): Boolean = (call(mIdG(), id) as? Boolean) ?: false
     fun idUnlock(id: Any?): Boolean = (call(mIdM(), id) as? Boolean) ?: false
+    /** 原版 `D()`：当前是否允许实际购买（EC8 下含剩余额度）。 */
+    fun idAvailableForPurchase(id: Any?): Boolean = (call(mIdD(), id) as? Boolean) ?: false
     fun idBuyMax(id: Any?) = call(mIdH(), id, true)
     fun idBuySingle(id: Any?) = call(mIdI(), id)
     fun idPurchases(id: Any?): Long = (call(mIdY(), id) as? Long) ?: 0L
+
+    /** EC8 剩余的无限维度购买额度（存档字段 `ec8InfinityDimensionPurchasesLeft`）。 */
+    fun ec8InfinityDimensionPurchasesLeft(): Long? {
+        val challenges = readGameField(player() ?: return null, "challenge") ?: return null
+        val eternity = readGameField(challenges, "eternity") ?: return null
+        return (readGameField(eternity, "ec8InfinityDimensionPurchasesLeft") as? Number)?.toLong()
+    }
+
+    /** EC8 剩余的复制器升级购买额度（存档字段 `ec8ReplicantiPurchasesLeft`）。 */
+    fun ec8ReplicantiPurchasesLeft(): Long? {
+        val challenges = readGameField(player() ?: return null, "challenge") ?: return null
+        val eternity = readGameField(challenges, "eternity") ?: return null
+        return (readGameField(eternity, "ec8ReplicantiPurchasesLeft") as? Number)?.toLong()
+    }
+
+    /**
+     * 原版 EC8 的三个复制器升级对象，顺序为概率、间隔、最大复制器星系。
+     *
+     * 3.21 的 `ReplicantiUpgrades` 外层类名为保留的 `c`，三个静态字段分别是
+     * `b/c/d`。本方法只取对象，不读取或写入其资源字段。
+     */
+    fun ec8ReplicantiUpgrades(): List<Any>? {
+        return try {
+            val owner = cls("kajfosz.antimatterdimensions.infinity.replicanti.c") ?: return null
+            val upgrades = ArrayList<Any>(3)
+            for (fieldName in listOf("b", "c", "d")) {
+                upgrades.add(staticField(owner, fieldName)?.get(null) ?: return null)
+            }
+            upgrades
+        } catch (e: Throwable) {
+            miss("EC8 replicanti upgrades", e)
+            null
+        }
+    }
+
+    /** 原版复制器升级 `l()`：当前是否仍可购买（余额、上限与 EC8 额度均已校验）。 */
+    fun replicantiUpgradeCanBuy(upgrade: Any?): Boolean {
+        if (upgrade == null) return false
+        val canBuy = method(upgrade.javaClass, "l", 0, "ReplicantiUpgrade.l()=canBuy")
+        return (call(canBuy, upgrade) as? Boolean) ?: false
+    }
+
+    /** 原版复制器升级等级 `h()`，用于验证购买确实改变了状态。 */
+    fun replicantiUpgradeLevel(upgrade: Any?): Long? {
+        if (upgrade == null) return null
+        val level = method(upgrade.javaClass, "h", 0, "ReplicantiUpgrade.h()=level")
+        return (call(level, upgrade) as? Number)?.toLong()
+    }
+
+    /** 原版复制器升级真实购买入口 `b()`；扣 IP、更新升级并递减 EC8 额度。 */
+    fun replicantiUpgradePurchase(upgrade: Any?) {
+        if (upgrade == null) return
+        val purchase = method(upgrade.javaClass, "b", 0, "ReplicantiUpgrade.b()=purchase")
+        call(purchase, upgrade)
+    }
 
     /**
      * ID1 的「永恒未解锁」IP 门槛（原版 `InfinityDimensionState.f`，3.20 实测 1e8）。
@@ -2261,6 +2327,15 @@ internal object GameApi {
         out["maxedCount"] = comps?.count { it >= 5 }
         out["totalCompletions"] = comps?.sum()
         return out
+    }
+
+    /** EC4 第五次要求零次无限。读不到关号或次数时交给一般挑战策略处理。 */
+    fun ec4RequiresZeroInfinities(): Boolean {
+        val challenges = readGameField(player() ?: return false, "challenge") ?: return false
+        val ec = readGameField(challenges, "eternity") ?: return false
+        if (readGameField(ec, "current") != 4) return false
+        val completions = readGameField(ec, "completions") as? IntArray ?: return false
+        return completions.getOrNull(3) == 4
     }
 
     fun inAnyChallenge(): Boolean {
@@ -3624,6 +3699,8 @@ internal object GameApi {
     // 实测未缓存版本（每帧 4 次 Class.getMethod 查找）把主循环拖慢 ⇒ maxAM 增速从
     // ~770 指数/分钟掉到 ~1 指数/分钟、首次永恒迟迟不到。缓存后恢复。
     private var mPlayerTimestudy: Method? = null
+    private var mTimestudyStudiesGetter: Method? = null
+    private var mTimestudyStudiesGetterResolved: Boolean = false
     private var mTimestudyCounts: Array<Method>? = null
     private var mTimestudyCountsResolved: Boolean = false
 
@@ -3636,6 +3713,92 @@ internal object GameApi {
             }
         }
         return mPlayerTimestudy
+    }
+
+    /**
+     * 读取原版维度路径偏好（`Player.c0().e().a()`，`List<Integer>`）。
+     * 读不到返回 null；空列表是有效的“尚未选择路径”状态。
+     */
+    private var mTimestudyPreferredPathsGetter: Method? = null
+    private var mTimestudyPreferredPathsGetterResolved: Boolean = false
+    private var mPreferredPathsDimensionGetter: Method? = null
+    private var mPreferredPathsDimensionGetterResolved: Boolean = false
+    @JvmStatic
+    fun preferredDimensionPaths(): List<Int>? = try {
+        val player = player() ?: return null
+        val timestudy = playerTimestudyMethod()?.invoke(player) ?: return null
+        if (!mTimestudyPreferredPathsGetterResolved) {
+            mTimestudyPreferredPathsGetterResolved = true
+            mTimestudyPreferredPathsGetter = timestudy.javaClass.getMethod("e")
+        }
+        val paths = mTimestudyPreferredPathsGetter?.invoke(timestudy) ?: return null
+        if (!mPreferredPathsDimensionGetterResolved) {
+            mPreferredPathsDimensionGetterResolved = true
+            mPreferredPathsDimensionGetter = paths.javaClass.getMethod("a")
+        }
+        val dimensions = mPreferredPathsDimensionGetter?.invoke(paths) as? List<*> ?: return null
+        dimensions.mapNotNull { (it as? Number)?.toInt() }
+    } catch (error: Throwable) {
+        miss("Player.c0().e().a()=preferred dimension paths", error)
+        null
+    }
+
+    /**
+     * 通过原版 `PreferredPaths.c(ArrayList)` 设置维度路径偏好。
+     * 这是时间研究树的选择配置，不是已购买研究或资源；调用方必须先确认为空偏好。
+     */
+    private var mPreferredPathsDimensionSetter: Method? = null
+    private var mPreferredPathsDimensionSetterResolved: Boolean = false
+    @JvmStatic
+    fun setPreferredDimensionPaths(paths: List<Int>): Boolean {
+        return try {
+            val player = player() ?: return false
+            val timestudy = playerTimestudyMethod()?.invoke(player) ?: return false
+            if (!mTimestudyPreferredPathsGetterResolved) {
+                mTimestudyPreferredPathsGetterResolved = true
+                mTimestudyPreferredPathsGetter = timestudy.javaClass.getMethod("e")
+            }
+            val preferred = mTimestudyPreferredPathsGetter?.invoke(timestudy) ?: return false
+            if (!mPreferredPathsDimensionSetterResolved) {
+                mPreferredPathsDimensionSetterResolved = true
+                mPreferredPathsDimensionSetter = preferred.javaClass.methods.firstOrNull {
+                    it.name == "c" && it.parameterCount == 1 &&
+                        it.parameterTypes[0] == ArrayList::class.java
+                }
+            }
+            val setter = mPreferredPathsDimensionSetter ?: return false
+            setter.invoke(preferred, ArrayList(paths))
+            preferredDimensionPaths() == paths
+        } catch (error: Throwable) {
+            miss("PreferredPaths.c(ArrayList)=set dimension paths", error)
+            false
+        }
+    }
+
+    /**
+     * 当前已购买的普通时间研究 ID（原版 `Player.c0().h()`，返回 `List<Integer>`）。
+     *
+     * 复用已有的 `Player.c0()` 句柄，只新增 `h()` getter 的一次性缓存。
+     * 读取失败返回 null，调用方必须 fail-closed，不能把未知状态当成空研究树。
+     */
+    @JvmStatic
+    fun purchasedNormalStudyIds(): List<Int>? = try {
+        val player = player() ?: return null
+        val timestudy = playerTimestudyMethod()?.invoke(player) ?: return null
+        if (!mTimestudyStudiesGetterResolved) {
+            mTimestudyStudiesGetterResolved = true
+            mTimestudyStudiesGetter = timestudy.javaClass.getMethod("h")
+        }
+        val studies = mTimestudyStudiesGetter?.invoke(timestudy) as? List<*> ?: return null
+        val result = ArrayList<Int>(studies.size)
+        for (study in studies) {
+            val id = (study as? Number)?.toInt() ?: return null
+            result.add(id)
+        }
+        result
+    } catch (error: Throwable) {
+        miss("Player.c0().h()=normal studies", error)
+        null
     }
 
     /** `[b()=amBought, c()=epBought, d()=ipBought]`（3.21 逐指令核对），只解析一次。 */
@@ -3833,6 +3996,12 @@ internal object GameApi {
 
     /** 原版 `Player.canEternity`：本永恒 `maxIP` 已达到永恒门槛。 */
     fun canEternity(): Boolean = (call(mCanEternity(), null) as? Boolean) ?: false
+
+    private val eternityGoalMethod by lazy {
+        method(prestigeCCls(), "h", 0, "prestige.c.h()=eternityGoal")
+    }
+
+    fun eternityGoal(): Any? = call(eternityGoalMethod, null)
 
     private var mGainedEternityPoints: Method? = null
     private var mGainedEternityPointsResolved: Boolean = false

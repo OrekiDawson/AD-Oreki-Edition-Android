@@ -104,6 +104,8 @@ object OrekiEternity {
             ) {
                 path = 73
             }
+            ensureDimensionPathPreference(path)
+            val ec4RequiresZeroInfinities = GameApi.ec4RequiresZeroInfinities()
 
             val loader = OrekiEternity::class.java.classLoader
             val tableOwner = Class.forName(
@@ -120,7 +122,14 @@ object OrekiEternity {
             )
             for (index in OrekiEternityRules.normalStudyIndexRange(ids.size())) {
                 val id = ids.keyAt(index)
-                if (!blocked(id, column, path)) {
+                if (!shouldConsiderNormalStudy(
+                        id,
+                        column,
+                        path,
+                        targetEc,
+                        ec4RequiresZeroInfinities,
+                    )
+                ) {
                     continue
                 }
                 val study = lookup.invoke(null, singleton, id) as? c ?: continue
@@ -133,7 +142,61 @@ object OrekiEternity {
         }
     }
 
-    private fun blocked(id: Int, column: Int, dimensionPath: Int): Boolean {
+    /**
+     * 首次时间研究维度分叉需要玩家选择一条路径；自动化存档可能留下空偏好，
+     * 原版 DIMENSION_PATH 判据因此永久拒绝 71/72/73，EC6 的 121 列无法购买。
+     * 仅在偏好为空且当前树没有已购维度分叉研究时，通过原版 setter 选择目标维度路径。
+     */
+    @JvmStatic
+    fun shouldSeedDimensionPathPreference(
+        preferredPaths: List<Int>?,
+        purchasedStudies: List<Int>?,
+    ): Boolean =
+        preferredPaths != null &&
+            preferredPaths.isEmpty() &&
+            purchasedStudies != null &&
+            purchasedStudies.none { it in 71..73 }
+
+    private fun ensureDimensionPathPreference(dimensionPath: Int) {
+        val preferred = GameApi.preferredDimensionPaths()
+        if (preferred == null || preferred.isNotEmpty()) return
+        val purchased = GameApi.purchasedNormalStudyIds()
+        if (!shouldSeedDimensionPathPreference(preferred, purchased)) return
+        val path = dimensionPath - 70
+        val changed = GameApi.setPreferredDimensionPaths(listOf(path))
+        Log.i(
+            "OREKI_TS_PATH",
+            "seed dimension preference " + path + " changed=" + changed,
+        )
+    }
+
+    private val ec9Prerequisites = setOf(151)
+    private val ec10To12Prerequisites = setOf(151, 161, 171, 181)
+
+    /**
+     * EC9 需要普通研究 151，EC10~EC12 需要 181。研究树可能已建立 121/141
+     * 列但从未购买这两项，导致后续 EC 研究 `canBeBought` 永久为 false。
+     * 只由当前目标 EC 决定是否允许购买，且实际扣费仍走原版 D(true, ...)。
+     */
+    @JvmStatic
+    fun deepEcStudyIds(targetEcId: Int): Set<Int> = when {
+        targetEcId == 9 -> ec9Prerequisites
+        targetEcId in 10..12 -> ec10To12Prerequisites
+        else -> emptySet()
+    }
+
+    /**
+     * 普通研究购买范围的纯判据：只保留当前 EC 目标列/维度分叉，以及该目标
+     * 明确需要的深层研究；EC4 零次无限仍只开放被动 IP 所需研究。
+     */
+    @JvmStatic
+    fun shouldConsiderNormalStudy(
+        id: Int,
+        column: Int,
+        dimensionPath: Int,
+        targetEcId: Int,
+        ec4RequiresZeroInfinities: Boolean,
+    ): Boolean {
         val categoryA = id - 121
         if (categoryA in 0..2) {
             return categoryA == column - 121
@@ -147,9 +210,14 @@ object OrekiEternity {
             return categoryC == (column - 141) + 20
         }
         val categoryDimension = id - 71
-        return categoryDimension in 0..2 &&
-            categoryDimension == dimensionPath - 71
+        if (categoryDimension in 0..2) {
+            return categoryDimension == dimensionPath - 71
+        }
+        if (id in deepEcStudyIds(targetEcId)) return true
+        return id in 151..181 && id in ec4PassiveIpStudies && ec4RequiresZeroInfinities
     }
+
+    private val ec4PassiveIpStudies = setOf(151, 161, 162, 171, 181)
 
     private fun tryEternity() {
         try {

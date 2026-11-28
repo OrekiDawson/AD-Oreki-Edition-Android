@@ -76,6 +76,8 @@ object OrekiAutomationScheduler {
         "c9",
         // Dilation dtGain 真实购买：复用用户配置的统一节拍，不另设固定轮询周期。
         "dilation",
+        // [R132 EC8] 挑战内受限 ID 额度购买；追加在尾部，保持既有索引语义。
+        "ec8",
     )
 
     /** 连续型（原版自动购买器等价物）索引上限：0..3。R77 起不再豁免，仅保留诊断用。 */

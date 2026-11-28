@@ -575,7 +575,14 @@ object OrekiStageAuto {
                         }
                     }
 
-                    runScheduled("ec") { OrekiEcAutomation.step() }
+                    // EC8 运行时，受限 ID 购买优先占用本拍；EC 自动化在挑战内只做 no-op。
+                    if (OrekiEc8Automation.isRunning()) {
+                        runScheduled("ec8") { OrekiEc8Automation.tick() }
+                        runScheduled("ec") { OrekiEcAutomation.step() }
+                    } else {
+                        runScheduled("ec") { OrekiEcAutomation.step() }
+                        runScheduled("ec8") { OrekiEc8Automation.tick() }
+                    }
 
                     // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
                     // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
@@ -1692,6 +1699,12 @@ object OrekiStageAuto {
     @JvmStatic
     fun tryBuyId1(): Boolean {
         return try {
+        // EC8 的 50 次 ID 额度只能由 OrekiEc8Automation 的保留链消费；通用
+        // buyMax 会先耗尽低层额度，使尚未首购的高层永久缺少生产倍率。
+        if (OrekiEc8Automation.isRunning()) {
+            idDiag("skip=ec8-restricted")
+            return false
+        }
         // [R110-01 P0-B] IU15 冲刺期间禁止真实购买无限维度 1~8，保持 maxID1==0。
         if (OrekiIu15Sprint.isBlockingIdBuy()) {
             idDiag("sprint-blocks-id-buy")
@@ -2811,6 +2824,16 @@ object OrekiStageAuto {
             // 接管分支都不触发，AM 会停在上限并复现正文空白。
             reconstructCrunchStateOnColdStart(crunch)
 
+            if (GameApi.ec4RequiresZeroInfinities()) {
+                managedCrunchTarget = false
+                if (GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    markCrunchPausedByMod()
+                }
+                return
+            }
+
             // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
@@ -3122,10 +3145,14 @@ object OrekiStageAuto {
             // 共用同一个成长窗口（600–1800s），让每次结算吃到大的 maxAM；未 break 的首无限前
             // 仍保留 60s 的 PRE_BREAK_CRUNCH_SECONDS。
             val growthWindow = inEternityLayer || GameApi.isBroken()
-            val resumeInterval = if (growthWindow) {
-                OrekiCrunchPolicy.eternityWaitSeconds()
-            } else {
-                PRE_BREAK_CRUNCH_SECONDS
+            val ec5GoalReady = managedConfigTickId > 0L && decision.reason == "challenge-running" &&
+                GameApi.eternityChallengeState()["current"] == 5 &&
+                !GameApi.canEternity() &&
+                (compareBigDoubles(GameApi.gainedInfinityPoints(), GameApi.eternityGoal()) ?: -1) >= 0
+            val resumeInterval = when {
+                ec5GoalReady -> POST_BREAK_RESUME_SECONDS
+                growthWindow -> OrekiCrunchPolicy.eternityWaitSeconds()
+                else -> PRE_BREAK_CRUNCH_SECONDS
             }
             // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
             // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
