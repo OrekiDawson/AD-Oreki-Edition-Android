@@ -40,11 +40,15 @@ class SpeedBoundPolicyTests(unittest.TestCase):
             ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
         ).read_text(encoding="utf-8")
         self.assertIn("const val DEFAULT_SPEED: Double = 500.0", source)
+        self.assertIn("const val POST_INFINITY_PRE_BREAK_SPEED: Double = 1800.0", source)
         self.assertIn("const val POST_BREAK_SPEED: Double = 70.0", source)
         self.assertIn("const val POST_REALITY_SPEED: Double = 3000.0", source)
         self.assertNotIn("C9_SPEED", source)
         self.assertNotIn("normalChallengeCurrent == 9 ->", source)
         self.assertIn("putBoolean(KEY_PACING_MANAGED, true)", source)
+        self.assertIn("!hasInfinity -> DEFAULT_SPEED", source)
+        self.assertIn("!broken -> POST_INFINITY_PRE_BREAK_SPEED", source)
+        self.assertIn("else -> POST_BREAK_SPEED", source)
 
     def test_historical_overlimit_stays_manual(self):
         source = (
@@ -61,6 +65,10 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("0.000001 ~ 100000", settings)
         self.assertIn("恢复默认（×500）", speed_ui)
         self.assertIn("取值范围 0.000001 ~ 100000", speed_ui)
+        self.assertIn("首次无限后至 Break 前 ×1800", speed_ui)
+        self.assertNotIn("体验目标", speed_ui)
+        self.assertNotIn("Eternity 30～35 分钟", speed_ui)
+        self.assertNotIn("Reality 70～80 分钟", speed_ui)
 
     def test_speed_abi_is_agp_source_not_game_jar_transformer(self):
         transformer = TRANSFORMER.read_text(encoding="utf-8")

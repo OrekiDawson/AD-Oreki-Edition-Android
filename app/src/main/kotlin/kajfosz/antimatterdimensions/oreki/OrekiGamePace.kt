@@ -9,13 +9,18 @@ import android.util.Log
  * 默认倍率只决定新安装的全局时间压缩程度，不修改游戏门槛、公式、调度节拍或用户已经
  * 保存的倍率。业务判定和写入集中在 Kotlin；Smali 仅保留一个初始化转发入口。
  *
- * Web 真实新档在旧的 1000×/1800× 阶段速度下，约 42 分钟即进入 Reality，
- * 压缩了目标 30～75 分钟的永恒、时间研究与 EC 内容。Android 与 Web 统一为：
- * Break 前 500×、Break 后 70×、Reality 后 3000×。C9 不再使用 1800000×
- * 特例；C9 的可解性必须由真实购买策略解决，而不是用异常速度掩盖阶段缺陷。
+ * 首次无限前 500×、首次无限后 Break 前 1800×、Break 后 70×、
+ * Reality 后 3000×。C9 不再使用 1800000× 特例；C9 的可解性必须由真实
+ * 购买策略解决，而不是用异常速度掩盖阶段缺陷。
+ *
+ * 1800× 的依据是 R121 最新阶段时间线（源码 dfa71a99）：3000× 下首次无限
+ * 首次观测于 165.1 s、首次 Break 于 555.6 s，后段 390.5 s；按该区间与倍率
+ * 近似反比，1800× 对应约 650.8 s，即总计约 815.9 s（13.6 分钟）。
+ * 这是待隔离 AVD 校准的估算，不是已测墙钟。
  */
 object OrekiGamePace {
     const val DEFAULT_SPEED: Double = 500.0
+    const val POST_INFINITY_PRE_BREAK_SPEED: Double = 1800.0
     const val POST_BREAK_SPEED: Double = 70.0
     const val POST_REALITY_SPEED: Double = 3000.0
     const val MAX_SPEED: Double = 100000.0
@@ -88,7 +93,8 @@ object OrekiGamePace {
     ): Double? = when {
         hasReality == null || hasInfinity == null || broken == null -> null
         hasReality -> POST_REALITY_SPEED
-        !hasInfinity || !broken -> DEFAULT_SPEED
+        !hasInfinity -> DEFAULT_SPEED
+        !broken -> POST_INFINITY_PRE_BREAK_SPEED
         else -> POST_BREAK_SPEED
     }
 

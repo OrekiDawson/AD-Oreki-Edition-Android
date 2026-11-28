@@ -92,6 +92,11 @@ class SpeedSettingsActivity : Activity() {
         addAutomation()
         addAssist()
         section("倍率说明").also {
+            note(
+                it,
+                "新档托管节奏：首次无限前 ×500，首次无限后至 Break 前 ×1800，" +
+                    "Break 后至 Reality 前 ×70，Reality 后 ×3000。",
+            )
             val details = details(it, "倍率与计时说明")
             note(details, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。")
             note(details, "取值范围 0.000001 ~ 100000，建议 100 ~ 100000；倍率过高时手机可能掉帧。修改后立即生效，无需重启。")
