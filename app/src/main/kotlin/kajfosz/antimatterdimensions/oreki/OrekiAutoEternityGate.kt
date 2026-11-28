@@ -211,6 +211,10 @@ internal object OrekiAutoEternityGate {
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
+        val currentEcId = GameApi.eternityChallengeState()["current"] as? Int
+        if (currentEcId == null || (currentEcId > 0 && GameApi.currentEternityChallengeCanBeCompleted() != true)) {
+            return "eternity-challenge-incomplete"
+        }
         if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return "ec4-entry-hold"
         // [R115-01 P0] 首次永恒不得由自动化在首个合法帧抢按（见 firstEternityDwellRemainingMs）。
         if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"
