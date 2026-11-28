@@ -54,6 +54,91 @@ class OrekiEc8AutomationTest {
         assertEquals(0, tier(unlocked = List(8) { false }))
     }
 
+    @Test
+    fun `reservation returns an unlocked unpurchased high tier`() {
+        assertEquals(
+            8,
+            tier(
+                purchases = listOf(9, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = List(8) { true },
+                remainingPurchases = 10,
+            ),
+        )
+    }
+
+    @Test
+    fun `affordable high tier is preferred over low tier repeat purchase`() {
+        assertEquals(
+            8,
+            action(
+                purchases = listOf(9, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = List(8) { true },
+                available = List(8) { true },
+            ),
+        )
+    }
+
+    @Test
+    fun `unaffordable high tiers fall back to unlocked repeat purchase`() {
+        assertEquals(
+            4,
+            action(
+                purchases = listOf(9, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = List(8) { true },
+                available = listOf(true, true, true, true, false, false, false, false),
+            ),
+        )
+    }
+
+    @Test
+    fun `locked tiers do not reserve quota and request original unlock`() {
+        assertEquals(
+            -5,
+            action(
+                purchases = listOf(1, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = listOf(true, true, true, true, false, false, false, false),
+                available = listOf(true, true, true, true, false, false, false, false),
+            ),
+        )
+    }
+
+    @Test
+    fun `unaffordable unlocked unpurchased tiers reserve no repeat purchase`() {
+        assertEquals(
+            0,
+            action(
+                purchases = listOf(9, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = List(8) { true },
+                available = listOf(true, true, true, true, false, false, false, false),
+                remainingPurchases = 4,
+            ),
+        )
+    }
+
+    @Test
+    fun `replicanti purchase requires quota and an available upgrade`() {
+        assertEquals(
+            true,
+            OrekiEc8Automation.shouldBuyReplicanti(40, listOf(true, false, false)),
+        )
+        assertEquals(
+            false,
+            OrekiEc8Automation.shouldBuyReplicanti(0, listOf(true, true, true)),
+        )
+        assertEquals(
+            false,
+            OrekiEc8Automation.shouldBuyReplicanti(null, listOf(true, true, true)),
+        )
+        assertEquals(
+            false,
+            OrekiEc8Automation.shouldBuyReplicanti(40, listOf(false, false, false)),
+        )
+        assertEquals(
+            false,
+            OrekiEc8Automation.shouldBuyReplicanti(40, listOf(true, false)),
+        )
+    }
+
     private fun tier(
         purchases: List<Long>? = List(8) { 1L },
         unlocked: List<Boolean>? = List(8) { true },
@@ -61,6 +146,18 @@ class OrekiEc8AutomationTest {
     ): Int = OrekiEc8Automation.chooseInfinityDimensionTier(
         purchases = purchases,
         unlocked = unlocked,
+        remainingPurchases = remainingPurchases,
+    )
+
+    private fun action(
+        purchases: List<Long>? = List(8) { 1L },
+        unlocked: List<Boolean>? = List(8) { true },
+        available: List<Boolean>? = List(8) { true },
+        remainingPurchases: Long? = 50,
+    ): Int = OrekiEc8Automation.chooseInfinityDimensionAction(
+        purchases = purchases,
+        unlocked = unlocked,
+        available = available,
         remainingPurchases = remainingPurchases,
     )
 }

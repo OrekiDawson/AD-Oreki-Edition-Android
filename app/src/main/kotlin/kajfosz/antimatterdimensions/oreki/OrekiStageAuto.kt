@@ -575,9 +575,14 @@ object OrekiStageAuto {
                         }
                     }
 
-                    runScheduled("ec") { OrekiEcAutomation.step() }
-                    // EC8 禁止通用 ID 自动购买器；在挑战内由受限额度链保证各层首购。
-                    runScheduled("ec8") { OrekiEc8Automation.tick() }
+                    // EC8 运行时，受限 ID 购买优先占用本拍；EC 自动化在挑战内只做 no-op。
+                    if (OrekiEc8Automation.isRunning()) {
+                        runScheduled("ec8") { OrekiEc8Automation.tick() }
+                        runScheduled("ec") { OrekiEcAutomation.step() }
+                    } else {
+                        runScheduled("ec") { OrekiEcAutomation.step() }
+                        runScheduled("ec8") { OrekiEc8Automation.tick() }
+                    }
 
                     // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
                     // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
@@ -1694,6 +1699,12 @@ object OrekiStageAuto {
     @JvmStatic
     fun tryBuyId1(): Boolean {
         return try {
+        // EC8 的 50 次 ID 额度只能由 OrekiEc8Automation 的保留链消费；通用
+        // buyMax 会先耗尽低层额度，使尚未首购的高层永久缺少生产倍率。
+        if (OrekiEc8Automation.isRunning()) {
+            idDiag("skip=ec8-restricted")
+            return false
+        }
         // [R110-01 P0-B] IU15 冲刺期间禁止真实购买无限维度 1~8，保持 maxID1==0。
         if (OrekiIu15Sprint.isBlockingIdBuy()) {
             idDiag("sprint-blocks-id-buy")
