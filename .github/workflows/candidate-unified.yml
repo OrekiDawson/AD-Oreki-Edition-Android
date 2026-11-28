@@ -462,6 +462,7 @@ jobs:
         env:
           SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
           WEB_REF: ${{ needs.validate.outputs.web_ref }}
+          GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
           OREKI_BUNDLE_SHA256: ${{ vars.OREKI_BUILD_BUNDLE_SHA256 }}
         run: |
           set -euo pipefail
@@ -471,6 +472,7 @@ jobs:
           cp "$cand/antimatter-dimensions.apk" "release/反物质维度.apk"
           version_name="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
           version_code="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionCode"])')"
+          jq -e --arg pinned "$GAME_JAR_SHA256" '.in_jar_sha256 == $pinned' "$cand/jar-fixes.json" >/dev/null
           python3 scripts/ci/write_agp_provenance.py \
             --candidate-dir "$cand" \
             --apk "$cand/antimatter-dimensions.apk" \
@@ -479,6 +481,8 @@ jobs:
             --candidate-run-id "$GITHUB_RUN_ID" \
             --game-jar build/inputs/game-final.jar \
             --game-jar-sha256 "$(jq -er '.out_jar_sha256' "$cand/jar-fixes.json")" \
+            --game-jar-source "$GITHUB_WORKSPACE/.oreki-private/gamejar/game-hybrid-sig.jar" \
+            --game-jar-source-sha256 "$GAME_JAR_SHA256" \
             --bundle-sha256 "$OREKI_BUNDLE_SHA256" \
             --version-name "$version_name" \
             --version-code "$version_code" \

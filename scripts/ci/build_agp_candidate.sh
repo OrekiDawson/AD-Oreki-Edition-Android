@@ -77,6 +77,7 @@ done
 GAME_JAR="$(realpath "$GAME_JAR")"
 ACTUAL_JAR_SHA="$(sha256sum "$GAME_JAR" | cut -d' ' -f1)"
 [ "$ACTUAL_JAR_SHA" = "$GAME_JAR_SHA256" ] || fail "game jar SHA 不符 actual=$ACTUAL_JAR_SHA pinned=$GAME_JAR_SHA256"
+SOURCE_GAME_JAR="$GAME_JAR"
 
 if [ "${OREKI_SHADOW_CTOR_FIX:-0}" = "1" ]; then
   [ -n "$FIX_CLASSES" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-classes"
@@ -85,7 +86,11 @@ if [ "${OREKI_SHADOW_CTOR_FIX:-0}" = "1" ]; then
   [ -x "$FIX_JAVA" ] || FIX_JAVA="java"
   FIXED_JAR="$ROOT/out/agpdex2/game-fixed.jar"
   mkdir -p "$ROOT/out/agpdex2"
-  FIX_ARGS=(--in-jar "$GAME_JAR" --out-jar "$FIXED_JAR"
+  if [[ "$SOURCE_GAME_JAR" -ef "$ROOT/build/inputs/game-final.jar" ]]; then
+    SOURCE_GAME_JAR="$ROOT/out/agpdex2/game-source.jar"
+    install -m 0644 "$GAME_JAR" "$SOURCE_GAME_JAR"
+  fi
+  FIX_ARGS=(--in-jar "$SOURCE_GAME_JAR" --out-jar "$FIXED_JAR"
     --classes-dir "$FIX_CLASSES" --asm-jar "$FIX_ASM_JAR"
     --asm-commons-jar "$FIX_ASM_COMMONS_JAR" --java "$FIX_JAVA")
   if [ -n "$FIX_SIGATTR_TSV" ]; then FIX_ARGS+=(--sigattr-tsv "$FIX_SIGATTR_TSV"); fi
@@ -121,6 +126,7 @@ cp "$APK" "$CANDIDATE_DIR/antimatter-dimensions.apk"
 PRODUCER_ARGS=(--candidate-dir "$CANDIDATE_DIR" --apk "$CANDIDATE_DIR/antimatter-dimensions.apk"
   --source-sha "$OREKI_SOURCE_SHA" --web-ref "$OREKI_WEB_REF" --candidate-run-id "$GITHUB_RUN_ID"
   --game-jar "$GAME_JAR" --game-jar-sha256 "$GAME_JAR_SHA256"
+  --game-jar-source "$SOURCE_GAME_JAR" --game-jar-source-sha256 "$ACTUAL_JAR_SHA"
   --version-name "$OREKI_VERSION_NAME" --version-code "$OREKI_VERSION_CODE"
   --certificate-sha256 "$OREKI_CERT_SHA256" --repo-root "$ROOT")
 if [ -n "${OREKI_BUNDLE_SHA256:-}" ]; then PRODUCER_ARGS+=(--bundle-sha256 "$OREKI_BUNDLE_SHA256"); fi
