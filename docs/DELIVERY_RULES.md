@@ -39,16 +39,16 @@
 ## 4. GitHub、CI/CD 与交付
 
 - **P0 正式 APK V3.0 + V3.2 混合签名及 V4**：minSdk 保持 32，目标为同一 APK 内 V3.0（原 K0 经典密钥，API 32–36）和 V3.2（API 37+，独立新经典 C_K1 与新 ML-DSA PQC_K1 双签名者），外加与该 APK 字节精确绑定的 V4 `.apk.idsig`；禁用 V1/V2/V3.1。K0 保留为经典 fallback 和可信签名谱系根，两把新密钥必须独立生成并共享经 K0 授权的完整前序谱系；不得复用 K0 为混合经典密钥。保留包名、存档、历史 APK，单指纹门禁演进为严格固定的 K0/C_K1/PQC_K1 身份、合法谱系、SDK 范围、抗剥离属性与官方密码学验签；不能任意接受多个证书。优先 Google 官方 AGP/apksig/apksigner；若 AGP 无完整混合 DSL，只允许验证后的官方工具对 AGP 未签名产物一次正式签名并生成 V4 sidecar，禁止重签已签 APK 或手工拼接签名块。先用临时密钥实测 V3.2+V4 组合是否由实际工具及平台支持，验证 API 32/36/37 安装、同包覆盖升级、正常与增量安装、篡改拒绝和经授权的安全回退，再在受保护签名环境迁移生产密钥；不能宣称现有工具已支持该组合。V4 若需官方扩展格式则按真实工具输出核实，不自行编造。四渠道必须交付同一 APK 及配套同一 idsig，各自 SHA-256、原子关联与校验；普通 APK 安装不依赖 idsig。历史资产不改写。Kody、CI、预算与存档门禁不变；原 V3.0-only 路径仅为过渡，不能作为 P0 完成或最终签名策略。
-- Android 公开仓 OrekiDawson/AD-Oreki-Edition-Android 负责源码检查、受保护环境内的敏感构建/签名、独立验签、AVD 验收与门禁。GitHub Releases 通过正式受保护工作流发布；当前 Windows 开发机使用 OneDrive、Google Drive、小米云盘各自官方客户端完成三家云盘实际同步，并原子更新本地 SSH/SFTP 发布目录。不得以 rclone 为 Windows 交付依赖，不假定现有 Actions 已支持小米云盘。所有渠道以同一源 APK/哈希与签名要求的配套 idsig/哈希独立验收；Web 独立 CI/CD，不受 Android 故障拖累。每轮按实际改动核对 Actions 日志及可复现结果。
+- Android 公开仓 OrekiDawson/AD-Oreki-Edition-Android 负责源码检查、受保护环境内的敏感构建/签名、独立验签、AVD 验收与门禁。GitHub Releases 通过正式受保护工作流发布；Linux 开发机优先使用已授权 rclone 或等效 Linux 客户端完成 OneDrive、Google Drive 实际交付，并安全更新本地 SSH/SFTP 发布目录；不依赖 Windows 客户端，不再要求小米云盘。所有渠道以同一源 APK/哈希与签名要求的配套 idsig/哈希独立验收；Web 独立 CI/CD，不受 Android 故障拖累。每轮按实际改动核对 Actions 日志及可复现结果。
 - 私钥/密码/Token 存 Secrets 或合规密钥管理系统，不进入任何 Git 仓库或日志；保持正式 APK 签名身份。候选 run、验证 run、源 SHA、APK SHA256、包名、版本和证书必须一对一关联；私有 Runner 不运行来自不可信公开 PR 的任意代码。
 - 已有授权轮次内可正常中文 Commit/Push，不再为每次无风险提交反复索取授权；每轮成功或失败都推送已完成、可追溯成果及证据。普通已验证修改可以推 main；高风险、密钥、CI/CD、构建迁移及未过门禁改动使用分支/PR，CI 合格后合并。禁止强推、丢弃他人改动。Push 不代表稳定发行。
-- **四小时统一发布节奏（最新授权）**：在当前允许安全执行的非峰时发布窗口，**每四小时至少发布一份真实的新版本，这是硬性最低频率**；通过各自最低放行门禁的 Stable Release 或 Pre-release **同等计入一次**，不要求各发一份。五渠道的同一 APK 只算一份；旧 APK 改名、空 Release、仅源码 Push/构建或重复上传不计。**峰时可跳过交付窗口，不记欠账、不补发、不在峰时强制构建或发布**；恢复合法谷时继续正常交付。非峰时到期仍无满足最低门禁的候选时如实标注 `BLOCKED` 和频率未达标，不得为了凑数发布不安全或冒充稳定的包。
-- 正式 Android 发布为 GitHub Releases、OneDrive、Google Drive、小米云盘、本地 SSH/SFTP 五渠道同一已验收签名 APK、同一 SHA-256；签名方案要求 idsig 时同一配套文件及 SHA-256 也必须逐渠道一致。Windows 三家云盘用官方客户端；确认本地同步路径、大小、哈希及客户端状态，无须远端下载/回读，不虚称远端上传已核实。保留可从 GitHub 取回的旧稳定版恢复点，不替换签名、不误发历史包。
-- **滚动替换发布（2026-11-25 最新长期授权）**：GitHub Releases 保留独立 Tag、版本资产和历史归档。OneDrive、Google Drive、小米云盘、本地 SSH/SFTP 不再按版本新增永久目录/APK；各使用固定路径 `latest/AD-Oreki-Edition-Stable.apk` 和 `pre-release/AD-Oreki-Edition-PreRelease.apk`（已有兼容固定路径可沿用并登记），每类只保留最新一份 APK 及必要配套 `.apk.idsig`。同类替换、两类隔离。先校验新候选签名、APK/idsig 配对、SHA-256、旧版可恢复性，临时暂存并安全替换同一远端对象/路径（支持时原子重命名）；云盘通过官方客户端路径完成覆盖及本地哈希校验，SSH/SFTP 核验本机实际文件。失败保留或恢复上一可用版本并标 BLOCKED。仅在验证通过且历史可恢复后回收已被替代的项目冗余 APK/idsig、暂存和旧版本目录；不删除 GitHub 历史资产、唯一产物、有效回滚点、证据、存档或密钥。不为五渠道长期保留五份本机重复副本，记录实际空间释放、路径与替换证据。
-- **发布验收以本地交付为准（2026-11-25 用户授权）**：遵循 Workspace 最新五渠道验收口径。GitHub Releases 核实真实上传及资产信息；OneDrive、Google Drive、小米云盘仅核对官方客户端实际同步路径、文件大小、SHA-256、必要 idsig 及登录/可用状态，无已知同步失败即 `PASS（本地交付）`。不强制云端回读、远端下载、二次哈希、云端对象 ID、上传完成日志或内部接口；已知 401/登录失效/同步失败仍 `BLOCKED`，不虚称远端已核验。SSH/SFTP 核对约定本机分发目录及文件哈希、SSH 服务状态，不要求远程回拉或 SFTP 子系统实测；远程传输能力单列。此条覆盖旧远端回读要求，不改变五渠道同一 APK、滚动替换、签名与发行门禁。
+- **四小时统一发布节奏（长期强制）**：当前用户已授权且可安全执行期间，每四小时至少发布一份真实的新版本（硬性最低频率）；通过各自最低放行门禁的 Stable Release 或 Pre-release 同等计入一次。四渠道同一 APK 只计一份；旧包改名、空 Release、仅 Push/构建或重复上传不计。无峰谷限制；到期无安全合格候选或交付阻断时如实记录 `BLOCKED` 与频率未达标，不冒充 PASS，不为赶数量发布不安全版本。用户主动暂停优先，具体按 Workspace 现行规范执行。
+- 正式 Android 发布为 GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道同一已验收签名 APK、同一 SHA-256；签名方案要求 idsig 时同一配套文件及 SHA-256 也须逐渠道一致。Linux 云盘优先用已授权 rclone 或等效客户端，记录实际路径及传输/同步状态；验收遵循 Workspace §5.1，不强制远端下载/回读，不虚称远端已核实。保留可从 GitHub 取回的旧稳定版恢复点，不替换签名、不误发历史包。
+- **滚动替换发布（长期强制）**：GitHub Releases 保留独立 Tag、版本资产和历史归档。OneDrive、Google Drive、本地 SSH/SFTP 不再按版本新增永久目录/APK；各使用固定路径 `latest/AD-Oreki-Edition-Stable.apk` 和 `pre-release/AD-Oreki-Edition-PreRelease.apk`（已有兼容固定路径可沿用并登记），每类只保留最新一份 APK 及必要配套 `.apk.idsig`。同类替换、两类隔离。先校验新候选签名、APK/idsig 配对、SHA-256、旧版可恢复性，临时暂存并安全替换同一远端对象/路径（支持时原子重命名）；云盘通过已授权 rclone 或等效 Linux 客户端实际覆盖固定路径，按 Workspace 口径验证，SSH/SFTP 核验本机实际文件。失败保留或恢复上一可用版本并标 BLOCKED。仅在验证通过且历史可恢复后回收已被替代的项目冗余 APK/idsig、暂存和旧版本目录；不删除 GitHub 历史资产、唯一产物、有效回滚点、证据、存档或密钥。不为四渠道长期保留多份本机重复副本，记录实际空间释放、路径与替换证据。
+- **四渠道发布验收（Linux）**：遵循 Workspace §5.1 最新四渠道验收口径。GitHub Releases 核实真实上传及资产信息；OneDrive、Google Drive 使用已授权 rclone 时，记录实际 remote 路径、源 APK/必要 idsig 的大小及 SHA-256、传输成功退出和无已知错误。已授权且正常工作的同步客户端可沿用本地投放验收（路径、哈希、登录/可用状态及无已知失败），不得虚称云端上传已核实。未授权、401、传输失败或仅准备文件而无实际传输/有效同步路径记 `BLOCKED`。不强制远端回读、下载或二次哈希。SSH/SFTP 核对 Linux 约定本地分发目录、文件哈希、SSH 服务状态；不要求远程回拉或 SFTP 子系统实测，远程能力单列。四渠道均满足才计完整交付；签名、滚动替换、稳定/预发布隔离与发行门禁不变。
 - **事实库入口**：工程事实以 `docs/FACTS.md`（导航索引）与 `docs/facts/`（主题分册）为准；结构上限、禁止滚动文件与按需读取纪律见 `AGENTS.md` 第 17 节；旧章节/旧编号映射见 `docs/facts/MIGRATION.md`；CI 守卫 `scripts/check_facts_governance.py`。
 - 并行 Agent 分清文件与任务；共享 AVD、签名环境、最终构建和正式发行独占。收尾同步必要 FACTS/tasks/README/教程及报告；`frame-observer` 有修改同步 Push。授权轮次真实完成后停止，不自动开启新轮；因高峰或阻碍中止而未完成的目标应保留 `blocked/paused` 及真实验收状态，不得标成 `complete`。
-- **Lead 与高峰优先级（2026-11-14，强制）**：非高峰期 Lead 不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工，应协调或转做其他可执行任务；**DeepSeek 高峰期间 Lead、所有子 Agent、其他模型及自动化开发全部停止**，不得换模型继续开发，也不得启动构建、测试、Git/CI/CD、发布或部署。北京时间工作日 09:00–12:00、14:00–18:00 高峰，08:50/13:50 开始安全收尾并在峰前停止；周末和中国法定节假日按已核实规则低谷。峰前保存代码/证据/恢复点、解除 Goal 激活但不虚报完成，低谷恢复同一轮。细则以本仓 `AGENTS.md` 峰谷章节和实际生效的全局规则为准；该停工要求优先于 Lead 持续推进和四小时统一交付节奏；峰时免考核，不补发。
+- **Lead 持续执行**：已授权且可安全执行时，不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工；协调或推进其他独立任务。服从用户主动暂停、预算与安全门禁，安全交接并沿用原轮次；不设置固定峰谷停工。
 
 
 
@@ -58,8 +58,8 @@
 2. 禁止直推绕过保护、跳过必需检查、关闭 Ruleset、手动上传 APK，或直接修改生产部署。
 3. CI/CD 故障必须修复流水线，不能用手动发布绕过。
 4. Android 正式发布必须完成真实 APK 构建、独立验签、必要 AVD 验收及发布门禁。
-5. GitHub Releases 经正式工作流发布后，由开发机主动下载并校验同一 APK，使用 Windows 三家云盘官方客户端完成 OneDrive、Google Drive、小米云盘同步，并原子更新本地 SFTP 目录；逐渠道记录实际传输和校验证据。
-6. 四小时 Stable/Pre-release 统一交付节奏不得凌驾于两类各自质量与安全门禁之上；峰时可跳过不补发，未通过项如实标记 FAIL / BLOCKED / NOT RUN。
+5. GitHub Releases 经正式工作流发布后，由开发机主动下载并校验同一 APK，使用已授权 rclone 或等效 Linux 客户端完成 OneDrive、Google Drive 交付，并原子更新本地 SFTP 目录；逐渠道记录实际传输和校验证据。
+6. 四小时 Stable/Pre-release 统一交付节奏不得凌驾于两类各自质量与安全门禁之上；未通过项如实标记 FAIL / BLOCKED / NOT RUN。
 
 ## 6. 上游基线冻结与独立 MOD 版本体系（2026-11-13，用户决定）
 
@@ -154,7 +154,7 @@
 ### 7.4 CI/CD 推广与停止条件
 
 - 优化配置和 Keep 规则走独立 PR，必须通过现有 Required Checks；不覆盖 R108 或其他 Agent 工作树，不强推、不关闭 Ruleset。只有完整 AGP 游戏可正常运行、ABI/签名/存档/覆盖升级及必要 AVD 验收通过且 Candidate/Verify/Release 独立门禁均 PASS，才可评估默认启用 Release R8。
-- 正式生产唯一入口仍是 AGP 9.5.1，禁止旧链/混合打包冒充原生；优化实验 APK 不得进入五渠道稳定发行。
+- 正式生产唯一入口仍是 AGP 9.5.1，禁止旧链/混合打包冒充原生；优化实验 APK 不得进入四渠道稳定发行。
 - 无新增证据的 R8 连续失败时，记录根因并转移到仍可推进的 P0/P1；局部 BLOCKED 不等于 Lead 停工。DeepSeek 高峰期 Lead/子 Agent/其他模型和自动化开发全停，高峰前安全收尾并保留未完成 Goal 真状态；低谷恢复原有 /goal，不重编号或计时。
 
 ## 8. PR 规模预警与开发证据分层（2026-11-14，强制）
@@ -205,7 +205,7 @@
 
 - **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.2 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
 - **运行**：真实 AVD/必要真机验证冷启动、主循环 Tick 持续增长、游戏存档保存/恢复、阶段/挑战真实结算、自动购买器、GUI 与相应 Android/Web 等价行为；只覆盖受影响的关键功能与高风险路径，不为此无差别重跑全部历史回归。
-- **发行**：原包名、原签名证书、MOD versionCode 递增、存档兼容与覆盖安装成立，独立 Candidate/Verify/Release、Required Checks、受保护签名和五渠道同 SHA 的实际证据齐备。新链不达标必须维持 **AGP-only fail-closed / BLOCKED**，保留现有稳定版，不得退回旧链、手动上传或宣称完全退役。
+- **发行**：原包名、原签名证书、MOD versionCode 递增、存档兼容与覆盖安装成立，独立 Candidate/Verify/Release、Required Checks、受保护签名和四渠道同 SHA 的实际证据齐备。新链不达标必须维持 **AGP-only fail-closed / BLOCKED**，保留现有稳定版，不得退回旧链、手动上传或宣称完全退役。
 - **完成标记**：清点 `build_mod.py` 的所有生产调用为零、删除文件、CI 防回流并通过上述门禁后，才将 [Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 标记完成；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的原生游戏构建和 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 的实际交付分别据各自证据结案，不能合并或 PR 绿灯就批量关闭。
 
 ### 9.4 Agent 执行和状态记录
@@ -227,14 +227,14 @@
 ### 10.2 合规合并与生产发布
 
 - Lead 可在**已有授权**范围内操作 PR；只有 Required Checks 全部通过、关键审查问题解决、目标分支最新、Ruleset 允许、实际必需批准已获得时才可合并。若需要人工审批、受保护 Environment 或新的授权，保持 BLOCKED，不得自批或绕过。
-- Android 正式 Candidate/Verify/Release 必须采用真实 AGP 9.5.1 完整游戏构建和可信来源，经独立验签、必要 AVD/游戏验证后才允许按受保护发布流程进入 GitHub Releases；Windows 开发机再主动拉取、验证同一 APK SHA，使用官方客户端同步 OneDrive、Google Drive、小米云盘并原子更新本地 SFTP。AGP 游戏 DEX 仍 BLOCKED 时禁止用旧链或混合包替代。发布完成分阶段标记，不能以部分渠道成功冒充五渠道全 PASS。
+- Android 正式 Candidate/Verify/Release 必须采用真实 AGP 9.5.1 完整游戏构建和可信来源，经独立验签、必要 AVD/游戏验证后才允许按受保护发布流程进入 GitHub Releases；Linux 开发机再主动拉取、验证同一 APK SHA，使用已授权 rclone 或等效客户端交付 OneDrive、Google Drive并原子更新本地 SFTP。AGP 游戏 DEX 仍 BLOCKED 时禁止用旧链或混合包替代。发布完成分阶段标记，不能以部分渠道成功冒充四渠道全 PASS。
 - Web 已通过独立 Node/Playwright 及目标 Android Chrome 验收时，可依现有授权和审批流程独立部署，不受 Android AGP 故障无故拖累。**Pages/oreki.net 正式部署管理改由 DeepSeek Lead 负责**（用户 2026-11-14 决定）；在已有发布授权、实际审批及受保护工作流门禁全部满足时可自主组织、触发和验证获批准的部署。不得因管理权移交而取代 Pages 的受控部署批准或 Web 源 SHA/CI Run/Artifact/线上验证。
 - 严禁关 Ruleset/跳 Required Checks/强推、泄漏 Secrets、降低安全扫描或 AVD 检验、修改冻结上游、手工签名/覆盖正式发布产物、用“模拟 PASS”冒充真实验收。流水线失效须修复或明确 BLOCKED，保留已合格稳定版和回滚路径。
 
 ### 10.3 时段、职责交接与记录
 
-- 服从现有峰谷停工：工作日北京时间 09:00–12:00、14:00–18:00 全员禁止主动开发/CI/CD 操作，08:50/13:50 安全收尾；谷时恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须按其权限与时间控制明确配置，不能把这份规则文本视作已经有常驻任务。
-- 每次只记录必要的 CI 健康变化、失败分类、修复 PR/Commit SHA、实际 Actions Run、Kotlin/AGP/AVD/Playwright/部署或发行结果，以及 `PASS / FAIL / BLOCKED / NOT RUN` 与待跟进问题。对 AGP 构建 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、旧脚本退役 [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、五渠道 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 保持原 Issue 更新，不另开重复 Issue。
+- 服从用户主动暂停及恢复授权，安全保存代码、证据和恢复点，恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须明确配置权限，不能把规则文本视作已部署常驻任务。
+- 每次只记录必要的 CI 健康变化、失败分类、修复 PR/Commit SHA、实际 Actions Run、Kotlin/AGP/AVD/Playwright/部署或发行结果，以及 `PASS / FAIL / BLOCKED / NOT RUN` 与待跟进问题。对 AGP 构建 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、旧脚本退役 [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、四渠道 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 保持原 Issue 更新，不另开重复 Issue。
 
 ## 11. Android 工程目录标准化与迁移验收（2026-11-14，长期强制）
 
@@ -266,9 +266,9 @@
 
 ## 12. Android Pre-release 测试交付长期规则（2026-11-22，用户明确授权）
 
-> **双轨解释优先**：本文件此前凡要求“五项游戏验收 PASS 才能发布”、`PACING FAIL` 时“暂停候选发布”等语句，**针对正式稳定版晋升及生产级合格发布**。本节单独允许明确标示的 **Pre-release 测试交付**，其目的是让用户在手机上复现/反馈已知问题。其余关于**真实安全构建、AGP-only、代码来源、签名、存档安全、受保护 CI/CD、Ruleset、权限、五渠道一致性**的硬门禁**完全保留**。不得用“预发布”绕过实际平台硬性审批。
+> **双轨解释优先**：本文件此前凡要求“五项游戏验收 PASS 才能发布”、`PACING FAIL` 时“暂停候选发布”等语句，**针对正式稳定版晋升及生产级合格发布**。本节单独允许明确标示的 **Pre-release 测试交付**，其目的是让用户在手机上复现/反馈已知问题。其余关于**真实安全构建、AGP-only、代码来源、签名、存档安全、受保护 CI/CD、Ruleset、权限、四渠道一致性**的硬门禁**完全保留**。不得用“预发布”绕过实际平台硬性审批。
 
-**频率口径**：每次新版本实际经五渠道交付才完整记为一次，不能将同一 APK 在五个平台重复计数，也不将仅构建、仅合并或仅 GitHub 部分发布算成完整五渠道交付。四小时是非峰时允许发布窗口的硬性最低发布频率，非峰时到期未交付必须如实记录未达标；峰时按现行峰谷策略跳过，不因该时段欠发布任务，不要求下一谷时补齐累计“缺失版本”。一旦有安全或门禁阻断必须记录，不允许追数量。
+**频率口径**：每次新版本实际经四渠道交付才完整记为一次，同一 APK 不重复计数，仅构建、合并或仅 GitHub 部分发布不算完整交付。用户已授权且可安全执行期间四小时为硬性最低频率，无峰谷限制；到期阻断如实记录，不能为追数量绕过安全门禁。
 
 ### 12.1 两类交付分别判定
 
@@ -285,11 +285,11 @@
 
 ### 12.2 最低发布门禁与执行顺序
 
-1. 明确候选源码/分支/Commit SHA 与 Owner，避免混入活动 Subagent 未提交 WIP。只采用当前受支持的、**完整真实游戏 Release APK** 构建链；遵守第 10 节 AGP-only 与独立 Candidate/Verify/Release 等技术硬门禁，不拿 Debug 包、旧 APK 改名、混合未验 DEX 或不完整 AGP 实验模块充数。签名环境由 Lead 独占，Gradle 离线优先，按该候选最小必要次数构建，禁止为五个平台分别构建。
+1. 明确候选源码/分支/Commit SHA 与 Owner，避免混入活动 Subagent 未提交 WIP。只采用当前受支持的、**完整真实游戏 Release APK** 构建链；遵守第 10 节 AGP-only 与独立 Candidate/Verify/Release 等技术硬门禁，不拿 Debug 包、旧 APK 改名、混合未验 DEX 或不完整 AGP 实验模块充数。签名环境由 Lead 独占，Gradle 离线优先，按该候选最小必要次数构建，禁止为四个平台分别构建。
 2. 校验包名、版本码递增、证书指纹/签名兼容、资源/DEX/ABI、真实安装及冷启动；定向确认不破坏既有真实存档，旧档存在不可逆损害风险则先阻断。可在用户允许的测试隔离条件中使用新档，明确建议先备份正式存档，不要求将完整 180 分钟长跑作为测试候选的强制前置。
 3. 根据实际 CI/Release 工作流、Required Checks/Ruleset 和审批执行，不关门禁、不绕签名、Secret 或权限。无法达成某个**技术硬门禁**即 `BLOCKED`；不得把游戏 PACING 未通过误当作技术硬门禁，也不得为了预发布篡改原有硬性 CI 结果。
 4. GitHub Releases 创建独立唯一 Tag 和 Release，Tag 指向**实际构建 Commit**，实际设置 **`prerelease=true`**，创建参数必须包含 `--latest=false`。预发布发布路径禁止调用 `promote_verified_github_release()` 或执行 `gh release edit --prerelease=false --latest`；现有具备晋升功能的发布工具必须使用 `--no-promote` 等显式防晋升开关。发布后通过 GitHub API 回读 `isPrerelease=true`，并确认 `releases/latest` 仍是原来的正式稳定版。中文 Release Notes 至少包含“**R125/对应轮次 手机实测预发布，非稳定版**”、源码 SHA、版本名/`versionCode`、APK SHA-256、已有测试的 PASS/FAIL/BLOCKED/NOT RUN、已知风险和建议测试场景。未来轮次沿用本政策，无需每次重新授权，但用户最新暂停/安全/付费门禁优先。
-5. GitHub Releases、OneDrive、Google Drive、小米云盘、本地 SSH/SFTP 五渠道**同一已经签名的 APK 同一 SHA-256**，各渠道按本地交付口径做必要验证；已知登录/同步失败或本地交付不可用标记 `BLOCKED`，部分成功不得宣称五渠道完成。预发布在 OneDrive/Google Drive/小米云盘 使用固定 `pre-release/AD-Oreki-Edition-PreRelease.apk` 路径，在本地 SSH/SFTP 使用 `~/Releases/AD-Oreki-Edition/pre-release/AD-Oreki-Edition-PreRelease.apk`（或现有兼容固定路径），以替换而非追加方式交付；**禁止写入任何稳定 `latest/`，禁止复用 `pull_stable_release.py` 的稳定版 latest 拉取路径**。稳定渠道使用固定 `latest/AD-Oreki-Edition-Stable.apk`，两者互不覆盖，旧版从 GitHub Releases 恢复。若尚无合法可发布候选，先完成最低技术闭环而不是生产冒险。
-6. 发布后记录 Tag、Release URL、五渠道实际链接/路径、源 SHA、APK SHA-256、签名版本、下载/校验及测试证据，并将用户反馈转为下一次最小修复。**正式稳定版**仍必须完成真实五阶段、原版合法终局及独立 SAVE COMPATIBILITY 等门禁。
+5. GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道**同一已经签名的 APK 同一 SHA-256**，各渠道按 Workspace 四渠道验收口径做必要验证；已知登录/同步失败或本地交付不可用标记 `BLOCKED`，部分成功不得宣称四渠道完成。预发布在 OneDrive/Google Drive 使用固定 `pre-release/AD-Oreki-Edition-PreRelease.apk` 路径，在本地 SSH/SFTP 使用 `~/Releases/AD-Oreki-Edition/pre-release/AD-Oreki-Edition-PreRelease.apk`（或现有兼容固定路径），以替换而非追加方式交付；**禁止写入任何稳定 `latest/`，禁止复用 `pull_stable_release.py` 的稳定版 latest 拉取路径**。稳定渠道使用固定 `latest/AD-Oreki-Edition-Stable.apk`，两者互不覆盖，旧版从 GitHub Releases 恢复。若尚无合法可发布候选，先完成最低技术闭环而不是生产冒险。
+6. 发布后记录 Tag、Release URL、四渠道实际链接/路径、源 SHA、APK SHA-256、签名版本、下载/校验及测试证据，并将用户反馈转为下一次最小修复。**正式稳定版**仍必须完成真实五阶段、原版合法终局及独立 SAVE COMPATIBILITY 等门禁。
 
 **范围**：这是一项长期交付类别授权，不是自动每次都发布、不要求用户再发新的 `/goal`，也不是允许云端 Issue/PR 自动化在缺乏本机签名与用户设备证据时越权发布。保持工作树、签名、现行发布脚本和旧稳定包完整。
