@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" role="img" aria-labelledby="title desc">
+  <title id="title">Antimatter Dimensions · Android MOD</title>
+  <desc id="desc">A luminous infinity symbol and orbital paths in deep space.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#0b1328"/><stop offset="1" stop-color="#060b15"/>
+    </linearGradient>
+    <radialGradient id="nebula">
+      <stop stop-color="#3457a6" stop-opacity=".56"/><stop offset="1" stop-color="#152445" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="loop" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#9ea9ff"/><stop offset=".48" stop-color="#eaf4ff"/><stop offset="1" stop-color="#61d4cb"/>
+    </linearGradient>
+    <linearGradient id="rule"><stop stop-color="#87a4ff"/><stop offset="1" stop-color="#61d4cb" stop-opacity=".25"/></linearGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#8eaceb" stroke-opacity=".045"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="340" rx="20" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1198" height="338" rx="19" fill="none" stroke="#49628e" stroke-opacity=".65"/>
+  <rect x="2" y="2" width="1196" height="336" rx="18" fill="url(#grid)"/>
+  <ellipse cx="865" cy="170" rx="326" ry="166" fill="url(#nebula)"/>
+  <g fill="#b8d1ff"><circle cx="560.0" cy="20.0" r="1.8" opacity="0.8"/><circle cx="673.4" cy="67.3" r="0.85" opacity="0.35"/><circle cx="786.7" cy="114.6" r="0.85" opacity="0.35"/><circle cx="900.1" cy="161.9" r="0.85" opacity="0.35"/><circle cx="1013.5" cy="209.2" r="0.85" opacity="0.35"/><circle cx="1126.8" cy="256.6" r="0.85" opacity="0.35"/><circle cx="640.2" cy="303.9" r="0.85" opacity="0.35"/><circle cx="753.6" cy="51.2" r="0.85" opacity="0.35"/><circle cx="867.0" cy="98.5" r="0.85" opacity="0.35"/><circle cx="980.3" cy="145.8" r="0.85" opacity="0.35"/><circle cx="1093.7" cy="193.1" r="0.85" opacity="0.35"/><circle cx="607.1" cy="240.4" r="1.8" opacity="0.8"/><circle cx="720.4" cy="287.7" r="0.85" opacity="0.35"/><circle cx="833.8" cy="35.0" r="0.85" opacity="0.35"/><circle cx="947.2" cy="82.3" r="0.85" opacity="0.35"/><circle cx="1060.6" cy="129.7" r="0.85" opacity="0.35"/><circle cx="573.9" cy="177.0" r="0.85" opacity="0.35"/><circle cx="687.3" cy="224.3" r="0.85" opacity="0.35"/><circle cx="800.7" cy="271.6" r="0.85" opacity="0.35"/><circle cx="914.0" cy="318.9" r="0.85" opacity="0.35"/><circle cx="1027.4" cy="66.2" r="0.85" opacity="0.35"/><circle cx="1140.8" cy="113.5" r="0.85" opacity="0.35"/><circle cx="654.1" cy="160.8" r="1.8" opacity="0.8"/><circle cx="767.5" cy="208.1" r="0.85" opacity="0.35"/><circle cx="880.9" cy="255.4" r="0.85" opacity="0.35"/><circle cx="994.3" cy="302.8" r="0.85" opacity="0.35"/><circle cx="1107.6" cy="50.1" r="0.85" opacity="0.35"/><circle cx="621.0" cy="97.4" r="0.85" opacity="0.35"/><circle cx="734.4" cy="144.7" r="0.85" opacity="0.35"/><circle cx="847.7" cy="192.0" r="0.85" opacity="0.35"/><circle cx="961.1" cy="239.3" r="0.85" opacity="0.35"/><circle cx="1074.5" cy="286.6" r="0.85" opacity="0.35"/><circle cx="587.8" cy="33.9" r="0.85" opacity="0.35"/><circle cx="701.2" cy="81.2" r="1.8" opacity="0.8"/><circle cx="814.6" cy="128.5" r="0.85" opacity="0.35"/><circle cx="928.0" cy="175.9" r="0.85" opacity="0.35"/><circle cx="1041.3" cy="223.2" r="0.85" opacity="0.35"/><circle cx="1154.7" cy="270.5" r="0.85" opacity="0.35"/><circle cx="668.1" cy="317.8" r="0.85" opacity="0.35"/><circle cx="781.4" cy="65.1" r="0.85" opacity="0.35"/><circle cx="894.8" cy="112.4" r="0.85" opacity="0.35"/><circle cx="1008.2" cy="159.7" r="0.85" opacity="0.35"/><circle cx="1121.5" cy="207.0" r="0.85" opacity="0.35"/><circle cx="634.9" cy="254.3" r="0.85" opacity="0.35"/><circle cx="748.3" cy="301.6" r="1.8" opacity="0.8"/><circle cx="861.7" cy="49.0" r="0.85" opacity="0.35"/><circle cx="975.0" cy="96.3" r="0.85" opacity="0.35"/><circle cx="1088.4" cy="143.6" r="0.85" opacity="0.35"/><circle cx="601.8" cy="190.9" r="0.85" opacity="0.35"/><circle cx="715.1" cy="238.2" r="0.85" opacity="0.35"/><circle cx="828.5" cy="285.5" r="0.85" opacity="0.35"/><circle cx="941.9" cy="32.8" r="0.85" opacity="0.35"/><circle cx="1055.2" cy="80.1" r="0.85" opacity="0.35"/><circle cx="568.6" cy="127.4" r="0.85" opacity="0.35"/></g>
+  <g fill="none" stroke="#759fe5" stroke-width="1.1" opacity=".32">
+    <ellipse cx="865" cy="170" rx="275" ry="87" transform="rotate(-17 865 170)"/>
+    <ellipse cx="865" cy="170" rx="258" ry="92" transform="rotate(20 865 170)"/>
+    <circle cx="865" cy="170" r="126" stroke-dasharray="2 8"/>
+  </g>
+  <g transform="translate(865 170)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 0 C-53 -82 -159 -86 -173 -16 S-89 91 0 0 S159 -86 173 -16 S89 91 0 0" stroke="#657fe9" stroke-width="27" opacity=".10"/>
+    <path d="M0 0 C-53 -82 -159 -86 -173 -16 S-89 91 0 0 S159 -86 173 -16 S89 91 0 0" stroke="#6e96ff" stroke-width="13" opacity=".18"/>
+    <path d="M0 0 C-53 -82 -159 -86 -173 -16 S-89 91 0 0 S159 -86 173 -16 S89 91 0 0" stroke="url(#loop)" stroke-width="4.8"/>
+  </g>
+  <g fill="#b1e9e4"><circle cx="604" cy="197" r="3"/><circle cx="1094" cy="76" r="3.5"/><circle cx="992" cy="255" r="2.5"/></g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="64" y="50" width="151" height="30" rx="15" fill="#233751" stroke="#617caf" stroke-opacity=".65"/>
+    <text x="139.5" y="70" text-anchor="middle" fill="#c5dcff" font-size="13" font-weight="bold" letter-spacing="2">ANDROID MOD</text>
+    <text x="64" y="143" fill="#f5f7ff" font-size="47" font-weight="bold" letter-spacing="1">ANTIMATTER</text>
+    <text x="64" y="198" fill="#f5f7ff" font-size="47" font-weight="bold" letter-spacing="1">DIMENSIONS</text>
+    <path d="M65 224H420" stroke="url(#rule)" stroke-width="2"/>
+    <text x="65" y="260" fill="#aec3df" font-size="17" letter-spacing="1.1">From one particle to infinity.</text>
+    <text x="65" y="299" fill="#8198bd" font-size="12" letter-spacing="1.7">BASED ON ANDROID 3.21.0</text>
+  </g>
+</svg>
