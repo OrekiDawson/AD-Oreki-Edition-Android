@@ -576,6 +576,8 @@ object OrekiStageAuto {
                     }
 
                     runScheduled("ec") { OrekiEcAutomation.step() }
+                    // EC8 禁止通用 ID 自动购买器；在挑战内由受限额度链保证各层首购。
+                    runScheduled("ec8") { OrekiEc8Automation.tick() }
 
                     // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
                     // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
