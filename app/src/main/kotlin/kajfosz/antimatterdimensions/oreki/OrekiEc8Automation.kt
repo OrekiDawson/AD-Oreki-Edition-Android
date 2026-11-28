@@ -64,6 +64,7 @@ object OrekiEc8Automation {
         unlocked: List<Boolean>?,
         available: List<Boolean>?,
         remainingPurchases: Long?,
+        tryUnlock: Boolean = true,
     ): Int {
         if (purchases == null || unlocked == null || available == null ||
             remainingPurchases == null
@@ -82,8 +83,10 @@ object OrekiEc8Automation {
         }
         // 仍有未解锁层时优先尝试原版解锁；解锁不消耗 EC8 购买额度，并让后续
         // 高层能进入可购买状态。已经解锁的可购买层在上方优先，避免饿死首购。
-        for (index in purchases.indices) {
-            if (!unlocked[index]) return -(index + 1)
+        if (tryUnlock) {
+            for (index in purchases.indices) {
+                if (!unlocked[index]) return -(index + 1)
+            }
         }
         val unlockedUnpurchased = purchases.indices.count {
             unlocked[it] && purchases[it] == 0L
@@ -139,21 +142,18 @@ object OrekiEc8Automation {
             unlocked.add(GameApi.idUnlocked(dimension))
             available.add(GameApi.idAvailableForPurchase(dimension))
         }
-        val action = chooseInfinityDimensionAction(purchases, unlocked, available, remaining)
-        if (action == 0) return false
-        if (action < 0) {
-            val tier = -action
+        var tier = chooseInfinityDimensionAction(purchases, unlocked, available, remaining)
+        if (tier < 0) {
+            tier = -tier
             val dimension = dimensions[tier - 1]
-            val beforeUnlocked = GameApi.idUnlocked(dimension)
             GameApi.idUnlock(dimension)
-            val afterUnlocked = GameApi.idUnlocked(dimension)
-            if (afterUnlocked && !beforeUnlocked) {
+            if (GameApi.idUnlocked(dimension)) {
                 Log.i(TAG, "unlock tier=" + tier + " remaining=" + remaining)
                 return true
             }
-            return false
+            tier = chooseInfinityDimensionAction(purchases, unlocked, available, remaining, tryUnlock = false)
         }
-        val tier = action
+        if (tier == 0) return false
 
         val dimension = dimensions[tier - 1]
         val beforePurchases = GameApi.idPurchases(dimension)

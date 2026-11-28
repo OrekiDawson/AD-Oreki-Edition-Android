@@ -103,6 +103,20 @@ class OrekiEc8AutomationTest {
     }
 
     @Test
+    fun `failed unlock allows repeat purchase without reserving for locked tiers`() {
+        assertEquals(
+            4,
+            OrekiEc8Automation.chooseInfinityDimensionAction(
+                purchases = listOf(1, 1, 1, 1, 0, 0, 0, 0),
+                unlocked = listOf(true, true, true, true, false, false, false, false),
+                available = listOf(true, true, true, true, false, false, false, false),
+                remainingPurchases = 4,
+                tryUnlock = false,
+            ),
+        )
+    }
+
+    @Test
     fun `unaffordable unlocked unpurchased tiers reserve no repeat purchase`() {
         assertEquals(
             0,
