@@ -1,0 +1,17 @@
+{
+  "measurement_basis": "inherited-save checkpoint and log timestamps; not a clean new-save PACING PASS",
+  "stages": [
+    {"id":"EC4","primary_bottleneck":"empty dimension-path preference plus EC4 study-column recovery","targeted_fix":"seed original dimension preference and preserve EC4 study/entry path","result":"completed 5/5"},
+    {"id":"EC5","primary_bottleneck":"EP-gain gate and repeated scheduler cycles at challenge entry","targeted_fix":"official completion gate plus proven short-wait adjustment","result":"completed 5/5"},
+    {"id":"EC6","primary_bottleneck":"replicanti-galaxy requirement not driven by challenge path","targeted_fix":"original replicanti galaxy purchase/entry path and study-column repair","result":"completed 5/5"},
+    {"id":"EC7","primary_bottleneck":"repeated study preparation and challenge re-entry","targeted_fix":"preserve target study chain and EC scheduler ownership","result":"completed 5/5"},
+    {"id":"EC8","primary_bottleneck":"generic buyMax exhausted quota on low ID tiers","targeted_fix":"restricted reservation/fallback and original unlock/purchase entries","result":"completed 5/5; live ID3 1->5, quota 38->34"},
+    {"id":"EC9","primary_bottleneck":"post-exit study reset removed 151 and crunch ownership was not claimed","targeted_fix":"recursive 151 chain plus original challenge crunch settlement","result":"1/5->5/5"},
+    {"id":"EC10","primary_bottleneck":"deep study prerequisite and challenge settlement coupling","targeted_fix":"151->161->171->181 chain before ordinary columns","result":"completed 5/5"},
+    {"id":"EC11","primary_bottleneck":"231 retried while 221/211/191 missing","targeted_fix":"target-specific EC11 chain through original D(true)","result":"completed 5/5"},
+    {"id":"EC12","primary_bottleneck":"233 retried while 225/213/193 missing and timed-round preparation","targeted_fix":"target-specific EC12 chain while preserving official time restriction","result":"completed 5/5"},
+    {"id":"PostEC-DS1","primary_bottleneck":"EC12 respec cleared 231-234; DS1 requirement false","targeted_fix":"seed original 231/233 chain before DS1","result":"DS1-DS6 purchased; first Reality became available/reset within about 13 seconds"}
+  ],
+  "highest_priority_target": {"first_reality_minutes":75, "early_fail_threshold_minutes":70, "inherited_save_proves_target":false},
+  "remaining_risk": ["ten-second scheduler cadence on EC9-EC12", "save flush granularity about 30 seconds", "official EC12 time restriction must be measured on a clean new save"]
+}

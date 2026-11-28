@@ -1,0 +1,8 @@
+captured_at=2026-11-29 01:46:40 +0800
+head=f8be6ec8f9b55f2c19e55bf181b6d70e1948ff23
+branch=r132/android-ec-progression
+device=emulator-5554
+api=37
+measurement=long_host_time_monotonic_ns_and_json_records_realTimePlayed_ms
+save_field_unit=milliseconds
+clean_new_save_claim=false

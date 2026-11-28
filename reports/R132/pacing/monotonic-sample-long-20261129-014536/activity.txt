@@ -1,0 +1,3 @@
+  * Task{229a6a8 #20 type=standard A=10234:net.oreki.antimatterdimensions.debug U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+    topResumedActivity=ActivityRecord{1018146 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t20}
+    * Hist  #0: ActivityRecord{1018146 u0 net.oreki.antimatterdimensions.debug/kajfosz.antimatterdimensions.MainActivity t20}
