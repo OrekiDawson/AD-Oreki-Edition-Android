@@ -48,6 +48,32 @@ class OrekiEcRespecPolicyTest {
     }
 
     @Test
+    fun `missing target column can be repaved from unrelated base studies`() {
+        assertTrue(
+            OrekiEcAutomation.shouldRespecForTargetColumn(
+                targetEcId = 8,
+                unlockedEcId = 0,
+                targetPrereqOk = false,
+                targetPrereqIds = listOf(123),
+                purchasedStudyIds = listOf(11, 21, 31),
+                targetColumnAffordable = true,
+                respecAvailable = true,
+            ),
+        )
+        assertFalse(
+            OrekiEcAutomation.shouldRespecForTargetColumn(
+                targetEcId = 8,
+                unlockedEcId = 0,
+                targetPrereqOk = false,
+                targetPrereqIds = listOf(123),
+                purchasedStudyIds = listOf(123, 133, 143),
+                targetColumnAffordable = true,
+                respecAvailable = true,
+            ),
+        )
+    }
+
+    @Test
     fun `ordinary preparation low tt unknown state and missing abi fail closed`() {
         assertFalse(eligible(targetPrereqOk = true))
         assertFalse(eligible(purchasedStudyIds = emptyList()))

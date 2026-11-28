@@ -3006,14 +3006,25 @@ object OrekiStageAuto {
             val inEternityLayerGate = isInEternityLayer()
             val takeoverPhaseOk = modOwnsCrunch || inEternityLayerGate ||
                 isBroken() || GameApi.hasInfinity()
+            val challengeCrunchManaged =
+                OrekiManagedAutobuyerAuthority.shouldManageChallengeCrunch(
+                    inChallenge = GameApi.inAnyChallenge(),
+                    canBigCrunch = GameApi.canBigCrunch(),
+                    originalAutobuyerActive = GameApi.isAutobuyerActive(crunch),
+                )
             if (!takeoverBlockedByPolicy && takeoverPhaseOk &&
-                (modOwnsCrunch || GameApi.infinityAutoCrunchShortcut())) {
+                (modOwnsCrunch || challengeCrunchManaged || GameApi.infinityAutoCrunchShortcut())) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
                     modOwnsCrunch = true
                     markCrunchPausedByMod()
-                    Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
+                    Log.i(
+                        TAG_AU4C,
+                        "stage-policy -> autoBig paused (" +
+                            if (challengeCrunchManaged) "challenge-goal" else "auto-crunch-shortcut" +
+                            ")",
+                    )
                 }
                 // [R117-01-02c P0-2] 所有权兜底：MOD 一旦接管过坍缩（modOwnsCrunch），
                 // 原版 Reality 复位可能把 auto.bigCrunch.isActive 置 false，而恢复路径又把
@@ -3036,13 +3047,20 @@ object OrekiStageAuto {
                     } else {
                         (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
                     }
+                    val challengeCrunchDue =
+                        OrekiManagedAutobuyerAuthority.challengeCrunchDue(
+                            inChallenge = GameApi.inAnyChallenge(),
+                            decisionAllows = decision.allow,
+                            canBigCrunch = GameApi.canBigCrunch(),
+                        )
                     if (lastManagedCrunchAtMs <= 0L) {
                         lastManagedCrunchAtMs = nowOwn
                         Log.i(TAG_AU4C, "managed crunch: baseline re-established (ownership fallback)")
-                    } else if (nowOwn - lastManagedCrunchAtMs >=
-                        windowOwnMs + MANAGED_CRUNCH_FALLBACK_GRACE_MS &&
-                        GameApi.canBigCrunch() &&
-                        (!isPreBreakPhase() || decision.allow)
+                    } else if (challengeCrunchDue ||
+                        (nowOwn - lastManagedCrunchAtMs >=
+                            windowOwnMs + MANAGED_CRUNCH_FALLBACK_GRACE_MS &&
+                            GameApi.canBigCrunch() &&
+                            (!isPreBreakPhase() || decision.allow))
                     ) {
                         if (settleCrunch("managed-ownership-fallback")) {
                             lastManagedCrunchAtMs = nowOwn

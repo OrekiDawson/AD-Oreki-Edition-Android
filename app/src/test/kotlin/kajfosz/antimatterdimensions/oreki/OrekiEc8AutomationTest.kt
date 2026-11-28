@@ -6,6 +6,54 @@ import org.junit.Test
 /** [R132] EC8 的 50 次 ID 购买必须优先保证八层各首购一次。 */
 class OrekiEc8AutomationTest {
     @Test
+    fun `challenge crunch ownership requires original gate and active autobuyer`() {
+        assertEquals(
+            true,
+            OrekiManagedAutobuyerAuthority.shouldManageChallengeCrunch(
+                inChallenge = true,
+                canBigCrunch = true,
+                originalAutobuyerActive = true,
+            ),
+        )
+        assertEquals(
+            false,
+            OrekiManagedAutobuyerAuthority.shouldManageChallengeCrunch(
+                inChallenge = true,
+                canBigCrunch = false,
+                originalAutobuyerActive = true,
+            ),
+        )
+        assertEquals(
+            false,
+            OrekiManagedAutobuyerAuthority.shouldManageChallengeCrunch(
+                inChallenge = false,
+                canBigCrunch = true,
+                originalAutobuyerActive = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `challenge crunch is due when policy allows and original gate is open`() {
+        assertEquals(
+            true,
+            OrekiManagedAutobuyerAuthority.challengeCrunchDue(
+                inChallenge = true,
+                decisionAllows = true,
+                canBigCrunch = true,
+            ),
+        )
+        assertEquals(
+            false,
+            OrekiManagedAutobuyerAuthority.challengeCrunchDue(
+                inChallenge = true,
+                decisionAllows = false,
+                canBigCrunch = true,
+            ),
+        )
+    }
+
+    @Test
     fun `unpurchased unlocked tiers are chosen high to low`() {
         assertEquals(
             8,
