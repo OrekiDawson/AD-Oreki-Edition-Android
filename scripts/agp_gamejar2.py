@@ -451,6 +451,8 @@ def main() -> int:
                         help="dex2jar 参考 jar（可重复）；提供后对最终 game jar 回填泛型 Signature")
     parser.add_argument("--sigbackfill-asm-jar", default="",
                         help="ASM 9.x jar（Signature 回填工具编译用）")
+    parser.add_argument("--shadow-ctor-asm-commons-jar", default="",
+                        help="与 ASM core 同版本的 ASM Commons jar（ShadowCtorFix 使用）")
     parser.add_argument("--sigbackfill-shadow-remap", action="store_true",
                         help="签名中 Lkotlin/ 前缀替换为 Loreki/shadow/kotlin/（与 RemapSelective 一致）")
     parser.add_argument("--shadow-ctor-fix", action="store_true",
@@ -964,10 +966,16 @@ def main() -> int:
         require(classes_dir.is_dir(), "缺少 dexfix 编译产物目录: %s" % classes_dir)
         asm_cp = [str(classes_dir), args.sigbackfill_asm_jar]
         if args.shadow_ctor_fix:
+            commons_jar = Path(args.shadow_ctor_asm_commons_jar)
+            require(commons_jar.is_file(),
+                    "--shadow-ctor-fix 需要 --shadow-ctor-asm-commons-jar")
+            with zipfile.ZipFile(commons_jar) as archive:
+                require("org/objectweb/asm/commons/ClassRemapper.class" in archive.namelist(),
+                        "ASM Commons jar 缺少 ClassRemapper: %s" % commons_jar)
             shadow_jar = out_dir / "game-shadow-fixed.jar"
             if shadow_jar.exists():
                 shadow_jar.unlink()
-            shadow_res = java_main(java, asm_cp, "ShadowCtorFix",
+            shadow_res = java_main(java, [*asm_cp, str(commons_jar)], "ShadowCtorFix",
                                    [str(final_jar), str(shadow_jar)])
             require(shadow_res["returncode"] == 0,
                     "ShadowCtorFix 失败:\n" + shadow_res["stdout"] + shadow_res["stderr"])

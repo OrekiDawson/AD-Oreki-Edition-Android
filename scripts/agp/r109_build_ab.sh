@@ -35,7 +35,9 @@ if [ -z "${OREKI_KS_PASS:-}" ] && [ -f "$ROOT/keys/密码.txt" ]; then
 fi
 export OREKI_KS_PASS
 mkdir -p "$ROOT/build/inputs"
-install -m 0644 "$JAR" "$ROOT/build/inputs/game-final.jar"
+if ! [[ "$JAR" -ef "$ROOT/build/inputs/game-final.jar" ]]; then
+  install -m 0644 "$JAR" "$ROOT/build/inputs/game-final.jar"
+fi
 mkdir -p "$OUTDIR"
 
 run_variant() {

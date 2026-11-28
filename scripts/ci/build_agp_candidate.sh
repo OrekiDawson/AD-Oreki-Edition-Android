@@ -35,14 +35,6 @@ GAME_JAR=""
 GAME_JAR_SHA256=""
 OFFICIAL_TREE="work/base_decoded_321"
 SPLIT_TREE="work/mdpi_decoded_321"
-[ -n "$GAME_JAR" ] || fail "缺少 --game-jar"
-[ -n "$GAME_JAR_SHA256" ] || fail "缺少 --game-jar-sha256"
-[ -f "$OFFICIAL_TREE/AndroidManifest.xml" ] || fail "缺少官方 3.21 Manifest：$OFFICIAL_TREE/AndroidManifest.xml"
-[ -f "$OFFICIAL_TREE/res/values/public.xml" ] || fail "缺少官方 3.21 public.xml：$OFFICIAL_TREE/res/values/public.xml"
-[ -f "$SPLIT_TREE/res/values/public.xml" ] || fail "缺少同版 mdpi split public.xml：$SPLIT_TREE/res/values/public.xml"
-[ -f "$GAME_JAR" ] || fail "缺少 game jar $GAME_JAR"
-ACTUAL_JAR_SHA="$(sha256sum "$GAME_JAR" | cut -d' ' -f1)"
-[ "$ACTUAL_JAR_SHA" = "$GAME_JAR_SHA256" ] || fail "game jar SHA 不符 actual=$ACTUAL_JAR_SHA pinned=$GAME_JAR_SHA256"
 
 # [R131 P0] 构建期确定性字节码工序（ShadowCtorFix → SigAttrFix）。
 #
@@ -55,9 +47,11 @@ ACTUAL_JAR_SHA="$(sha256sum "$GAME_JAR" | cut -d' ' -f1)"
 # 开启方式：OREKI_SHADOW_CTOR_FIX=1，并提供：
 #   --jar-fix-classes <dir>   scripts/dexfix/r107/build 的编译产物目录
 #   --jar-fix-asm-jar <jar>   ASM 9.x
+#   --jar-fix-asm-commons-jar <jar>  同版本 ASM Commons
 #   --jar-fix-sigattr-tsv <tsv>  可选；给出则同时回填泛型 Signature
 FIX_CLASSES=""
 FIX_ASM_JAR=""
+FIX_ASM_COMMONS_JAR=""
 FIX_SIGATTR_TSV=""
 FIX_JAVA="${JAVA_HOME:-}/bin/java"
 while [ $# -gt 0 ]; do
@@ -68,19 +62,32 @@ while [ $# -gt 0 ]; do
     --split-tree) SPLIT_TREE="$2"; shift 2 ;;
     --jar-fix-classes) FIX_CLASSES="$2"; shift 2 ;;
     --jar-fix-asm-jar) FIX_ASM_JAR="$2"; shift 2 ;;
+    --jar-fix-asm-commons-jar) FIX_ASM_COMMONS_JAR="$2"; shift 2 ;;
     --jar-fix-sigattr-tsv) FIX_SIGATTR_TSV="$2"; shift 2 ;;
     --jar-fix-java) FIX_JAVA="$2"; shift 2 ;;
     *) fail "未知参数 $1" ;;
   esac
 done
+[ -n "$GAME_JAR" ] || fail "缺少 --game-jar"
+[ -n "$GAME_JAR_SHA256" ] || fail "缺少 --game-jar-sha256"
+[ -f "$OFFICIAL_TREE/AndroidManifest.xml" ] || fail "缺少官方 3.21 Manifest：$OFFICIAL_TREE/AndroidManifest.xml"
+[ -f "$OFFICIAL_TREE/res/values/public.xml" ] || fail "缺少官方 3.21 public.xml：$OFFICIAL_TREE/res/values/public.xml"
+[ -f "$SPLIT_TREE/res/values/public.xml" ] || fail "缺少同版 mdpi split public.xml：$SPLIT_TREE/res/values/public.xml"
+[ -f "$GAME_JAR" ] || fail "缺少 game jar $GAME_JAR"
+GAME_JAR="$(realpath "$GAME_JAR")"
+ACTUAL_JAR_SHA="$(sha256sum "$GAME_JAR" | cut -d' ' -f1)"
+[ "$ACTUAL_JAR_SHA" = "$GAME_JAR_SHA256" ] || fail "game jar SHA 不符 actual=$ACTUAL_JAR_SHA pinned=$GAME_JAR_SHA256"
+
 if [ "${OREKI_SHADOW_CTOR_FIX:-0}" = "1" ]; then
   [ -n "$FIX_CLASSES" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-classes"
   [ -n "$FIX_ASM_JAR" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-asm-jar"
+  [ -n "$FIX_ASM_COMMONS_JAR" ] || fail "OREKI_SHADOW_CTOR_FIX=1 但缺少 --jar-fix-asm-commons-jar"
   [ -x "$FIX_JAVA" ] || FIX_JAVA="java"
   FIXED_JAR="$ROOT/out/agpdex2/game-fixed.jar"
   mkdir -p "$ROOT/out/agpdex2"
   FIX_ARGS=(--in-jar "$GAME_JAR" --out-jar "$FIXED_JAR"
-    --classes-dir "$FIX_CLASSES" --asm-jar "$FIX_ASM_JAR" --java "$FIX_JAVA")
+    --classes-dir "$FIX_CLASSES" --asm-jar "$FIX_ASM_JAR"
+    --asm-commons-jar "$FIX_ASM_COMMONS_JAR" --java "$FIX_JAVA")
   if [ -n "$FIX_SIGATTR_TSV" ]; then FIX_ARGS+=(--sigattr-tsv "$FIX_SIGATTR_TSV"); fi
   echo "[0/3] 字节码工序 ShadowCtorFix${FIX_SIGATTR_TSV:+ + SigAttrFix}"
   python3 "$ROOT/scripts/agp/apply_jar_fixes.py" "${FIX_ARGS[@]}" \
@@ -92,9 +99,8 @@ if [ "${OREKI_SHADOW_CTOR_FIX:-0}" = "1" ]; then
   GAME_JAR_SHA256="$FIXED_SHA"
 fi
 
-echo "[1/3] AGP 完整游戏构建 variant=$VARIANT jar=$ACTUAL_JAR_SHA"
+echo "[1/3] AGP 完整游戏构建 variant=$VARIANT jar=$GAME_JAR_SHA256"
 mkdir -p "$ROOT/build/inputs"
-install -m 0644 "$GAME_JAR" "$ROOT/build/inputs/game-final.jar"
 ln -sfn "$(realpath "$OFFICIAL_TREE")" "$ROOT/build/inputs/base_decoded_321"
 ln -sfn "$(realpath "$SPLIT_TREE")" "$ROOT/build/inputs/mdpi_decoded_321"
 bash "$ROOT/scripts/agp/r109_build_ab.sh" --jar "$GAME_JAR" --variant "$VARIANT" --outdir "$OUTDIR"

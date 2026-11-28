@@ -14,7 +14,8 @@
 #   scripts/agp/apply_jar_fixes.py --in-jar build/inputs/game-final.jar \
 #       --out-jar out/agpdex2/game-fixed.jar \
 #       --classes-dir scripts/dexfix/r107/build/classes \
-#       --asm-jar <ASM 9.x jar> [--sigattr-tsv <path>] [--java java]
+#       --asm-jar <ASM 9.x jar> --asm-commons-jar <ASM Commons jar> \
+#       [--sigattr-tsv <path>] [--java java]
 #
 # 退出码：0 = 成功且有真实残差检查；非 0 = fail-closed。
 
@@ -53,6 +54,7 @@ def main() -> int:
     parser.add_argument("--out-jar", required=True)
     parser.add_argument("--classes-dir", required=True)
     parser.add_argument("--asm-jar", required=True)
+    parser.add_argument("--asm-commons-jar", required=True)
     parser.add_argument("--sigattr-tsv", default="")
     parser.add_argument("--java", default="java")
     args = parser.parse_args()
@@ -63,11 +65,23 @@ def main() -> int:
     if not in_jar.is_file():
         print("FAIL: 输入 jar 不存在: %s" % in_jar, file=sys.stderr)
         return 2
-    for main in ("ShadowCtorFix.class", "SigAttrFix.class"):
+    tool_classes = ["ShadowCtorFix.class"]
+    if args.sigattr_tsv:
+        tool_classes.append("SigAttrFix.class")
+    for main in tool_classes:
         if not (classes_dir / main).is_file():
             print("FAIL: 缺少编译产物 %s（先跑 scripts/dexfix/r107/build_asm_tools.sh）"
                   % (classes_dir / main), file=sys.stderr)
             return 2
+    for jar, entry in (
+        (args.asm_jar, "org/objectweb/asm/ClassReader.class"),
+        (args.asm_commons_jar, "org/objectweb/asm/commons/ClassRemapper.class"),
+    ):
+        try:
+            with zipfile.ZipFile(jar) as archive:
+                archive.getinfo(entry)
+        except (OSError, zipfile.BadZipFile, KeyError):
+            parser.error(f"ASM classpath 缺少 {entry}: {jar}")
 
     expected = class_names(in_jar)
     out_jar.parent.mkdir(parents=True, exist_ok=True)
@@ -75,7 +89,7 @@ def main() -> int:
     if work.exists():
         work.unlink()
 
-    cp = [str(classes_dir), args.asm_jar]
+    cp = [str(classes_dir), args.asm_jar, args.asm_commons_jar]
     shadow = run_java(args.java, cp, "ShadowCtorFix", [str(in_jar), str(work)])
     if shadow.returncode != 0:
         print("FAIL: ShadowCtorFix 失败\n%s\n%s" % (shadow.stdout, shadow.stderr), file=sys.stderr)
