@@ -1,0 +1,169 @@
+name: Android 手机实测预发布
+
+'on':
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Successful Android candidate run ID
+        required: true
+        type: string
+      verification_run_id:
+        description: Successful independent verification run ID
+        required: true
+        type: string
+      acceptance_commit:
+        description: Commit containing the reviewed AVD evidence and release notes
+        required: true
+        type: string
+      acceptance_directory:
+        description: Reviewed directory under docs/avd-acceptance
+        required: true
+        type: string
+      expected_sha256:
+        description: SHA-256 of the APK accepted on the AVD
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: oreki-android-prerelease
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: android-release-review
+    permissions:
+      actions: read
+      contents: write
+    env:
+      CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+      VERIFY_ID: ${{ inputs.verification_run_id }}
+      ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit }}
+      ACCEPTANCE_DIR: ${{ inputs.acceptance_directory }}
+      EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Validate run identities and reviewed evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_ID" =~ ^[0-9]+$ && "$VERIFY_ID" =~ ^[0-9]+$ && "$CANDIDATE_ID" != "$VERIFY_ID" ]]
+          [[ "$ACCEPTANCE_COMMIT" =~ ^[a-f0-9]{40}$ && "$EXPECTED_SHA" =~ ^[a-f0-9]{64}$ ]]
+          [[ "$ACCEPTANCE_DIR" =~ ^docs/avd-acceptance/[A-Za-z0-9_-]+$ ]]
+          for run in "$CANDIDATE_ID:candidate-unified" "$VERIFY_ID:verify-unified"; do
+            id="${run%%:*}"
+            workflow="${run#*:}"
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id" |
+              jq -e --arg path ".github/workflows/$workflow.yml" '.path == $path and .conclusion == "success"' >/dev/null
+          done
+          gh api "repos/$GITHUB_REPOSITORY/compare/main...$ACCEPTANCE_COMMIT" |
+            jq -e '.status == "identical" or .status == "behind"' >/dev/null
+          for file in prerelease-checks.json 发布说明.md; do
+            encoded_file="$(jq -nr --arg file "$file" '$file|@uri')"
+            gh api "repos/$GITHUB_REPOSITORY/contents/$ACCEPTANCE_DIR/$encoded_file?ref=$ACCEPTANCE_COMMIT" |
+              jq -er 'select(.type == "file" and .encoding == "base64") | .content' |
+              base64 --decode > "$file"
+          done
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ad-oreki-candidate
+          run-id: ${{ inputs.candidate_run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ad-oreki-verification
+          run-id: ${{ inputs.verification_run_id }}
+          github-token: ${{ github.token }}
+          path: verification
+
+      - name: Bind APK, independent receipt and AVD results
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          [[ "$(sha256sum candidate/antimatter-dimensions.apk | cut -d' ' -f1)" == "$EXPECTED_SHA" ]]
+          jq -es --arg sha "$EXPECTED_SHA" --argjson c "$CANDIDATE_ID" --argjson v "$VERIFY_ID" '
+            .[0] as $meta | .[1] as $verify | .[2] as $avd | .[3] as $policy |
+            $verify.status == "PASS" and $meta.sha256 == $sha and
+            $verify.sha256 == $sha and $avd.apk_sha256 == $sha and
+            $meta.candidate_run_id == $c and $verify.candidate_run_id == $c and
+            $avd.candidate_run_id == $c and $verify.verification_run_id == $v and
+            $avd.verification_run_id == $v and
+            $meta.source_sha == $verify.source_sha and $meta.source_sha == $avd.source_sha and
+            $meta.package == $verify.package and $meta.versionCode == $verify.versionCode and
+            $meta.versionName == $verify.versionName and
+            $meta.certificate_sha256 == $verify.certificate_sha256 and
+            $meta.package == $policy.package and
+            $meta.certificate_sha256 == $policy.certificate_sha256 and
+            $meta.versionName == $policy.versionName and
+            ($meta.versionCode | tonumber) == ($policy.versionCode | tonumber) and
+            ($meta.versionCode | tonumber) > ($policy.lastPublishedVersionCode | tonumber) and
+            (["install-upgrade","launch","save-preservation"] |
+             all(. as $check | $avd.checks[$check] == "PASS"))
+          ' candidate/candidate-metadata.json verification/verification-record.json prerelease-checks.json scripts/release-gate-policy.json
+          source_sha="$(jq -er '.source_sha | select(test("^[a-f0-9]{40}$"))' candidate/candidate-metadata.json)"
+          gh api "repos/$GITHUB_REPOSITORY/compare/$source_sha...$ACCEPTANCE_COMMIT" |
+            jq -e '.status == "ahead" or .status == "identical"' >/dev/null
+
+      - name: Publish GitHub Pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source_sha="$(jq -r .source_sha candidate/candidate-metadata.json)"
+          version="$(jq -er '.versionName | select(test("^[0-9]+[.][0-9]+[.][0-9]+$"))' candidate/candidate-metadata.json)"
+          tag="android-prerelease-$version-${EXPECTED_SHA:0:8}"
+          latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
+          apk="AD-Oreki-Edition-$version-PreRelease.apk"
+          title="Android $version 手机实测预发布"
+          cp candidate/antimatter-dimensions.apk "$apk"
+          printf '%s  %s\n' "$EXPECTED_SHA" "$apk" > "$apk.sha256"
+          if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent; then
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/tags/$tag" -f sha="$source_sha" --jq '.ref'
+          fi
+          [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease,name,body > release-state.json; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag --draft --prerelease --latest=false \
+              --title "$title" --notes-file 发布说明.md
+            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease,name,body > release-state.json
+          fi
+          jq -e '.isPrerelease' release-state.json >/dev/null
+          draft="$(jq -r .isDraft release-state.json)"
+          release_id="$(jq -er '.databaseId | select(type == "number")' release-state.json)"
+          if ! jq -e --arg title "$title" --rawfile notes 发布说明.md \
+            '.name == $title and ((.body | rtrimstr("\n")) == ($notes | rtrimstr("\n")))' release-state.json >/dev/null; then
+            [[ "$draft" == true ]] || { echo "::error::Published release notes differ from reviewed evidence"; exit 1; }
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --title "$title" --notes-file 发布说明.md
+          fi
+          for file in "$apk" "$apk.sha256"; do
+            digest="sha256:$(sha256sum "$file" | cut -d' ' -f1)"
+            assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" --jq '.assets')"
+            if [[ "$draft" == true ]] && ! jq -e --arg name "$file" 'any(.[]; .name == $name)' <<< "$assets" >/dev/null; then
+              gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY"
+              assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" --jq '.assets')"
+            fi
+            jq -e --arg name "$file" --arg digest "$digest" \
+              'any(.[]; .name == $name and .digest == $digest and .state == "uploaded")' <<< "$assets" >/dev/null
+          done
+          if [[ "$draft" == true ]]; then
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,url |
+            jq -e 'select(.isPrerelease and (.isDraft | not)) | .url'
+          [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
+          [[ "$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)" == "$latest" ]]
