@@ -1,0 +1,10 @@
+captured_at=2026-11-29 01:43:34 +0800
+head=4d1c4a88197bef637de6cc8f9eab5c8300c56f91
+branch=r132/android-ec-progression
+device=emulator-5554
+api=37
+milestone=first Reality on inherited save
+realities=1.0
+save_real_time_played_ms=94016742.00001018
+test_monotonic_wall_s=45
+apk_sha256=6ecb1b39b83770f15e3f68c9be28d18f6912573537a5385bcc50a9251acb1e29

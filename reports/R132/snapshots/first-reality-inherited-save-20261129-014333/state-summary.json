@@ -1,0 +1,201 @@
+{
+  "captured_at": "2026-11-28T17:43:34Z",
+  "realities": {
+    "exponent": 0.0,
+    "mantissa": 1.0
+  },
+  "eternities": {
+    "exponent": 0.0,
+    "mantissa": 0.0
+  },
+  "challenge": {
+    "eternity": {
+      "completions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "current": 0,
+      "ec8InfinityDimensionPurchasesLeft": 50,
+      "ec8ReplicantiPurchasesLeft": 40,
+      "requirementBits": 0,
+      "unlocked": 0
+    },
+    "infinity": {
+      "bestTimes": [
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9
+      ],
+      "completedBits": 0,
+      "current": 0,
+      "ic2Count": 0,
+      "ic4Tier": 5,
+      "unlocked": 0
+    },
+    "normal": {
+      "bestTimes": [
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9,
+        2.6784E+9
+      ],
+      "c2Pow": {
+        "exponent": 0.0,
+        "mantissa": 1.0
+      },
+      "c3Pow": {
+        "exponent": -2.0,
+        "mantissa": 1.0
+      },
+      "c8TotalSacrifice": {
+        "exponent": 0.0,
+        "mantissa": 1.0
+      },
+      "c9TickspeedCostBumps": 0,
+      "completedBits": 0,
+      "current": 0
+    }
+  },
+  "records": {
+    "gameCreatedTime": 1795793562489,
+    "realTimePlayed": 94016742.00001018,
+    "totalTimePlayed": 7656078123.664805,
+    "thisReality": {
+      "bestEPmin": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "bestEternitiesPerMs": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "bestEternityTime": 999999999999,
+      "bestGlyphLevel": 1.0,
+      "bestRMmin": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "bestRSmin": 0.0,
+      "bestRSminVal": 0.0,
+      "maxAM": {
+        "exponent": 1402481572,
+        "mantissa": 1.7402060099684065
+      },
+      "maxDT": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "maxEP": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "maxIP": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "maxReplicanti": {
+        "exponent": 0.0,
+        "mantissa": 0.0
+      },
+      "realTime": 31115.382758620624,
+      "time": 93052885.58620673
+    }
+  },
+  "dilation": {
+    "active": false,
+    "baseFreeGalaxies": 0,
+    "dilatedTime": {
+      "exponent": 0.0,
+      "mantissa": 0.0
+    },
+    "freeGalaxies": 0,
+    "lastEP": {
+      "exponent": 0.0,
+      "mantissa": -1.0
+    },
+    "nextThreshold": {
+      "exponent": 3.0,
+      "mantissa": 1.0
+    },
+    "rebuyables": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "studies": [],
+    "tachyonParticles": {
+      "exponent": 0.0,
+      "mantissa": 0.0
+    },
+    "upgradeBits": 0
+  },
+  "timestudy": {
+    "alwaysBuyAll": false,
+    "amBought": 0,
+    "epBought": 0,
+    "ipBought": 0,
+    "preferredPaths": {
+      "dimension": [
+        1
+      ],
+      "pace": -1
+    },
+    "presets": [
+      {
+        "name": "",
+        "studies": ""
+      },
+      {
+        "name": "",
+        "studies": ""
+      },
+      {
+        "name": "",
+        "studies": ""
+      },
+      {
+        "name": "",
+        "studies": ""
+      },
+      {
+        "name": "",
+        "studies": ""
+      },
+      {
+        "name": "",
+        "studies": ""
+      }
+    ],
+    "shopMinimized": false,
+    "studies": [],
+    "theorem": {
+      "exponent": 0.0,
+      "mantissa": 0.0
+    }
+  }
+}

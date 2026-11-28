@@ -1,0 +1,24 @@
+{
+  "package": "net.oreki.antimatterdimensions.debug",
+  "sample_count": 31,
+  "interval_target_ms": 1000,
+  "host_elapsed_ms": 31903.471229,
+  "save_realTimePlayed_delta_ms": 30040.0,
+  "delta_ratio_save_to_host": 0.9415903299166356,
+  "host_monotonic_strictly_increasing": true,
+  "save_non_decreasing": true,
+  "save_update_observations": 1,
+  "save_step_min_ms": 30040.0,
+  "save_step_max_ms": 30040.0,
+  "start_gameCreatedTime": 1795793562489,
+  "end_gameCreatedTime": 1795793562489,
+  "start_realities": {
+    "exponent": 0.0,
+    "mantissa": 1.0
+  },
+  "end_realities": {
+    "exponent": 0.0,
+    "mantissa": 1.0
+  },
+  "measurement_scope": "Host time.monotonic_ns sampled alongside cumulative save records.realTimePlayed. Save field is milliseconds; this does not claim a clean new-save run."
+}
