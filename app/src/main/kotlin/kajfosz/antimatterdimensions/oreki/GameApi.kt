@@ -2151,6 +2151,15 @@ internal object GameApi {
         }
         return mIdM
     }
+    private var mIdD: Method? = null
+    private var mIdDResolved: Boolean = false
+    private fun mIdD(): Method? {
+        if (!mIdDResolved) {
+            mIdDResolved = true
+            mIdD = method(idStateCls(), "D", 0, "ID.D()=isAvailableForPurchase")
+        }
+        return mIdD
+    }
     private var mIdH: Method? = null
     private var mIdHResolved: Boolean = false
     private fun mIdH(): Method? {
@@ -2185,6 +2194,8 @@ internal object GameApi {
     fun idRequirement(id: Any?): Any? = call(mIdK(), id)
     fun idUnlocked(id: Any?): Boolean = (call(mIdG(), id) as? Boolean) ?: false
     fun idUnlock(id: Any?): Boolean = (call(mIdM(), id) as? Boolean) ?: false
+    /** 原版 `D()`：当前是否允许实际购买（EC8 下含剩余额度）。 */
+    fun idAvailableForPurchase(id: Any?): Boolean = (call(mIdD(), id) as? Boolean) ?: false
     fun idBuyMax(id: Any?) = call(mIdH(), id, true)
     fun idBuySingle(id: Any?) = call(mIdI(), id)
     fun idPurchases(id: Any?): Long = (call(mIdY(), id) as? Long) ?: 0L
@@ -2194,6 +2205,54 @@ internal object GameApi {
         val challenges = readGameField(player() ?: return null, "challenge") ?: return null
         val eternity = readGameField(challenges, "eternity") ?: return null
         return (readGameField(eternity, "ec8InfinityDimensionPurchasesLeft") as? Number)?.toLong()
+    }
+
+    /** EC8 剩余的复制器升级购买额度（存档字段 `ec8ReplicantiPurchasesLeft`）。 */
+    fun ec8ReplicantiPurchasesLeft(): Long? {
+        val challenges = readGameField(player() ?: return null, "challenge") ?: return null
+        val eternity = readGameField(challenges, "eternity") ?: return null
+        return (readGameField(eternity, "ec8ReplicantiPurchasesLeft") as? Number)?.toLong()
+    }
+
+    /**
+     * 原版 EC8 的三个复制器升级对象，顺序为概率、间隔、最大复制器星系。
+     *
+     * 3.21 的 `ReplicantiUpgrades` 外层类名为保留的 `c`，三个静态字段分别是
+     * `b/c/d`。本方法只取对象，不读取或写入其资源字段。
+     */
+    fun ec8ReplicantiUpgrades(): List<Any>? {
+        return try {
+            val owner = cls("kajfosz.antimatterdimensions.infinity.replicanti.c") ?: return null
+            val upgrades = ArrayList<Any>(3)
+            for (fieldName in listOf("b", "c", "d")) {
+                upgrades.add(staticField(owner, fieldName)?.get(null) ?: return null)
+            }
+            upgrades
+        } catch (e: Throwable) {
+            miss("EC8 replicanti upgrades", e)
+            null
+        }
+    }
+
+    /** 原版复制器升级 `l()`：当前是否仍可购买（余额、上限与 EC8 额度均已校验）。 */
+    fun replicantiUpgradeCanBuy(upgrade: Any?): Boolean {
+        if (upgrade == null) return false
+        val canBuy = method(upgrade.javaClass, "l", 0, "ReplicantiUpgrade.l()=canBuy")
+        return (call(canBuy, upgrade) as? Boolean) ?: false
+    }
+
+    /** 原版复制器升级等级 `h()`，用于验证购买确实改变了状态。 */
+    fun replicantiUpgradeLevel(upgrade: Any?): Long? {
+        if (upgrade == null) return null
+        val level = method(upgrade.javaClass, "h", 0, "ReplicantiUpgrade.h()=level")
+        return (call(level, upgrade) as? Number)?.toLong()
+    }
+
+    /** 原版复制器升级真实购买入口 `b()`；扣 IP、更新升级并递减 EC8 额度。 */
+    fun replicantiUpgradePurchase(upgrade: Any?) {
+        if (upgrade == null) return
+        val purchase = method(upgrade.javaClass, "b", 0, "ReplicantiUpgrade.b()=purchase")
+        call(purchase, upgrade)
     }
 
     /**
