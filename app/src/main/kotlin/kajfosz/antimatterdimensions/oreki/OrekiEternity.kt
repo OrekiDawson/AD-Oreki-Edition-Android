@@ -125,6 +125,9 @@ object OrekiEternity {
                     continue
                 }
                 val study = lookup.invoke(null, singleton, id) as? c ?: continue
+                if (id in deepEcStudyIds(targetEc) && !study.A(true)) {
+                    continue
+                }
                 if (study.B() || !study.A(true)) {
                     continue
                 }
@@ -159,6 +162,18 @@ object OrekiEternity {
             "seed dimension preference 1 changed=" + changed +
                 " before=" + preferred + " after=" + GameApi.preferredDimensionPaths(),
         )
+    }
+
+    /**
+     * EC9 需要普通研究 151，EC10~EC12 需要 181。研究树可能已建立 121/141
+     * 列但从未购买这两项，导致后续 EC 研究 `canBeBought` 永久为 false。
+     * 只由当前目标 EC 决定是否允许购买，且实际扣费仍走原版 D(true, ...)。
+     */
+    @JvmStatic
+    fun deepEcStudyIds(targetEcId: Int): Set<Int> = when {
+        targetEcId == 9 -> setOf(151)
+        targetEcId >= 10 -> setOf(151, 161, 171, 181)
+        else -> emptySet()
     }
 
     private fun blocked(id: Int, column: Int, dimensionPath: Int): Boolean {
