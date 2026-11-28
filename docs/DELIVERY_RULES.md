@@ -48,7 +48,7 @@
 - **四渠道发布验收（Linux）**：遵循 Workspace §5.1 最新四渠道验收口径。GitHub Releases 核实真实上传及资产信息；OneDrive、Google Drive 使用已授权 rclone 时，记录实际 remote 路径、源 APK/必要 idsig 的大小及 SHA-256、传输成功退出和无已知错误。已授权且正常工作的同步客户端可沿用本地投放验收（路径、哈希、登录/可用状态及无已知失败），不得虚称云端上传已核实。未授权、401、传输失败或仅准备文件而无实际传输/有效同步路径记 `BLOCKED`。不强制远端回读、下载或二次哈希。SSH/SFTP 核对 Linux 约定本地分发目录、文件哈希、SSH 服务状态；不要求远程回拉或 SFTP 子系统实测，远程能力单列。四渠道均满足才计完整交付；签名、滚动替换、稳定/预发布隔离与发行门禁不变。
 - **事实库入口**：工程事实以 `docs/FACTS.md`（导航索引）与 `docs/facts/`（主题分册）为准；结构上限、禁止滚动文件与按需读取纪律见 `AGENTS.md` 第 17 节；旧章节/旧编号映射见 `docs/facts/MIGRATION.md`；CI 守卫 `scripts/check_facts_governance.py`。
 - 并行 Agent 分清文件与任务；共享 AVD、签名环境、最终构建和正式发行独占。收尾同步必要 FACTS/tasks/README/教程及报告；`frame-observer` 有修改同步 Push。授权轮次真实完成后停止，不自动开启新轮；因高峰或阻碍中止而未完成的目标应保留 `blocked/paused` 及真实验收状态，不得标成 `complete`。
-- **Lead 与高峰优先级（2026-11-14，强制）**：非高峰期 Lead 不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工，应协调或转做其他可执行任务；**DeepSeek 高峰期间 Lead、所有子 Agent、其他模型及自动化开发全部停止**，不得换模型继续开发，也不得启动构建、测试、Git/CI/CD、发布或部署。北京时间工作日 09:00–12:00、14:00–18:00 高峰，08:50/13:50 开始安全收尾并在峰前停止；周末和中国法定节假日按已核实规则低谷。峰前保存代码/证据/恢复点、解除 Goal 激活但不虚报完成，低谷恢复同一轮。细则以本仓 `AGENTS.md` 峰谷章节和实际生效的全局规则为准；该停工要求优先于 Lead 持续推进和四小时统一交付节奏；峰时免考核，不补发。
+- **Lead 持续执行**：已授权且可安全执行时，不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工；协调或推进其他独立任务。服从用户主动暂停、预算与安全门禁，安全交接并沿用原轮次；不设置固定峰谷停工。
 
 
 
@@ -59,7 +59,7 @@
 3. CI/CD 故障必须修复流水线，不能用手动发布绕过。
 4. Android 正式发布必须完成真实 APK 构建、独立验签、必要 AVD 验收及发布门禁。
 5. GitHub Releases 经正式工作流发布后，由开发机主动下载并校验同一 APK，使用已授权 rclone 或等效 Linux 客户端完成 OneDrive、Google Drive 交付，并原子更新本地 SFTP 目录；逐渠道记录实际传输和校验证据。
-6. 四小时 Stable/Pre-release 统一交付节奏不得凌驾于两类各自质量与安全门禁之上；峰时可跳过不补发，未通过项如实标记 FAIL / BLOCKED / NOT RUN。
+6. 四小时 Stable/Pre-release 统一交付节奏不得凌驾于两类各自质量与安全门禁之上；未通过项如实标记 FAIL / BLOCKED / NOT RUN。
 
 ## 6. 上游基线冻结与独立 MOD 版本体系（2026-11-13，用户决定）
 
@@ -233,7 +233,7 @@
 
 ### 10.3 时段、职责交接与记录
 
-- 服从现有峰谷停工：工作日北京时间 09:00–12:00、14:00–18:00 全员禁止主动开发/CI/CD 操作，08:50/13:50 安全收尾；谷时恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须按其权限与时间控制明确配置，不能把这份规则文本视作已经有常驻任务。
+- 服从用户主动暂停及恢复授权，安全保存代码、证据和恢复点，恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须明确配置权限，不能把规则文本视作已部署常驻任务。
 - 每次只记录必要的 CI 健康变化、失败分类、修复 PR/Commit SHA、实际 Actions Run、Kotlin/AGP/AVD/Playwright/部署或发行结果，以及 `PASS / FAIL / BLOCKED / NOT RUN` 与待跟进问题。对 AGP 构建 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、旧脚本退役 [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、四渠道 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 保持原 Issue 更新，不另开重复 Issue。
 
 ## 11. Android 工程目录标准化与迁移验收（2026-11-14，长期强制）
