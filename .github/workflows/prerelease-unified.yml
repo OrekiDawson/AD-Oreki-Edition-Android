@@ -128,6 +128,7 @@ jobs:
           tag="android-prerelease-$version-${EXPECTED_SHA:0:8}"
           latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
           apk="AD-Oreki-Edition-$version-PreRelease.apk"
+          title="Android $version 手机实测预发布"
           cp candidate/antimatter-dimensions.apk "$apk"
           printf '%s  %s\n' "$EXPECTED_SHA" "$apk" > "$apk.sha256"
           if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent; then
@@ -135,15 +136,20 @@ jobs:
               -f ref="refs/tags/$tag" -f sha="$source_sha" --jq '.ref'
           fi
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
-          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease > release-state.json; then
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease,name,body > release-state.json; then
             gh release create "$tag" --repo "$GITHUB_REPOSITORY" \
               --verify-tag --draft --prerelease --latest=false \
-              --title "Android $version 手机实测预发布" --notes-file 发布说明.md
-            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease > release-state.json
+              --title "$title" --notes-file 发布说明.md
+            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease,name,body > release-state.json
           fi
           jq -e '.isPrerelease' release-state.json >/dev/null
           draft="$(jq -r .isDraft release-state.json)"
           release_id="$(jq -er '.databaseId | select(type == "number")' release-state.json)"
+          if ! jq -e --arg title "$title" --rawfile notes 发布说明.md \
+            '.name == $title and ((.body | rtrimstr("\n")) == ($notes | rtrimstr("\n")))' release-state.json >/dev/null; then
+            [[ "$draft" == true ]] || { echo "::error::Published release notes differ from reviewed evidence"; exit 1; }
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --title "$title" --notes-file 发布说明.md
+          fi
           for file in "$apk" "$apk.sha256"; do
             digest="sha256:$(sha256sum "$file" | cut -d' ' -f1)"
             assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" --jq '.assets')"
