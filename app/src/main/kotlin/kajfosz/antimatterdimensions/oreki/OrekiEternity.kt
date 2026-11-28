@@ -120,14 +120,27 @@ object OrekiEternity {
                 tableOwner,
                 Int::class.javaPrimitiveType,
             )
+            val deepVisited = HashSet<Int>()
+            fun purchaseDeepStudy(id: Int): Boolean {
+                if (!deepVisited.add(id)) return false
+                val study = lookup.invoke(null, singleton, id) as? c ?: return false
+                if (study.B()) return false
+                if (!study.A(true)) {
+                    val prerequisites = study.k ?: emptyArray()
+                    for (value in prerequisites) {
+                        val prerequisite = value?.toInt() ?: continue
+                        if (purchaseDeepStudy(prerequisite)) return true
+                    }
+                    return false
+                }
+                return study.D(true, OrekiEcContinuation.a) == true
+            }
             // EC9+ 的原版入口只认深层研究 151/161/171/181。先按目标关补齐这条
             // 前置链，再购买普通目标列；否则每轮退出后的 11/21/31 树会先占满
             // 普通列，深层入口继续等待到下一轮。
             val deepIds = deepEcStudyIds(targetEc).toList().sorted()
             for (id in deepIds) {
-                val study = lookup.invoke(null, singleton, id) as? c ?: continue
-                if (study.B() || !study.A(true)) continue
-                study.D(true, OrekiEcContinuation.a)
+                if (purchaseDeepStudy(id)) break
             }
             for (index in OrekiEternityRules.normalStudyIndexRange(ids.size())) {
                 val id = ids.keyAt(index)
