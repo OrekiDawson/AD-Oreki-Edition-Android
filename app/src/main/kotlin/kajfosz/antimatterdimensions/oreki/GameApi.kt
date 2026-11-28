@@ -3707,8 +3707,8 @@ internal object GameApi {
                         it.parameterTypes[0] == ArrayList::class.java
                 }
             }
-            val value = ArrayList<Int>(paths)
-            mPreferredPathsDimensionSetter?.invoke(preferred, value) ?: return false
+            val setter = mPreferredPathsDimensionSetter ?: return false
+            setter.invoke(preferred, ArrayList(paths))
             preferredDimensionPaths() == paths
         } catch (error: Throwable) {
             miss("PreferredPaths.c(ArrayList)=set dimension paths", error)
