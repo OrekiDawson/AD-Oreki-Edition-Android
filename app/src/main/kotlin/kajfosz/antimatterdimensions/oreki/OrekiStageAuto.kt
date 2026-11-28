@@ -3132,10 +3132,14 @@ object OrekiStageAuto {
             // 共用同一个成长窗口（600–1800s），让每次结算吃到大的 maxAM；未 break 的首无限前
             // 仍保留 60s 的 PRE_BREAK_CRUNCH_SECONDS。
             val growthWindow = inEternityLayer || GameApi.isBroken()
-            val resumeInterval = if (growthWindow) {
-                OrekiCrunchPolicy.eternityWaitSeconds()
-            } else {
-                PRE_BREAK_CRUNCH_SECONDS
+            val ec5GoalReady = managedConfigTickId > 0L && decision.reason == "challenge-running" &&
+                GameApi.eternityChallengeState()["current"] == 5 &&
+                !GameApi.canEternity() &&
+                (compareBigDoubles(GameApi.gainedInfinityPoints(), GameApi.eternityGoal()) ?: -1) >= 0
+            val resumeInterval = when {
+                ec5GoalReady -> POST_BREAK_RESUME_SECONDS
+                growthWindow -> OrekiCrunchPolicy.eternityWaitSeconds()
+                else -> PRE_BREAK_CRUNCH_SECONDS
             }
             // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
             // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
