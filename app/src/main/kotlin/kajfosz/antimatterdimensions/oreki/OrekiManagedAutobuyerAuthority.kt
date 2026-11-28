@@ -41,6 +41,26 @@ object OrekiManagedAutobuyerAuthority {
         pausedByStagePolicy: Boolean,
     ): Boolean = wantCrunch && !ownedByMod && !pausedByStagePolicy
 
+    /**
+     * 挑战内原版坍缩已允许且自动器由玩家保持开启时，允许 MOD 复用既有的
+     * 受管结算路径。挑战策略本身返回“立即放行”，但 `Infinity.j()` 在挑战中
+     * 通常为 false，旧所有权门因此永远不会触发，反物质峰值不转成 IP。
+     */
+    @JvmStatic
+    fun shouldManageChallengeCrunch(
+        inChallenge: Boolean,
+        canBigCrunch: Boolean?,
+        originalAutobuyerActive: Boolean?,
+    ): Boolean = inChallenge && canBigCrunch == true && originalAutobuyerActive == true
+
+    /** 挑战策略放行时，受管坍缩不必再等普通成长窗口。 */
+    @JvmStatic
+    fun challengeCrunchDue(
+        inChallenge: Boolean,
+        decisionAllows: Boolean,
+        canBigCrunch: Boolean?,
+    ): Boolean = inChallenge && decisionAllows && canBigCrunch == true
+
     @JvmStatic
     fun integerNeedsWrite(actual: Int, target: Int): Boolean =
         actual >= 0 && actual != target

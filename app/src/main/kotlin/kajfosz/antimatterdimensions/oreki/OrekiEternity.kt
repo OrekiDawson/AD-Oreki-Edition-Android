@@ -119,6 +119,15 @@ object OrekiEternity {
                 tableOwner,
                 Int::class.javaPrimitiveType,
             )
+            // EC9+ 的原版入口只认深层研究 151/161/171/181。先按目标关补齐这条
+            // 前置链，再购买普通目标列；否则每轮退出后的 11/21/31 树会先占满
+            // 普通列，深层入口继续等待到下一轮。
+            val deepIds = deepEcStudyIds(targetEc).toList().sorted()
+            for (id in deepIds) {
+                val study = lookup.invoke(null, singleton, id) as? c ?: continue
+                if (study.B() || !study.A(true)) continue
+                study.D(true, OrekiEcContinuation.a)
+            }
             for (index in OrekiEternityRules.normalStudyIndexRange(ids.size())) {
                 val id = ids.keyAt(index)
                 if (!shouldConsiderNormalStudy(

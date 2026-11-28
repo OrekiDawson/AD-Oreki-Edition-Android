@@ -259,7 +259,8 @@ object OrekiEcAutomation {
      * 只在调用方已完整尝试原版 D() 与递归铺路、确认目标前置仍缺失时调用。
      * 纯判据不读写游戏状态；targetPrereqIds 是原版 EC 研究的 k 字段。
      * 冻结上游 `purchaseUntil` 的目标列：EC4=143，EC8=123。
-     * 必须实际买到 121/122，且 123/133/143 目标列都买得起；未知或低 TT 一律拒绝。
+     * 已买 121/122 或当前树只剩无关的基础研究时，都允许清空后按目标列重铺；
+     * 123/133/143 必须都买得起，未知或低 TT 一律拒绝。
      */
     @JvmStatic
     fun shouldRespecForTargetColumn(
@@ -276,11 +277,14 @@ object OrekiEcAutomation {
             8 -> 123
             else -> return false
         }
-        val hasIncompatiblePurchasedStudy = purchasedStudyIds?.any { it == 121 || it == 122 } == true
+        val purchased = purchasedStudyIds ?: return false
+        val hasIncompatiblePurchasedStudy = purchased.any { it == 121 || it == 122 }
+        val hasTargetColumn = purchased.any { it == 123 || it == 133 || it == 143 }
         return respecAvailable &&
             unlockedEcId in 0 until targetEcId &&
             !targetPrereqOk &&
-            hasIncompatiblePurchasedStudy &&
+            purchased.isNotEmpty() &&
+            (hasIncompatiblePurchasedStudy || !hasTargetColumn) &&
             targetColumnAffordable &&
             targetPrereqIds.contains(targetColumnStudy)
     }
