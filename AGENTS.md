@@ -31,7 +31,7 @@
 - 调度器独占自动购买器与全局控制；开启托管时玩家修改下一有效 tick 按合法状态重算恢复；间隔 1–60 秒默认 10 秒，独立总开关关闭即停止且不擅自重开。不越级、误重置、重复调度或伪结算。
 - STD/IAP 商店及商店/广告倍率退役（乘法 ×1、加法 0），保护历史购买字段；原版→MOD→原版真实往返，Android/Web 跨平台不推定可直接互读。GAMEPLAY LEGALITY、PACING、ENDGAME、POST-ENDGAME STABILITY、SAVE COMPATIBILITY 五项独立验收。
 - 正式签名 P0：V3.0 + V3.2 混合及 V4、可信签名谱系，具体 SDK、签名者与密钥边界按细则。不得自行改变签名、包名或破坏存档。
-- 四小时双轨交付：合格 Stable 或明确 Pre-release 均计一次；Stable 五项 PASS，Pre-release 仍须满足真实 Release APK、可安装启动、签名、最低存档安全及 CI 等硬门禁，已知缺陷明示。五渠道同一 APK/必要 idsig 与 SHA-256，详见 Workspace §5 和 [DELIVERY_RULES](docs/DELIVERY_RULES.md)。
+- 四小时双轨交付：合格 Stable 或明确 Pre-release 均计一次；Stable 五项 PASS，Pre-release 仍须满足真实 Release APK、可安装启动、签名、最低存档安全及 CI 等硬门禁，已知缺陷明示。四渠道同一 APK/必要 idsig 与 SHA-256；Linux 云盘优先使用已授权 rclone，详见 Workspace §5 和 [DELIVERY_RULES](docs/DELIVERY_RULES.md)。
 
 ### 2.2 标准工程与旧构建链退役
 - AGP/R8、标准工程、Gradle 离线优先；验证后退役旧 build_mod.py/apktool 与冗余工具，不阻塞无关 P0。
