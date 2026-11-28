@@ -1,0 +1,12 @@
+## R132 手机实测预发布，非稳定版
+
+- 修复正式包中影响存档载入和永恒结算的字节码接管问题。
+- 修复 EC4、EC5、EC6 的自动推进与研究路径。EC8 优先购买当前可用的无限维度，高层无法购买或解锁时回退，扣费和额度变动仍走原版入口。补齐 EC9–EC12 所需的深层研究范围。
+- 通过受保护的完整 Release 构建、独立验签和 API 37 覆盖安装。旧档在安装前后字节一致，冷启动后继续推进，重启后仍可读取。
+- Android 的 EC8 完整结算及后续挑战、新档节奏、真实终局、终局后稳定性和原版存档往返仍待完整验收。建议先备份正式存档，再用副本或新档测试。
+
+版本为 `3.21.0`，MOD 版本为 `1.0.3`，版本码为 `30210003`。签名沿用历史正式证书的 V3.0，普通安装使用 APK 即可。
+
+源码为 `bf53e4bcfd2431d7a3b894fcef19251fb900b6db`。APK 大小为 `81,771,919` 字节，SHA-256 为 `32e5553f0562a8d4c9d6bdea3ead3fa1384faf2c9643bf452a1cdd8a9c579a91`。
+
+[候选构建](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/actions/runs/46167812809) · [独立验签](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/actions/runs/46168534701)

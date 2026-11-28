@@ -1,0 +1,17 @@
+{
+  "candidate_run_id": 46167812809,
+  "verification_run_id": 46168534701,
+  "source_sha": "bf53e4bcfd2431d7a3b894fcef19251fb900b6db",
+  "apk_sha256": "32e5553f0562a8d4c9d6bdea3ead3fa1384faf2c9643bf452a1cdd8a9c579a91",
+  "device": "Android API 37 x86_64 AVD",
+  "checks": {
+    "install-upgrade": "PASS",
+    "launch": "PASS",
+    "save-preservation": "PASS"
+  },
+  "evidence": {
+    "install-upgrade": "R131 30210002 → R132 30210003 via adb install -r. Installed APK SHA-256 matches the candidate.",
+    "launch": "Cold start and force-stop/restart each returned Status: ok. No production-package entry in the crash buffer.",
+    "save-preservation": "The game-generated player.json was byte-identical across install before launch. After launch it retained one Big Crunch and one galaxy, advanced from 4 to 21 boosts, and survived restart."
+  }
+}
