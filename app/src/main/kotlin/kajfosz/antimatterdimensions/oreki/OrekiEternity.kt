@@ -147,9 +147,14 @@ object OrekiEternity {
             return categoryC == (column - 141) + 20
         }
         val categoryDimension = id - 71
-        return categoryDimension in 0..2 &&
-            categoryDimension == dimensionPath - 71
+        if (categoryDimension in 0..2) {
+            return categoryDimension == dimensionPath - 71
+        }
+        // The final EC4 clear needs passive IP because any Infinity fails the run.
+        return id in 151..181 && id in ec4PassiveIpStudies && GameApi.ec4RequiresZeroInfinities()
     }
+
+    private val ec4PassiveIpStudies = setOf(151, 161, 162, 171, 181)
 
     private fun tryEternity() {
         try {
