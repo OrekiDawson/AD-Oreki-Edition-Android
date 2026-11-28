@@ -2189,6 +2189,13 @@ internal object GameApi {
     fun idBuySingle(id: Any?) = call(mIdI(), id)
     fun idPurchases(id: Any?): Long = (call(mIdY(), id) as? Long) ?: 0L
 
+    /** EC8 剩余的无限维度购买额度（存档字段 `ec8InfinityDimensionPurchasesLeft`）。 */
+    fun ec8InfinityDimensionPurchasesLeft(): Long? {
+        val challenges = readGameField(player() ?: return null, "challenge") ?: return null
+        val eternity = readGameField(challenges, "eternity") ?: return null
+        return (readGameField(eternity, "ec8InfinityDimensionPurchasesLeft") as? Number)?.toLong()
+    }
+
     /**
      * ID1 的「永恒未解锁」IP 门槛（原版 `InfinityDimensionState.f`，3.20 实测 1e8）。
      *
