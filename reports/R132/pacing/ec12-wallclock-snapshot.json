@@ -1,0 +1,92 @@
+{
+  "captured_at": "2026-11-29 01:35:09 +0800",
+  "commit": "7d67663109afadbea65dccc721e19e524c60d045",
+  "apk_sha256": "0c66496a8f1578e7002f2b31eae9ed82410a4e65a39578ce86e03a787b7bdc8f",
+  "save_created_epoch_ms": 1795793562489,
+  "save_real_time_played_ms": 93559551.00001185,
+  "save_real_time_played_seconds": 93559.55100001185,
+  "save_real_time_played_hours": 25.988764166669958,
+  "save_total_time_played_ms": 7533203860.951737,
+  "field_unit_evidence": {
+    "cadence_bench_py": "scripts/cadence_bench.py treats realTimePlayed and totalTimePlayed deltas as milliseconds (delta_real_ms, delta_totalTime_ms).",
+    "bh_probe_py": "scripts/bh_probe.py labels realTimePlayed and totalTimePlayed deltas as ms.",
+    "web_source": "../网页端/src/core/time.js converts player.records.realTimePlayed from/to milliseconds.",
+    "android_source": "Player$Records stores realTimePlayed as a ku4 timespan serialized in milliseconds."
+  },
+  "measurement_scope": {
+    "save_accumulated_time": "Inherited save's cumulative realTimePlayed field in milliseconds.",
+    "current_process_elapsed": "15:32 at 2026-11-29 01:38:22 +0800 from ps ELAPSED for PID 20548.",
+    "clean_new_save_elapsed": null,
+    "note": "The inherited save's cumulative time and the current process elapsed time are not evidence of a single monotonic 180-minute new-save run."
+  },
+  "challenge_completions": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    3
+  ],
+  "challenge_current": 0,
+  "eternities": {
+    "exponent": 2.0,
+    "mantissa": 2.3
+  },
+  "realities": {
+    "exponent": 0.0,
+    "mantissa": 0.0
+  },
+  "timestudy_ids": [
+    11,
+    21,
+    31,
+    41,
+    51,
+    61,
+    71,
+    81,
+    91,
+    101,
+    111,
+    121,
+    131,
+    141,
+    151,
+    161,
+    171,
+    181,
+    193,
+    213
+  ],
+  "stage_targets_minutes": {
+    "rapid_growth": [
+      0,
+      30
+    ],
+    "infinity_eternity": [
+      30,
+      75
+    ],
+    "reality_major_celestials": [
+      75,
+      130
+    ],
+    "late_challenges_pelle": [
+      130,
+      165
+    ],
+    "final_breakthrough": [
+      165,
+      180
+    ]
+  },
+  "pacing_status": "FAIL",
+  "pacing_reason": "The inherited save has about 25.99 hours of accumulated real time and realities remains zero. No genuine new-save monotonic 180-minute run has established the five-stage pacing gate, so PACING remains FAIL. The inherited save is mechanism evidence only.",
+  "first_reality_not_reached": true
+}
