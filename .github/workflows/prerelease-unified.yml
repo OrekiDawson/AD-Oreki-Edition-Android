@@ -23,6 +23,10 @@ name: Android 手机实测预发布
         description: SHA-256 of the APK accepted on the AVD
         required: true
         type: string
+      update_published_notes:
+        description: Apply reviewed notes to an existing published Pre-release
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -46,6 +50,7 @@ jobs:
       ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit }}
       ACCEPTANCE_DIR: ${{ inputs.acceptance_directory }}
       EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+      UPDATE_PUBLISHED_NOTES: ${{ inputs.update_published_notes }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -132,11 +137,13 @@ jobs:
           cp candidate/antimatter-dimensions.apk "$apk"
           printf '%s  %s\n' "$EXPECTED_SHA" "$apk" > "$apk.sha256"
           if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent; then
+            [[ "$UPDATE_PUBLISHED_NOTES" != true ]]
             gh api "repos/$GITHUB_REPOSITORY/git/refs" \
               -f ref="refs/tags/$tag" -f sha="$source_sha" --jq '.ref'
           fi
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
           if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease,name,body > release-state.json; then
+            [[ "$UPDATE_PUBLISHED_NOTES" != true ]]
             gh release create "$tag" --repo "$GITHUB_REPOSITORY" \
               --verify-tag --draft --prerelease --latest=false \
               --title "$title" --notes-file 发布说明.md
@@ -145,7 +152,10 @@ jobs:
           jq -e '.isPrerelease' release-state.json >/dev/null
           draft="$(jq -r .isDraft release-state.json)"
           release_id="$(jq -er '.databaseId | select(type == "number")' release-state.json)"
-          if ! jq -e --arg title "$title" --rawfile notes 发布说明.md \
+          if [[ "$UPDATE_PUBLISHED_NOTES" == true ]]; then
+            [[ "$draft" == false && "$tag" != "$latest" ]]
+            jq -e --arg title "$title" '.name == $title' release-state.json >/dev/null
+          elif ! jq -e --arg title "$title" --rawfile notes 发布说明.md \
             '.name == $title and ((.body | rtrimstr("\n")) == ($notes | rtrimstr("\n")))' release-state.json >/dev/null; then
             [[ "$draft" == true ]] || { echo "::error::Published release notes differ from reviewed evidence"; exit 1; }
             gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --title "$title" --notes-file 发布说明.md
@@ -162,8 +172,12 @@ jobs:
           done
           if [[ "$draft" == true ]]; then
             gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --latest=false
+          elif [[ "$UPDATE_PUBLISHED_NOTES" == true ]]; then
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --notes-file 发布说明.md
           fi
-          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,url |
-            jq -e 'select(.isPrerelease and (.isDraft | not)) | .url'
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,name,body,url |
+            jq -e --arg title "$title" --rawfile notes 发布说明.md '
+              select(.isPrerelease and (.isDraft | not) and .name == $title and
+                ((.body | rtrimstr("\n")) == ($notes | rtrimstr("\n")))) | .url'
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)" == "$latest" ]]
