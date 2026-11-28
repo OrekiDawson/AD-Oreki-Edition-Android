@@ -3624,6 +3624,8 @@ internal object GameApi {
     // 实测未缓存版本（每帧 4 次 Class.getMethod 查找）把主循环拖慢 ⇒ maxAM 增速从
     // ~770 指数/分钟掉到 ~1 指数/分钟、首次永恒迟迟不到。缓存后恢复。
     private var mPlayerTimestudy: Method? = null
+    private var mTimestudyStudiesGetter: Method? = null
+    private var mTimestudyStudiesGetterResolved: Boolean = false
     private var mTimestudyCounts: Array<Method>? = null
     private var mTimestudyCountsResolved: Boolean = false
 
@@ -3636,6 +3638,32 @@ internal object GameApi {
             }
         }
         return mPlayerTimestudy
+    }
+
+    /**
+     * 当前已购买的普通时间研究 ID（原版 `Player.c0().h()`，返回 `List<Integer>`）。
+     *
+     * 复用已有的 `Player.c0()` 句柄，只新增 `h()` getter 的一次性缓存。
+     * 读取失败返回 null，调用方必须 fail-closed，不能把未知状态当成空研究树。
+     */
+    @JvmStatic
+    fun purchasedNormalStudyIds(): List<Int>? = try {
+        val player = player() ?: return null
+        val timestudy = playerTimestudyMethod()?.invoke(player) ?: return null
+        if (!mTimestudyStudiesGetterResolved) {
+            mTimestudyStudiesGetterResolved = true
+            mTimestudyStudiesGetter = timestudy.javaClass.getMethod("h")
+        }
+        val studies = mTimestudyStudiesGetter?.invoke(timestudy) as? List<*> ?: return null
+        val result = ArrayList<Int>(studies.size)
+        for (study in studies) {
+            val id = (study as? Number)?.toInt() ?: return null
+            result.add(id)
+        }
+        result
+    } catch (error: Throwable) {
+        miss("Player.c0().h()=normal studies", error)
+        null
     }
 
     /** `[b()=amBought, c()=epBought, d()=ipBought]`（3.21 逐指令核对），只解析一次。 */
