@@ -67,8 +67,9 @@ jobs:
           done
           gh api "repos/$GITHUB_REPOSITORY/compare/main...$ACCEPTANCE_COMMIT" |
             jq -e '.status == "identical" or .status == "behind"' >/dev/null
-          for file in prerelease-checks.json release-notes.md; do
-            gh api "repos/$GITHUB_REPOSITORY/contents/$ACCEPTANCE_DIR/$file?ref=$ACCEPTANCE_COMMIT" |
+          for file in prerelease-checks.json 发布说明.md; do
+            encoded_file="$(jq -nr --arg file "$file" '$file|@uri')"
+            gh api "repos/$GITHUB_REPOSITORY/contents/$ACCEPTANCE_DIR/$encoded_file?ref=$ACCEPTANCE_COMMIT" |
               jq -er 'select(.type == "file" and .encoding == "base64") | .content' |
               base64 --decode > "$file"
           done
@@ -95,7 +96,7 @@ jobs:
           (cd candidate && sha256sum -c SHA256SUMS.txt)
           [[ "$(sha256sum candidate/antimatter-dimensions.apk | cut -d' ' -f1)" == "$EXPECTED_SHA" ]]
           jq -es --arg sha "$EXPECTED_SHA" --argjson c "$CANDIDATE_ID" --argjson v "$VERIFY_ID" '
-            .[0] as $meta | .[1] as $verify | .[2] as $avd |
+            .[0] as $meta | .[1] as $verify | .[2] as $avd | .[3] as $policy |
             $verify.status == "PASS" and $meta.sha256 == $sha and
             $verify.sha256 == $sha and $avd.apk_sha256 == $sha and
             $meta.candidate_run_id == $c and $verify.candidate_run_id == $c and
@@ -105,9 +106,14 @@ jobs:
             $meta.package == $verify.package and $meta.versionCode == $verify.versionCode and
             $meta.versionName == $verify.versionName and
             $meta.certificate_sha256 == $verify.certificate_sha256 and
+            $meta.package == $policy.package and
+            $meta.certificate_sha256 == $policy.certificate_sha256 and
+            $meta.versionName == $policy.versionName and
+            ($meta.versionCode | tonumber) == ($policy.versionCode | tonumber) and
+            ($meta.versionCode | tonumber) > ($policy.lastPublishedVersionCode | tonumber) and
             (["install-upgrade","launch","save-preservation"] |
              all(. as $check | $avd.checks[$check] == "PASS"))
-          ' candidate/candidate-metadata.json verification/verification-record.json prerelease-checks.json
+          ' candidate/candidate-metadata.json verification/verification-record.json prerelease-checks.json scripts/release-gate-policy.json
           source_sha="$(jq -er '.source_sha | select(test("^[a-f0-9]{40}$"))' candidate/candidate-metadata.json)"
           gh api "repos/$GITHUB_REPOSITORY/compare/$source_sha...$ACCEPTANCE_COMMIT" |
             jq -e '.status == "ahead" or .status == "identical"' >/dev/null
@@ -119,9 +125,9 @@ jobs:
           set -euo pipefail
           source_sha="$(jq -r .source_sha candidate/candidate-metadata.json)"
           version="$(jq -er '.versionName | select(test("^[0-9]+[.][0-9]+[.][0-9]+$"))' candidate/candidate-metadata.json)"
-          tag="android-update-$version-${EXPECTED_SHA:0:8}"
+          tag="android-prerelease-$version-${EXPECTED_SHA:0:8}"
           latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
-          apk=AD-Oreki-Edition-PreRelease.apk
+          apk="AD-Oreki-Edition-$version-PreRelease.apk"
           cp candidate/antimatter-dimensions.apk "$apk"
           printf '%s  %s\n' "$EXPECTED_SHA" "$apk" > "$apk.sha256"
           if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent; then
@@ -129,13 +135,29 @@ jobs:
               -f ref="refs/tags/$tag" -f sha="$source_sha" --jq '.ref'
           fi
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
-          gh release create "$tag" "$apk" "$apk.sha256" --repo "$GITHUB_REPOSITORY" \
-            --verify-tag --prerelease --latest=false \
-            --title "Android $version 手机实测预发布" --notes-file release-notes.md
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" |
-            jq -e --arg digest "sha256:$EXPECTED_SHA" --arg apk "$apk" '
-              .prerelease and (.draft | not) and
-              any(.assets[]; .name == $apk and .digest == $digest)
-            '
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease > release-state.json; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag --draft --prerelease --latest=false \
+              --title "Android $version 手机实测预发布" --notes-file 发布说明.md
+            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json databaseId,isDraft,isPrerelease > release-state.json
+          fi
+          jq -e '.isPrerelease' release-state.json >/dev/null
+          draft="$(jq -r .isDraft release-state.json)"
+          release_id="$(jq -er '.databaseId | select(type == "number")' release-state.json)"
+          for file in "$apk" "$apk.sha256"; do
+            digest="sha256:$(sha256sum "$file" | cut -d' ' -f1)"
+            assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" --jq '.assets')"
+            if [[ "$draft" == true ]] && ! jq -e --arg name "$file" 'any(.[]; .name == $name)' <<< "$assets" >/dev/null; then
+              gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY"
+              assets="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" --jq '.assets')"
+            fi
+            jq -e --arg name "$file" --arg digest "$digest" \
+              'any(.[]; .name == $name and .digest == $digest and .state == "uploaded")' <<< "$assets" >/dev/null
+          done
+          if [[ "$draft" == true ]]; then
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,url |
+            jq -e 'select(.isPrerelease and (.isDraft | not)) | .url'
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)" == "$source_sha" ]]
           [[ "$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)" == "$latest" ]]
